@@ -52,25 +52,25 @@ This implementation plan breaks down the real-time chat system into incremental 
 ### Authentication and Security
 
 - [ ] 4. Implement authentication and security infrastructure
-  - [ ] 4.1 Create JWT utility class for token generation and validation
+  - [x] 4.1 Create JWT utility class for token generation and validation
     - Implement generateToken method that creates JWT with username and expiration
     - Implement validateToken method that verifies JWT signature and expiration
     - Implement getUsernameFromToken method to extract username from JWT
     - _Requirements: 1.1, 1.4, 16.4_
   
-  - [ ] 4.2 Implement AuthenticationService for user registration and login
+  - [x] 4.2 Implement AuthenticationService for user registration and login
     - Create registerUser method that validates input, hashes password, and persists User
     - Create authenticateUser method that validates credentials and returns JWT token
     - Use BCryptPasswordEncoder for password hashing
     - _Requirements: 1.1, 1.2, 1.3, 11.1_
   
-  - [ ] 4.3 Create Spring Security configuration
+  - [x] 4.3 Create Spring Security configuration
     - Configure HTTP security to permit authentication endpoints and require authentication for others
     - Add JWT authentication filter to validate tokens on protected endpoints
     - Configure CORS to allow frontend origin (http://localhost:3000)
     - _Requirements: 1.5, 12.3_
   
-  - [ ] 4.4 Create REST controllers for authentication
+  - [x] 4.4 Create REST controllers for authentication
     - Implement POST /api/auth/register endpoint that accepts RegisterRequest and returns User
     - Implement POST /api/auth/login endpoint that accepts LoginRequest and returns LoginResponse with token
     - Implement GET /api/users/me endpoint that returns current authenticated User
@@ -91,7 +91,7 @@ This implementation plan breaks down the real-time chat system into incremental 
 ### WebSocket and STOMP Configuration
 
 - [ ] 6. Configure WebSocket and STOMP messaging
-  - [ ] 6.1 Create WebSocketConfig class
+  - [x] 6.1 Create WebSocketConfig class
     - Implement WebSocketMessageBrokerConfigurer interface
     - Register STOMP endpoint at /ws with SockJS fallback and CORS allowed origins
     - Configure message broker with /topic and /queue prefixes for subscriptions
@@ -99,13 +99,13 @@ This implementation plan breaks down the real-time chat system into incremental 
     - Set user destination prefix to /user for user-specific messages
     - _Requirements: 2.1, 12.2_
   
-  - [ ] 6.2 Create WebSocket authentication interceptor
+  - [x] 6.2 Create WebSocket authentication interceptor
     - Implement ChannelInterceptor to extract and validate JWT from STOMP CONNECT frames
     - Set authenticated user principal in STOMP session
     - Reject connections with invalid or missing tokens
     - _Requirements: 1.5, 2.1_
   
-  - [ ] 6.3 Create WebSocket event listener for connection lifecycle
+  - [x] 6.3 Create WebSocket event listener for connection lifecycle
     - Implement SessionConnectEvent handler to mark User as online
     - Implement SessionDisconnectEvent handler to mark User as offline
     - Publish presence updates to /topic/presence/{roomId} for all User's rooms
