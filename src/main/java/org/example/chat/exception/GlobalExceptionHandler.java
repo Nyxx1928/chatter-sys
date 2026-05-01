@@ -23,6 +23,33 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
+     * Handles ChatApplicationException and its subclasses.
+     * Returns ErrorResponse with appropriate HTTP status and error code.
+     *
+     * @param ex the ChatApplicationException
+     * @return ResponseEntity with error details and appropriate HTTP status
+     */
+    @ExceptionHandler(ChatApplicationException.class)
+    public ResponseEntity<ErrorResponse> handleChatApplicationException(ChatApplicationException ex) {
+        HttpStatus status = ex.getHttpStatus();
+        
+        if (status.is5xxServerError()) {
+            logger.error("Application error occurred: {} - {}", ex.getErrorCode(), ex.getMessage(), ex);
+        } else {
+            logger.warn("Application error occurred: {} - {}", ex.getErrorCode(), ex.getMessage());
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            ex.getMessage(),
+            LocalDateTime.now(),
+            status.value(),
+            ex.getErrorCode()
+        );
+
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    /**
      * Handles validation errors from @Valid annotations.
      *
      * @param ex the MethodArgumentNotValidException
@@ -43,6 +70,7 @@ public class GlobalExceptionHandler {
             "Validation failed",
             LocalDateTime.now(),
             HttpStatus.BAD_REQUEST.value(),
+            "VALIDATION_ERROR",
             errors
         );
 
@@ -62,7 +90,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
             ex.getMessage(),
             LocalDateTime.now(),
-            HttpStatus.BAD_REQUEST.value()
+            HttpStatus.BAD_REQUEST.value(),
+            "INVALID_ARGUMENT"
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -81,7 +110,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
             ex.getMessage(),
             LocalDateTime.now(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value()
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "INVALID_STATE"
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -100,7 +130,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
             "An unexpected error occurred",
             LocalDateTime.now(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value()
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "INTERNAL_ERROR"
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

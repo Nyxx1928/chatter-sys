@@ -18,11 +18,19 @@ public class ErrorResponse {
     private String message;
     private LocalDateTime timestamp;
     private int status;
+    private String errorCode;
     private Map<String, String> errors;
     
     public ErrorResponse(String message, LocalDateTime timestamp, int status) {
         this.message = message;
         this.timestamp = timestamp;
         this.status = status;
+    }
+    
+    public ErrorResponse(String message, LocalDateTime timestamp, int status, String errorCode) {
+        this.message = message;
+        this.timestamp = timestamp;
+        this.status = status;
+        this.errorCode = errorCode;
     }
 }
