@@ -1,0 +1,78 @@
+/**
+ * Domain model types matching the Java backend entities.
+ * These types represent the core business objects in the chat system.
+ */
+
+/**
+ * Message type enumeration.
+ * Defines the different types of messages that can be sent in the chat system.
+ */
+export enum MessageType {
+  TEXT = 'TEXT',
+  SYSTEM = 'SYSTEM',
+  JOIN = 'JOIN',
+  LEAVE = 'LEAVE'
+}
+
+/**
+ * Member role enumeration.
+ * Defines the different roles a user can have in a chat room.
+ */
+export enum MemberRole {
+  OWNER = 'OWNER',
+  MODERATOR = 'MODERATOR',
+  MEMBER = 'MEMBER'
+}
+
+/**
+ * User interface matching the backend User entity.
+ * Represents a user in the chat system.
+ */
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  displayName: string;
+  createdAt: string; // ISO 8601 date string
+  lastSeen: string | null; // ISO 8601 date string
+  online: boolean;
+}
+
+/**
+ * ChatRoom interface matching the backend ChatRoom entity.
+ * Represents a chat room where users can send messages.
+ */
+export interface ChatRoom {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: string; // ISO 8601 date string
+  createdBy: User;
+}
+
+/**
+ * Message interface matching the backend Message entity.
+ * Represents a chat message sent by a user in a room.
+ */
+export interface Message {
+  id: number;
+  senderId: number;
+  senderUsername: string;
+  senderDisplayName: string;
+  chatRoomId: number;
+  content: string;
+  timestamp: string; // ISO 8601 date string
+  messageType: MessageType;
+}
+
+/**
+ * RoomMembership interface matching the backend RoomMembership entity.
+ * Represents a user's membership in a chat room.
+ */
+export interface RoomMembership {
+  id: number;
+  userId: number;
+  chatRoomId: number;
+  joinedAt: string; // ISO 8601 date string
+  role: MemberRole;
+}
