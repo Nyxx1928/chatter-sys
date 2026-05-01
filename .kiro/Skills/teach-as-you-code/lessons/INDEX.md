@@ -25,3 +25,20 @@ Template: `TEMPLATE.md`
 | 2026-04-30 | Setting Up Next.js 14+ with TypeScript for Real-Time Chat Frontend | 2026-04-30-nextjs-typescript-setup.md |
 | 2025-01-22 | Creating TypeScript Type Definitions for a Chat System | 2025-01-22-typescript-type-definitions.md |
 | 2026-05-01 | Creating Integration Tests for Spring Boot Backend | 2026-05-01-backend-integration-tests.md |
+| 2026-05-01 | Bug Condition Exploration Testing | 2026-05-01-bug-condition-exploration.md |
+| 2026-05-01 | Preservation Testing in Bugfix Workflows | 2026-05-01-preservation-testing-bugfix.md |
+| 2026-05-01 | Spring Security Authentication vs Authorization - Fixing 401 vs 403 Status Codes | 2026-05-01-spring-security-authentication-entrypoint.md |
+| 2026-05-01 | Verifying Authentication Status Code Fix | 2026-05-01-verify-authentication-fix.md |
+| 2026-05-01 | Spring Data Pagination - Returning Lists vs Page Objects | 2026-05-01-spring-pagination-response-structure.md |
+| 2026-05-01 | Verifying Pagination Response Structure Fix | 2026-05-01-pagination-test-verification.md |
+| 2026-05-01 | Verifying Preservation Tests After Pagination Fix | 2026-05-01-pagination-fix-preservation-tests.md |
+| 2026-05-01 | Null-Safe DTO Factory Methods in Java | 2026-05-01-null-safe-dto-factory-methods.md |
+| 2026-05-01 | Verifying Null createdBy Fix | 2026-05-01-verify-null-createdby-fix.md |
+| 2026-05-01 | Verifying Preservation Tests After Null createdBy Fix | 2026-05-01-null-createdby-preservation-tests.md |
+| 2026-05-01 | Replacing IllegalArgumentException with RoomNotFoundException for Proper 404 Status Codes | 2026-05-01-replace-exception-for-404-status.md |
+| 2026-05-01 | Verifying Resource Not Found Fix | 2026-05-01-verify-resource-not-found-fix.md |
+| 2026-05-01 | Verify Preservation Tests After Resource Not Found Fix | 2026-05-01-verify-preservation-tests-resource-not-found.md |
+| 2026-05-01 | Fixing Authorization Status Codes with UnauthorizedException | 2026-05-01-fix-authorization-status-codes.md |
+| 2026-05-01 | Verifying Authorization Status Code Fix | 2026-05-01-verify-authorization-fix.md |
+| 2026-05-01 | Verify Preservation Tests After Authorization Fix | 2026-05-01-verify-preservation-after-authorization-fix.md |
+| 2026-05-01 | Final Test Checkpoint Results - CI Phase 2 Bugfix | 2026-05-01-final-test-checkpoint-results.md |
