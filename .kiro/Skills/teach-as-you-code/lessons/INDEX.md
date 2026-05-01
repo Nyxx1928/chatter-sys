@@ -24,3 +24,4 @@ Template: `TEMPLATE.md`
 | 2026-04-30 | Configuring @WebMvcTest with Spring Security | 2026-04-30-spring-webmvctest-security-config.md |
 | 2026-04-30 | Setting Up Next.js 14+ with TypeScript for Real-Time Chat Frontend | 2026-04-30-nextjs-typescript-setup.md |
 | 2025-01-22 | Creating TypeScript Type Definitions for a Chat System | 2025-01-22-typescript-type-definitions.md |
+| 2026-05-01 | Creating Integration Tests for Spring Boot Backend | 2026-05-01-backend-integration-tests.md |
