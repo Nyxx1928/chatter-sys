@@ -42,3 +42,4 @@ Template: `TEMPLATE.md`
 | 2026-05-01 | Verifying Authorization Status Code Fix | 2026-05-01-verify-authorization-fix.md |
 | 2026-05-01 | Verify Preservation Tests After Authorization Fix | 2026-05-01-verify-preservation-after-authorization-fix.md |
 | 2026-05-01 | Final Test Checkpoint Results - CI Phase 2 Bugfix | 2026-05-01-final-test-checkpoint-results.md |
+| 2026-05-01 | Fixing CI Phase 2 Test Failures - Comprehensive Test Suite Repair | 2026-05-01-fix-ci-phase2-test-failures.md |

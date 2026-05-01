@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
     
-    Page<Message> findByChatRoomOrderByTimestampDesc(ChatRoom room, Pageable pageable);
+    Page<Message> findByChatRoomOrderByTimestampAsc(ChatRoom room, Pageable pageable);
     
     List<Message> findByChatRoomAndTimestampAfter(ChatRoom room, LocalDateTime timestamp);
 }

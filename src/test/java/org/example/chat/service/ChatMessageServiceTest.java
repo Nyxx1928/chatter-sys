@@ -217,7 +217,7 @@ class ChatMessageServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Message> expectedPage = new PageImpl<>(List.of(testMessage), pageable, 1);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
-        when(messageRepository.findByChatRoomOrderByTimestampDesc(testRoom, pageable))
+        when(messageRepository.findByChatRoomOrderByTimestampAsc(testRoom, pageable))
             .thenReturn(expectedPage);
 
         // Act
@@ -227,7 +227,7 @@ class ChatMessageServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals(testMessage.getId(), result.getContent().get(0).getId());
-        verify(messageRepository).findByChatRoomOrderByTimestampDesc(testRoom, pageable);
+        verify(messageRepository).findByChatRoomOrderByTimestampAsc(testRoom, pageable);
     }
 
     @Test
@@ -242,7 +242,7 @@ class ChatMessageServiceTest {
         });
 
         assertEquals("Chat room not found", exception.getMessage());
-        verify(messageRepository, never()).findByChatRoomOrderByTimestampDesc(any(), any());
+        verify(messageRepository, never()).findByChatRoomOrderByTimestampAsc(any(), any());
     }
 
     @Test
@@ -251,7 +251,7 @@ class ChatMessageServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Message> emptyPage = new PageImpl<>(List.of(), pageable, 0);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
-        when(messageRepository.findByChatRoomOrderByTimestampDesc(testRoom, pageable))
+        when(messageRepository.findByChatRoomOrderByTimestampAsc(testRoom, pageable))
             .thenReturn(emptyPage);
 
         // Act

@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.chat.config.WebMvcTestConfig;
 import org.example.chat.dto.CreateRoomRequest;
 import org.example.chat.entity.ChatRoom;
+import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatRoomService;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +55,9 @@ class ChatRoomControllerTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private RoomMembershipRepository roomMembershipRepository;
 
     private User testUser;
     private ChatRoom testRoom;
@@ -145,7 +151,18 @@ class ChatRoomControllerTest {
     @Test
     @WithMockUser(username = "testuser")
     void getRoomById_ExistingRoom_ReturnsRoom() throws Exception {
+        // Mock the user repository
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        
+        // Mock the room service
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        
+        // Mock the membership check
+        RoomMembership membership = new RoomMembership();
+        membership.setUser(testUser);
+        membership.setChatRoom(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+            .thenReturn(Optional.of(membership));
 
         mockMvc.perform(get("/api/rooms/1"))
             .andExpect(status().isOk())
@@ -157,11 +174,12 @@ class ChatRoomControllerTest {
     @Test
     @WithMockUser(username = "testuser")
     void getRoomById_NonExistingRoom_ThrowsException() throws Exception {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(999L))
-            .thenThrow(new IllegalArgumentException("Chat room not found"));
+            .thenThrow(new RoomNotFoundException(999L));
 
         mockMvc.perform(get("/api/rooms/999"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -189,9 +207,9 @@ class ChatRoomControllerTest {
     @WithMockUser(username = "testuser")
     void getRoomMembers_NonExistingRoom_ThrowsException() throws Exception {
         when(chatRoomService.getRoomMembers(999L))
-            .thenThrow(new IllegalArgumentException("Chat room not found"));
+            .thenThrow(new RoomNotFoundException(999L));
 
         mockMvc.perform(get("/api/rooms/999/members"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
     }
 }

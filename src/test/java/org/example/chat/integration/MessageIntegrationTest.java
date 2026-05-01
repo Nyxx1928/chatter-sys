@@ -112,7 +112,7 @@ class MessageIntegrationTest extends BaseIntegrationTest {
             .andExpect(jsonPath("$[0].content").value("First message"))
             .andExpect(jsonPath("$[1].content").value("Second message"))
             .andExpect(jsonPath("$[2].content").value("Third message"))
-            .andExpect(jsonPath("$[*].sender.username", everyItem(is("messageuser"))));
+            .andExpect(jsonPath("$[*].senderUsername", everyItem(is("messageuser"))));
     }
 
     @Test
@@ -136,10 +136,10 @@ class MessageIntegrationTest extends BaseIntegrationTest {
             messageRepository.save(message);
         }
 
-        // Get only 5 messages
+        // Get only 5 messages using Spring's 'size' parameter
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken)
-                .param("limit", "5"))
+                .param("size", "5"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(5)));
     }
@@ -219,9 +219,9 @@ class MessageIntegrationTest extends BaseIntegrationTest {
                 .header("Authorization", "Bearer " + authToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].sender.username").value("messageuser"))
+            .andExpect(jsonPath("$[0].senderUsername").value("messageuser"))
             .andExpect(jsonPath("$[0].content").value("Message from user 1"))
-            .andExpect(jsonPath("$[1].sender.username").value("user2"))
+            .andExpect(jsonPath("$[1].senderUsername").value("user2"))
             .andExpect(jsonPath("$[1].content").value("Message from user 2"));
     }
 

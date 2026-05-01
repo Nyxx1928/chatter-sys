@@ -4,6 +4,7 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.RoomNotFoundException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
@@ -179,11 +180,11 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        RoomNotFoundException exception = assertThrows(
+            RoomNotFoundException.class,
             () -> chatRoomService.getRoomById(roomId)
         );
-        assertEquals("Chat room not found", exception.getMessage());
+        assertTrue(exception.getMessage().contains("999"));
     }
 
     @Test
@@ -240,7 +241,7 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         assertThrows(
-            IllegalArgumentException.class,
+            RoomNotFoundException.class,
             () -> chatRoomService.getRoomMembers(roomId)
         );
     }

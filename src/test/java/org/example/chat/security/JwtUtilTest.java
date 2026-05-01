@@ -76,11 +76,23 @@ class JwtUtilTest {
         // Arrange
         String username = "testuser";
         String token = jwtUtil.generateToken(username);
-        // Tamper with the token by changing the last character
-        String tamperedToken = token.substring(0, token.length() - 1) + "X";
+        
+        // Create a token with a different secret to ensure signature mismatch
+        String differentSecret = "different-secret-key-for-jwt-token-generation-minimum-256-bits-required";
+        SecretKey differentKey = Keys.hmacShaKeyFor(differentSecret.getBytes(StandardCharsets.UTF_8));
+        
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + TEST_EXPIRATION);
+        
+        String tokenWithDifferentSignature = Jwts.builder()
+                .subject(username)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(differentKey)
+                .compact();
 
         // Act
-        boolean isValid = jwtUtil.validateToken(tamperedToken);
+        boolean isValid = jwtUtil.validateToken(tokenWithDifferentSignature);
 
         // Assert
         assertFalse(isValid);

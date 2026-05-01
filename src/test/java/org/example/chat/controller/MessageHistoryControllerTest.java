@@ -6,6 +6,8 @@ import org.example.chat.entity.Message;
 import org.example.chat.entity.MessageType;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
@@ -152,7 +154,7 @@ class MessageHistoryControllerTest {
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(RoomNotFoundException.class, () -> {
             controller.getMessageHistory(1L, pageable, userDetails);
         });
 
@@ -171,7 +173,7 @@ class MessageHistoryControllerTest {
             .thenReturn(Optional.empty());
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
             controller.getMessageHistory(1L, pageable, userDetails);
         });
 

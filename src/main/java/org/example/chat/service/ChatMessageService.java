@@ -115,7 +115,7 @@ public class ChatMessageService {
             });
 
         // Retrieve paginated messages
-        Page<Message> messages = messageRepository.findByChatRoomOrderByTimestampDesc(chatRoom, pageable);
+        Page<Message> messages = messageRepository.findByChatRoomOrderByTimestampAsc(chatRoom, pageable);
         logger.debug("Retrieved {} messages for room ID: {}", messages.getNumberOfElements(), roomId);
 
         return messages;

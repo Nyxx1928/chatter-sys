@@ -35263,3 +35263,1373 @@ org.example.chat.exception.WebSocketException: WebSocket connection failed
 2026-05-01 16:24:36.382 [main] WARN  o.e.chat.service.ChatRoomService - Add member failed: user 1 is already a member of room 1
 2026-05-01 16:24:36.394 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 1 from chat room ID: 1
 2026-05-01 16:24:36.394 [main] INFO  o.e.chat.service.ChatRoomService - Successfully removed user ID: 1 from chat room ID: 1
+2026-05-01 16:57:30.658 [main] INFO  o.e.c.controller.AuthControllerTest - Starting AuthControllerTest using Java 17.0.17 with PID 28376 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:57:30.661 [main] INFO  o.e.c.controller.AuthControllerTest - The following 1 profile is active: "test"
+2026-05-01 16:57:33.139 [main] INFO  o.e.c.controller.AuthControllerTest - Started AuthControllerTest in 3.352 seconds (process running for 7.665)
+2026-05-01 16:57:33.489 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser
+2026-05-01 16:57:33.493 [main] WARN  o.e.chat.controller.AuthController - Registration failed for username testuser: Username already exists
+2026-05-01 16:57:33.500 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Username already exists
+2026-05-01 16:57:33.593 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser
+2026-05-01 16:57:33.597 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: testuser
+2026-05-01 16:57:33.633 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: testuser
+2026-05-01 16:57:33.634 [main] INFO  o.e.chat.controller.AuthController - User logged in successfully: testuser
+2026-05-01 16:57:33.675 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest) with 6 errors: [Field error in object 'registerRequest' on field 'email': rejected value [invalid-email]; codes [Email.registerRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@3892802b,.*]; default message [Email must be valid]] [Field error in object 'registerRequest' on field 'password': rejected value [short]; codes [Size.registerRequest.password,Size.password,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.password,password]; arguments []; default message [password],2147483647,8]; default message [Password must be at least 8 characters long]] [Field error in object 'registerRequest' on field 'username': rejected value []; codes [NotBlank.registerRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.username,username]; arguments []; default message [username]]; default message [Username is required]] [Field error in object 'registerRequest' on field 'displayName': rejected value []; codes [Size.registerRequest.displayName,Size.displayName,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.displayName,displayName]; arguments []; default message [displayName],100,1]; default message [Display name must be between 1 and 100 characters]] [Field error in object 'registerRequest' on field 'displayName': rejected value []; codes [NotBlank.registerRequest.displayName,NotBlank.displayName,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.displayName,displayName]; arguments []; default message [displayName]]; default message [Display name is required]] [Field error in object 'registerRequest' on field 'username': rejected value []; codes [Size.registerRequest.username,Size.username,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.username,username]; arguments []; default message [username],50,3]; default message [Username must be between 3 and 50 characters]] 
+2026-05-01 16:57:33.693 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.LoginResponse> org.example.chat.controller.AuthController.login(org.example.chat.dto.LoginRequest): [Field error in object 'loginRequest' on field 'password': rejected value []; codes [NotBlank.loginRequest.password,NotBlank.password,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [loginRequest.password,password]; arguments []; default message [password]]; default message [Password is required]] 
+2026-05-01 16:57:33.703 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: testuser
+2026-05-01 16:57:33.703 [main] WARN  o.e.chat.controller.AuthController - Login failed for username testuser: Invalid username or password
+2026-05-01 16:57:33.704 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 16:57:33.715 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.LoginResponse> org.example.chat.controller.AuthController.login(org.example.chat.dto.LoginRequest): [Field error in object 'loginRequest' on field 'username': rejected value []; codes [NotBlank.loginRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [loginRequest.username,username]; arguments []; default message [username]]; default message [Username is required]] 
+2026-05-01 16:57:34.096 [main] INFO  o.e.c.c.ChatMessageController - User: testuser joining room: 1
+2026-05-01 16:57:34.127 [main] INFO  o.e.c.c.ChatMessageController - User: nonexistent leaving room: 1
+2026-05-01 16:57:34.139 [main] ERROR o.e.c.c.ChatMessageController - Error processing STOMP message for user: testuser
+java.lang.RuntimeException: Test error
+	at org.example.chat.controller.ChatMessageControllerTest.handleException_WithPrincipal_ReturnsErrorResponse(ChatMessageControllerTest.java:198)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:57:34.156 [main] ERROR o.e.c.c.ChatMessageController - Error processing STOMP message for user: unknown
+java.lang.RuntimeException: Test error
+	at org.example.chat.controller.ChatMessageControllerTest.handleException_WithoutPrincipal_ReturnsErrorResponse(ChatMessageControllerTest.java:214)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:57:34.178 [main] INFO  o.e.c.c.ChatMessageController - Received message from user: testuser for room: 1
+2026-05-01 16:57:34.181 [main] INFO  o.e.c.c.ChatMessageController - Message sent successfully by user: testuser to room: 1
+2026-05-01 16:57:34.191 [main] INFO  o.e.c.c.ChatMessageController - User: testuser joining room: 1
+2026-05-01 16:57:34.197 [main] INFO  o.e.c.c.ChatMessageController - User: testuser successfully joined room: 1
+2026-05-01 16:57:34.210 [main] INFO  o.e.c.c.ChatMessageController - User: testuser leaving room: 1
+2026-05-01 16:57:34.219 [main] INFO  o.e.c.c.ChatMessageController - User: testuser leaving room: 1
+2026-05-01 16:57:34.220 [main] INFO  o.e.c.c.ChatMessageController - User: testuser successfully left room: 1
+2026-05-01 16:57:34.227 [main] INFO  o.e.c.c.ChatMessageController - User: nonexistent joining room: 1
+2026-05-01 16:57:34.237 [main] INFO  o.e.c.c.ChatMessageController - Received message from user: nonexistent for room: 1
+2026-05-01 16:57:34.431 [main] INFO  o.e.c.c.ChatRoomControllerTest - Starting ChatRoomControllerTest using Java 17.0.17 with PID 28376 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:57:34.431 [main] INFO  o.e.c.c.ChatRoomControllerTest - The following 1 profile is active: "test"
+2026-05-01 16:57:35.082 [main] INFO  o.e.c.c.ChatRoomControllerTest - Started ChatRoomControllerTest in 0.766 seconds (process running for 9.608)
+2026-05-01 16:57:35.124 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room by user: testuser
+2026-05-01 16:57:35.125 [main] WARN  o.e.c.controller.ChatRoomController - Room creation failed for Test Room: Room name already exists
+2026-05-01 16:57:35.126 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Room name already exists
+2026-05-01 16:57:35.163 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room by user: testuser
+2026-05-01 16:57:35.164 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room with ID: 1
+2026-05-01 16:57:35.202 [main] WARN  o.e.c.controller.ChatRoomController - Chat room not found: 999
+2026-05-01 16:57:35.203 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 999
+2026-05-01 16:57:35.216 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.ChatRoomResponse> org.example.chat.controller.ChatRoomController.createRoom(org.example.chat.dto.CreateRoomRequest,org.springframework.security.core.userdetails.UserDetails) with 2 errors: [Field error in object 'createRoomRequest' on field 'name': rejected value []; codes [Size.createRoomRequest.name,Size.name,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createRoomRequest.name,name]; arguments []; default message [name],100,1]; default message [Room name must be between 1 and 100 characters]] [Field error in object 'createRoomRequest' on field 'name': rejected value []; codes [NotBlank.createRoomRequest.name,NotBlank.name,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createRoomRequest.name,name]; arguments []; default message [name]]; default message [Room name is required]] 
+2026-05-01 16:57:35.231 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 999
+2026-05-01 16:57:35.391 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:57:35.394 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 1
+2026-05-01 16:57:35.402 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:57:35.403 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 1 messages for room ID: 1
+2026-05-01 16:57:35.410 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:57:35.410 [main] WARN  o.e.c.c.MessageHistoryController - Message history request failed: chat room not found: 1
+2026-05-01 16:57:35.419 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:57:35.420 [main] WARN  o.e.c.c.MessageHistoryController - Message history request denied: user 1 is not a member of room 1
+2026-05-01 16:57:35.425 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:57:35.425 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 1 messages for room ID: 1
+2026-05-01 16:57:35.433 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:57:35.434 [main] WARN  o.e.c.c.MessageHistoryController - Message history request failed for room 1: Authenticated user not found
+2026-05-01 16:57:35.508 [main] INFO  o.e.c.controller.UserControllerTest - Starting UserControllerTest using Java 17.0.17 with PID 28376 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:57:35.509 [main] INFO  o.e.c.controller.UserControllerTest - The following 1 profile is active: "test"
+2026-05-01 16:57:35.857 [main] INFO  o.e.c.controller.UserControllerTest - Started UserControllerTest in 0.394 seconds (process running for 10.382)
+2026-05-01 16:57:35.878 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: testuser
+2026-05-01 16:57:35.878 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: testuser
+2026-05-01 16:57:35.894 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.UserController.updateCurrentUser(org.example.chat.dto.UpdateProfileRequest): [Field error in object 'updateProfileRequest' on field 'email': rejected value [invalid-email]; codes [Email.updateProfileRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [updateProfileRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@3892802b,.*]; default message [Email must be valid]] 
+2026-05-01 16:57:35.917 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: testuser
+2026-05-01 16:57:35.919 [main] WARN  o.e.chat.controller.UserController - Profile update failed for user testuser: Email already exists
+2026-05-01 16:57:35.919 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Email already exists
+2026-05-01 16:57:35.931 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: testuser
+2026-05-01 16:57:35.932 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: testuser
+2026-05-01 16:57:35.943 [main] INFO  o.e.chat.controller.UserController - Get current user request for: testuser
+2026-05-01 16:57:35.953 [main] ERROR o.e.c.e.GlobalExceptionHandler - Unexpected error occurred
+java.lang.RuntimeException: Unexpected error
+	at org.example.chat.exception.GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerError(GlobalExceptionHandlerTest.java:166)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:57:36.154 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public void org.example.chat.exception.GlobalExceptionHandlerTest.dummyMethod(java.lang.String): [Field error in object 'user' on field 'username': rejected value [null]; codes []; arguments []; default message [Username is required]] [Field error in object 'user' on field 'email': rejected value [null]; codes []; arguments []; default message [Email is invalid]] 
+2026-05-01 16:57:36.156 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid argument provided
+2026-05-01 16:57:36.158 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: USER_NOT_FOUND - User not found with id: 1
+2026-05-01 16:57:36.160 [main] ERROR o.e.c.e.GlobalExceptionHandler - Illegal state exception: Invalid state
+2026-05-01 16:57:36.162 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: UNAUTHORIZED - Access denied
+2026-05-01 16:57:36.165 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 5
+2026-05-01 16:57:36.169 [main] ERROR o.e.c.e.GlobalExceptionHandler - Application error occurred: WEBSOCKET_ERROR - WebSocket connection failed
+org.example.chat.exception.WebSocketException: WebSocket connection failed
+	at org.example.chat.exception.GlobalExceptionHandlerTest.handleChatApplicationException_WithWebSocketException_ShouldReturnInternalServerError(GlobalExceptionHandlerTest.java:204)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:57:36.175 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: VALIDATION_ERROR - Invalid input
+2026-05-01 16:57:36.256 [main] INFO  o.e.c.i.AuthenticationIntegrationTest - Starting AuthenticationIntegrationTest using Java 17.0.17 with PID 28376 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:57:36.257 [main] INFO  o.e.c.i.AuthenticationIntegrationTest - The following 1 profile is active: "test"
+2026-05-01 16:57:38.862 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-01 16:57:42.137 [main] INFO  o.e.c.i.AuthenticationIntegrationTest - Started AuthenticationIntegrationTest in 5.928 seconds (process running for 16.662)
+2026-05-01 16:57:42.177 [main] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/register' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-05-01 16:57:42.188 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: integrationuser
+2026-05-01 16:57:42.192 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: integrationuser
+2026-05-01 16:57:42.537 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: integrationuser
+2026-05-01 16:57:42.538 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: integrationuser
+2026-05-01 16:57:42.734 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: integrationuser
+2026-05-01 16:57:42.734 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: integrationuser
+2026-05-01 16:57:43.046 [main] INFO  o.e.c.service.AuthenticationService - Successfully authenticated user: integrationuser
+2026-05-01 16:57:43.049 [main] INFO  o.e.chat.controller.AuthController - User logged in successfully: integrationuser
+2026-05-01 16:57:43.066 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: firstuser
+2026-05-01 16:57:43.066 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: firstuser
+2026-05-01 16:57:43.171 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: firstuser
+2026-05-01 16:57:43.171 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: firstuser
+2026-05-01 16:57:43.174 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: seconduser
+2026-05-01 16:57:43.174 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: seconduser
+2026-05-01 16:57:43.180 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: email already exists: duplicate@example.com
+2026-05-01 16:57:43.181 [main] WARN  o.e.chat.controller.AuthController - Registration failed for username seconduser: Email already exists
+2026-05-01 16:57:43.182 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Email already exists
+2026-05-01 16:57:43.208 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: nonexistent
+2026-05-01 16:57:43.208 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: nonexistent
+2026-05-01 16:57:43.211 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: nonexistent
+2026-05-01 16:57:43.211 [main] WARN  o.e.chat.controller.AuthController - Login failed for username nonexistent: Invalid username or password
+2026-05-01 16:57:43.212 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 16:57:43.230 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: duplicateuser
+2026-05-01 16:57:43.231 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: duplicateuser
+2026-05-01 16:57:43.330 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: duplicateuser
+2026-05-01 16:57:43.330 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: duplicateuser
+2026-05-01 16:57:43.334 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: duplicateuser
+2026-05-01 16:57:43.335 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: duplicateuser
+2026-05-01 16:57:43.339 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: username already exists: duplicateuser
+2026-05-01 16:57:43.340 [main] WARN  o.e.chat.controller.AuthController - Registration failed for username duplicateuser: Username already exists
+2026-05-01 16:57:43.341 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Username already exists
+2026-05-01 16:57:43.360 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'email': rejected value [invalid-email]; codes [Email.registerRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@3892802b,.*]; default message [Email must be valid]] 
+2026-05-01 16:57:43.384 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'password': rejected value [short]; codes [Size.registerRequest.password,Size.password,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.password,password]; arguments []; default message [password],2147483647,8]; default message [Password must be at least 8 characters long]] 
+2026-05-01 16:57:43.402 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser
+2026-05-01 16:57:43.403 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:43.504 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: testuser
+2026-05-01 16:57:43.504 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: testuser
+2026-05-01 16:57:43.510 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: testuser
+2026-05-01 16:57:43.511 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 16:57:43.609 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: invalid password for user: testuser
+2026-05-01 16:57:43.609 [main] WARN  o.e.chat.controller.AuthController - Login failed for username testuser: Invalid username or password
+2026-05-01 16:57:43.610 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 16:57:44.447 [main] WARN  o.e.chat.service.ChatRoomService - Chat room not found: 99999
+2026-05-01 16:57:44.447 [main] WARN  o.e.c.controller.ChatRoomController - Chat room not found: 99999
+2026-05-01 16:57:44.448 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 99999
+2026-05-01 16:57:44.630 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room by user: roomtestuser
+2026-05-01 16:57:44.634 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room by user ID: 10
+2026-05-01 16:57:44.641 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room with ID: 4
+2026-05-01 16:57:44.641 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 10 to chat room ID: 4 with role: OWNER
+2026-05-01 16:57:44.655 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 10 to chat room ID: 4
+2026-05-01 16:57:44.655 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room with ID: 4
+2026-05-01 16:57:44.942 [main] WARN  o.e.c.controller.ChatRoomController - Unauthorized access to chat room: 5
+2026-05-01 16:57:44.943 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: UNAUTHORIZED - User is not a member of this chat room
+2026-05-01 16:57:45.044 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Integration Test Room by user: roomtestuser
+2026-05-01 16:57:45.046 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Integration Test Room by user ID: 13
+2026-05-01 16:57:45.051 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Integration Test Room with ID: 6
+2026-05-01 16:57:45.051 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 13 to chat room ID: 6 with role: OWNER
+2026-05-01 16:57:45.056 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 13 to chat room ID: 6
+2026-05-01 16:57:45.056 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Integration Test Room with ID: 6
+2026-05-01 16:57:45.224 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 99999 by user: messageuser
+2026-05-01 16:57:45.227 [main] WARN  o.e.c.c.MessageHistoryController - Message history request failed: chat room not found: 99999
+2026-05-01 16:57:45.228 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 99999
+2026-05-01 16:57:45.334 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 8 by user: messageuser
+2026-05-01 16:57:45.364 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 8
+2026-05-01 16:57:45.582 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 9 by user: messageuser
+2026-05-01 16:57:45.600 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 3 messages for room ID: 9
+2026-05-01 16:57:45.859 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 10 by user: messageuser
+2026-05-01 16:57:45.868 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 2 messages for room ID: 10
+2026-05-01 16:57:46.112 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 12 by user: messageuser
+2026-05-01 16:57:46.121 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 3 messages for room ID: 12
+2026-05-01 16:57:46.369 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 13 by user: otheruser
+2026-05-01 16:57:46.378 [main] WARN  o.e.c.c.MessageHistoryController - Message history request denied: user 22 is not a member of room 13
+2026-05-01 16:57:46.378 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: UNAUTHORIZED - User is not a member of this chat room
+2026-05-01 16:57:46.572 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 14 by user: messageuser
+2026-05-01 16:57:46.587 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 5 messages for room ID: 14
+2026-05-01 16:57:46.798 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 15 by user: member_0
+2026-05-01 16:57:46.810 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 15
+2026-05-01 16:57:47.007 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 16 by user: member_1
+2026-05-01 16:57:47.020 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 16
+2026-05-01 16:57:47.256 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 17 by user: member_2
+2026-05-01 16:57:47.271 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 17
+2026-05-01 16:57:47.520 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 18 by user: member_3
+2026-05-01 16:57:47.535 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 18
+2026-05-01 16:57:47.715 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 19 by user: member_4
+2026-05-01 16:57:47.721 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 19
+2026-05-01 16:57:47.828 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_0
+2026-05-01 16:57:47.840 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_0
+2026-05-01 16:57:47.841 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_0
+2026-05-01 16:57:47.845 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_0
+2026-05-01 16:57:47.846 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_0
+2026-05-01 16:57:47.955 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_1
+2026-05-01 16:57:47.963 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_1
+2026-05-01 16:57:47.963 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_1
+2026-05-01 16:57:47.966 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_1
+2026-05-01 16:57:47.968 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_1
+2026-05-01 16:57:48.081 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_2
+2026-05-01 16:57:48.092 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_2
+2026-05-01 16:57:48.092 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_2
+2026-05-01 16:57:48.094 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_2
+2026-05-01 16:57:48.094 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_2
+2026-05-01 16:57:48.266 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_3
+2026-05-01 16:57:48.274 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_3
+2026-05-01 16:57:48.274 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_3
+2026-05-01 16:57:48.276 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_3
+2026-05-01 16:57:48.276 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_3
+2026-05-01 16:57:48.368 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_4
+2026-05-01 16:57:48.376 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_4
+2026-05-01 16:57:48.376 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_4
+2026-05-01 16:57:48.379 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_4
+2026-05-01 16:57:48.379 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_4
+2026-05-01 16:57:48.387 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'email': rejected value [invalid-email]; codes [Email.registerRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@3892802b,.*]; default message [Email must be valid]] 
+2026-05-01 16:57:48.390 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'password': rejected value [short]; codes [Size.registerRequest.password,Size.password,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.password,password]; arguments []; default message [password],2147483647,8]; default message [Password must be at least 8 characters long]] 
+2026-05-01 16:57:48.399 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_0
+2026-05-01 16:57:48.400 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_0
+2026-05-01 16:57:48.488 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_0
+2026-05-01 16:57:48.488 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_0
+2026-05-01 16:57:48.492 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_1
+2026-05-01 16:57:48.492 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_1
+2026-05-01 16:57:48.583 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_1
+2026-05-01 16:57:48.583 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_1
+2026-05-01 16:57:48.587 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_2
+2026-05-01 16:57:48.588 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_2
+2026-05-01 16:57:48.682 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_2
+2026-05-01 16:57:48.682 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_2
+2026-05-01 16:57:48.686 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_3
+2026-05-01 16:57:48.686 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_3
+2026-05-01 16:57:48.826 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_3
+2026-05-01 16:57:48.826 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_3
+2026-05-01 16:57:48.834 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_4
+2026-05-01 16:57:48.834 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_4
+2026-05-01 16:57:48.933 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_4
+2026-05-01 16:57:48.933 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_4
+2026-05-01 16:57:49.126 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 20 by user: msguser_0
+2026-05-01 16:57:49.135 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 20
+2026-05-01 16:57:49.375 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 21 by user: msguser_1
+2026-05-01 16:57:49.384 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 1 messages for room ID: 21
+2026-05-01 16:57:49.514 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 22 by user: msguser_3
+2026-05-01 16:57:49.524 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 3 messages for room ID: 22
+2026-05-01 16:57:49.656 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 23 by user: msguser_5
+2026-05-01 16:57:49.691 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 5 messages for room ID: 23
+2026-05-01 16:57:49.876 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 24 by user: msguser_10
+2026-05-01 16:57:49.886 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 10 messages for room ID: 24
+2026-05-01 16:57:49.999 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 25 by user: auth_user_0
+2026-05-01 16:57:50.009 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 25
+2026-05-01 16:57:50.037 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_0
+2026-05-01 16:57:50.150 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 26 by user: auth_user_1
+2026-05-01 16:57:50.158 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 26
+2026-05-01 16:57:50.179 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_1
+2026-05-01 16:57:50.402 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 27 by user: auth_user_2
+2026-05-01 16:57:50.410 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 27
+2026-05-01 16:57:50.428 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_2
+2026-05-01 16:57:50.592 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 28 by user: auth_user_3
+2026-05-01 16:57:50.604 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 28
+2026-05-01 16:57:50.630 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_3
+2026-05-01 16:57:50.774 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 29 by user: auth_user_4
+2026-05-01 16:57:50.782 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 29
+2026-05-01 16:57:50.796 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_4
+2026-05-01 16:57:50.894 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 0 by user: creator_0
+2026-05-01 16:57:50.896 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 0 by user ID: 49
+2026-05-01 16:57:50.899 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 0 with ID: 30
+2026-05-01 16:57:50.899 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 49 to chat room ID: 30 with role: OWNER
+2026-05-01 16:57:50.904 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 49 to chat room ID: 30
+2026-05-01 16:57:50.904 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 0 with ID: 30
+2026-05-01 16:57:51.049 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 1 by user: creator_1
+2026-05-01 16:57:51.051 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 1 by user ID: 50
+2026-05-01 16:57:51.055 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 1 with ID: 31
+2026-05-01 16:57:51.055 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 50 to chat room ID: 31 with role: OWNER
+2026-05-01 16:57:51.060 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 50 to chat room ID: 31
+2026-05-01 16:57:51.060 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 1 with ID: 31
+2026-05-01 16:57:51.177 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 2 by user: creator_2
+2026-05-01 16:57:51.180 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 2 by user ID: 51
+2026-05-01 16:57:51.184 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 2 with ID: 32
+2026-05-01 16:57:51.185 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 51 to chat room ID: 32 with role: OWNER
+2026-05-01 16:57:51.188 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 51 to chat room ID: 32
+2026-05-01 16:57:51.189 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 2 with ID: 32
+2026-05-01 16:57:51.356 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 3 by user: creator_3
+2026-05-01 16:57:51.358 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 3 by user ID: 52
+2026-05-01 16:57:51.360 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 3 with ID: 33
+2026-05-01 16:57:51.360 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 52 to chat room ID: 33 with role: OWNER
+2026-05-01 16:57:51.363 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 52 to chat room ID: 33
+2026-05-01 16:57:51.363 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 3 with ID: 33
+2026-05-01 16:57:51.468 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 4 by user: creator_4
+2026-05-01 16:57:51.470 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 4 by user ID: 53
+2026-05-01 16:57:51.473 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 4 with ID: 34
+2026-05-01 16:57:51.473 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 53 to chat room ID: 34 with role: OWNER
+2026-05-01 16:57:51.477 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 53 to chat room ID: 34
+2026-05-01 16:57:51.477 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 4 with ID: 34
+2026-05-01 16:57:51.599 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 16:57:51.599 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 16:57:51.601 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profileuser
+2026-05-01 16:57:51.601 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profileuser
+2026-05-01 16:57:51.793 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 16:57:51.793 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 16:57:51.797 [main] WARN  o.e.c.service.AuthenticationService - Profile update failed: email already exists: other@example.com
+2026-05-01 16:57:51.797 [main] WARN  o.e.chat.controller.UserController - Profile update failed for user profileuser: Email already exists
+2026-05-01 16:57:51.798 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Email already exists
+2026-05-01 16:57:51.895 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profileuser
+2026-05-01 16:57:51.903 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 16:57:51.903 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 16:57:51.907 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profileuser
+2026-05-01 16:57:51.907 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profileuser
+2026-05-01 16:57:51.915 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profileuser
+2026-05-01 16:57:52.012 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.UserController.updateCurrentUser(org.example.chat.dto.UpdateProfileRequest): [Field error in object 'updateProfileRequest' on field 'displayName': rejected value []; codes [Size.updateProfileRequest.displayName,Size.displayName,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [updateProfileRequest.displayName,displayName]; arguments []; default message [displayName],100,1]; default message [Display name must be between 1 and 100 characters]] 
+2026-05-01 16:57:52.126 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.UserController.updateCurrentUser(org.example.chat.dto.UpdateProfileRequest): [Field error in object 'updateProfileRequest' on field 'email': rejected value [invalid-email]; codes [Email.updateProfileRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [updateProfileRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@3892802b,.*]; default message [Email must be valid]] 
+2026-05-01 16:57:52.247 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profileuser
+2026-05-01 16:57:52.348 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 16:57:52.348 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 16:57:52.355 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profileuser
+2026-05-01 16:57:52.355 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profileuser
+2026-05-01 16:57:53.042 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: nonexistent
+2026-05-01 16:57:53.049 [main] INFO  o.e.c.l.WebSocketEventListener - User disconnected: testuser
+2026-05-01 16:57:53.059 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: testuser
+2026-05-01 16:57:53.066 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: testuser
+2026-05-01 16:57:53.089 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: testuser
+2026-05-01 16:57:53.093 [main] INFO  o.e.c.l.WebSocketEventListener - User disconnected: testuser
+2026-05-01 16:57:53.103 [main] ERROR org.example.chat.security.JwtUtil - Invalid JWT signature: JWT signature does not match locally computed signature. JWT validity cannot be asserted and should not be trusted.
+2026-05-01 16:57:53.105 [main] ERROR org.example.chat.security.JwtUtil - JWT claims string is empty: CharSequence cannot be null or empty.
+2026-05-01 16:57:53.130 [main] ERROR org.example.chat.security.JwtUtil - Invalid JWT token: Malformed protected header JSON: Unable to deserialize: Unexpected character ('?' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
+ at [Source: (InputStreamReader); line: 1, column: 2]
+2026-05-01 16:57:53.135 [main] ERROR org.example.chat.security.JwtUtil - JWT claims string is empty: CharSequence cannot be null or empty.
+2026-05-01 16:57:53.139 [main] ERROR org.example.chat.security.JwtUtil - Expired JWT token: JWT expired 1139 milliseconds ago at 2026-05-01T08:57:52.000Z. Current time: 2026-05-01T08:57:53.139Z. Allowed clock skew: 0 milliseconds.
+2026-05-01 16:57:53.201 [main] INFO  o.e.chat.security.SecurityConfigTest - Starting SecurityConfigTest using Java 17.0.17 with PID 28376 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:57:53.203 [main] INFO  o.e.chat.security.SecurityConfigTest - The following 1 profile is active: "test"
+2026-05-01 16:57:53.572 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-01 16:57:54.098 [main] INFO  o.e.chat.security.SecurityConfigTest - Started SecurityConfigTest in 0.931 seconds (process running for 28.623)
+2026-05-01 16:57:54.123 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: test
+2026-05-01 16:57:54.124 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: test
+2026-05-01 16:57:54.169 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: test
+2026-05-01 16:57:54.170 [main] WARN  o.e.chat.controller.AuthController - Login failed for username test: Invalid username or password
+2026-05-01 16:57:54.170 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 16:57:54.196 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser1
+2026-05-01 16:57:54.197 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser1
+2026-05-01 16:57:54.308 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: testuser1
+2026-05-01 16:57:54.312 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: testuser1
+2026-05-01 16:57:54.319 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: nonexistentuser
+2026-05-01 16:57:54.319 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: nonexistentuser
+2026-05-01 16:57:54.323 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: nonexistentuser
+2026-05-01 16:57:54.324 [main] WARN  o.e.chat.controller.AuthController - Login failed for username nonexistentuser: Invalid username or password
+2026-05-01 16:57:54.325 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 16:57:54.448 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: User not found
+2026-05-01 16:57:54.455 [main] INFO  o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket connection authenticated for user: testuser
+2026-05-01 16:57:54.462 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - Missing Authorization header in STOMP CONNECT frame
+2026-05-01 16:57:54.462 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: Missing authentication token
+2026-05-01 16:57:54.465 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - Missing Authorization header in STOMP CONNECT frame
+2026-05-01 16:57:54.465 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: Missing authentication token
+2026-05-01 16:57:54.468 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - Invalid JWT token in STOMP CONNECT frame
+2026-05-01 16:57:54.468 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: Invalid authentication token
+2026-05-01 16:57:54.571 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 16:57:54.734 [main] INFO  o.e.c.service.AuthenticationService - Successfully authenticated user: testuser
+2026-05-01 16:57:54.742 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:54.749 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: 
+2026-05-01 16:57:54.753 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:54.758 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+2026-05-01 16:57:54.762 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:54.887 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: testuser
+2026-05-01 16:57:54.904 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: 
+2026-05-01 16:57:54.904 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: username is empty
+2026-05-01 16:57:54.909 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: nonexistent
+2026-05-01 16:57:54.910 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: nonexistent
+2026-05-01 16:57:54.916 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: existinguser
+2026-05-01 16:57:54.916 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: username already exists: existinguser
+2026-05-01 16:57:54.921 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 16:57:54.922 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: password is empty
+2026-05-01 16:57:55.019 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 16:57:55.109 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: invalid password for user: testuser
+2026-05-01 16:57:55.123 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:55.136 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:55.137 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: email already exists: existing@example.com
+2026-05-01 16:57:55.145 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 16:57:55.283 [main] WARN  o.e.chat.service.ChatMessageService - Get message history failed: chat room not found: 1
+2026-05-01 16:57:55.289 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.302 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.304 [main] INFO  o.e.chat.service.ChatMessageService - Message persisted with ID: 1 in room ID: 1
+2026-05-01 16:57:55.304 [main] INFO  o.e.chat.service.ChatMessageService - Message ID: 1 successfully broadcast to topic: /topic/room/1
+2026-05-01 16:57:55.308 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.309 [main] INFO  o.e.chat.service.ChatMessageService - Message persisted with ID: 1 in room ID: 1
+2026-05-01 16:57:55.309 [main] INFO  o.e.chat.service.ChatMessageService - Message ID: 1 successfully broadcast to topic: /topic/room/1
+2026-05-01 16:57:55.314 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.319 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.333 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.334 [main] WARN  o.e.chat.service.ChatMessageService - Send message failed: chat room not found: 1
+2026-05-01 16:57:55.341 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.341 [main] WARN  o.e.chat.service.ChatMessageService - User ID: 1 is not a member of room ID: 1
+2026-05-01 16:57:55.363 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.364 [main] INFO  o.e.chat.service.ChatMessageService - Message persisted with ID: 1 in room ID: 1
+2026-05-01 16:57:55.364 [main] INFO  o.e.chat.service.ChatMessageService - Message ID: 1 successfully broadcast to topic: /topic/room/1
+2026-05-01 16:57:55.369 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 16:57:55.369 [main] WARN  o.e.chat.service.ChatMessageService - Send message failed: sender not found: 1
+2026-05-01 16:57:55.375 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Existing Room by user ID: 1
+2026-05-01 16:57:55.376 [main] WARN  o.e.chat.service.ChatRoomService - Room creation failed: room name already exists: Existing Room
+2026-05-01 16:57:55.379 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: New Room by user ID: 1
+2026-05-01 16:57:55.379 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: New Room with ID: 1
+2026-05-01 16:57:55.379 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 1 to chat room ID: 1 with role: OWNER
+2026-05-01 16:57:55.379 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 1 to chat room ID: 1
+2026-05-01 16:57:55.384 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa by user ID: 1
+2026-05-01 16:57:55.387 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 999 from chat room ID: 1
+2026-05-01 16:57:55.401 [main] WARN  o.e.chat.service.ChatRoomService - Remove member failed: user not found: 999
+2026-05-01 16:57:55.405 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 2 to chat room ID: 1 with role: null
+2026-05-01 16:57:55.407 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 2 to chat room ID: 1
+2026-05-01 16:57:55.416 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room:  by user ID: 1
+2026-05-01 16:57:55.418 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 2 to chat room ID: 1 with role: MEMBER
+2026-05-01 16:57:55.419 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 2 to chat room ID: 1
+2026-05-01 16:57:55.426 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 999 to chat room ID: 1 with role: MEMBER
+2026-05-01 16:57:55.426 [main] WARN  o.e.chat.service.ChatRoomService - Add member failed: user not found: 999
+2026-05-01 16:57:55.432 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 2 from chat room ID: 1
+2026-05-01 16:57:55.432 [main] WARN  o.e.chat.service.ChatRoomService - Remove member failed: user 2 is not a member of room 1
+2026-05-01 16:57:55.438 [main] WARN  o.e.chat.service.ChatRoomService - Chat room not found: 999
+2026-05-01 16:57:55.453 [main] WARN  o.e.chat.service.ChatRoomService - Chat room not found: 999
+2026-05-01 16:57:55.457 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: New Room by user ID: 999
+2026-05-01 16:57:55.457 [main] WARN  o.e.chat.service.ChatRoomService - Room creation failed: creator user not found: 999
+2026-05-01 16:57:55.463 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 1 to chat room ID: 1 with role: MEMBER
+2026-05-01 16:57:55.464 [main] WARN  o.e.chat.service.ChatRoomService - Add member failed: user 1 is already a member of room 1
+2026-05-01 16:57:55.467 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 1 from chat room ID: 1
+2026-05-01 16:57:55.468 [main] INFO  o.e.chat.service.ChatRoomService - Successfully removed user ID: 1 from chat room ID: 1
+2026-05-01 16:59:51.561 [main] INFO  o.e.c.controller.AuthControllerTest - Starting AuthControllerTest using Java 17.0.17 with PID 11396 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:59:51.565 [main] INFO  o.e.c.controller.AuthControllerTest - The following 1 profile is active: "test"
+2026-05-01 16:59:54.379 [main] INFO  o.e.c.controller.AuthControllerTest - Started AuthControllerTest in 3.581 seconds (process running for 7.528)
+2026-05-01 16:59:54.710 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser
+2026-05-01 16:59:54.713 [main] WARN  o.e.chat.controller.AuthController - Registration failed for username testuser: Username already exists
+2026-05-01 16:59:54.718 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Username already exists
+2026-05-01 16:59:54.800 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser
+2026-05-01 16:59:54.802 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: testuser
+2026-05-01 16:59:54.834 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: testuser
+2026-05-01 16:59:54.835 [main] INFO  o.e.chat.controller.AuthController - User logged in successfully: testuser
+2026-05-01 16:59:54.871 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest) with 6 errors: [Field error in object 'registerRequest' on field 'email': rejected value [invalid-email]; codes [Email.registerRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@1e2b37cd,.*]; default message [Email must be valid]] [Field error in object 'registerRequest' on field 'displayName': rejected value []; codes [Size.registerRequest.displayName,Size.displayName,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.displayName,displayName]; arguments []; default message [displayName],100,1]; default message [Display name must be between 1 and 100 characters]] [Field error in object 'registerRequest' on field 'displayName': rejected value []; codes [NotBlank.registerRequest.displayName,NotBlank.displayName,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.displayName,displayName]; arguments []; default message [displayName]]; default message [Display name is required]] [Field error in object 'registerRequest' on field 'username': rejected value []; codes [NotBlank.registerRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.username,username]; arguments []; default message [username]]; default message [Username is required]] [Field error in object 'registerRequest' on field 'username': rejected value []; codes [Size.registerRequest.username,Size.username,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.username,username]; arguments []; default message [username],50,3]; default message [Username must be between 3 and 50 characters]] [Field error in object 'registerRequest' on field 'password': rejected value [short]; codes [Size.registerRequest.password,Size.password,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.password,password]; arguments []; default message [password],2147483647,8]; default message [Password must be at least 8 characters long]] 
+2026-05-01 16:59:54.986 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.LoginResponse> org.example.chat.controller.AuthController.login(org.example.chat.dto.LoginRequest): [Field error in object 'loginRequest' on field 'password': rejected value []; codes [NotBlank.loginRequest.password,NotBlank.password,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [loginRequest.password,password]; arguments []; default message [password]]; default message [Password is required]] 
+2026-05-01 16:59:55.021 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: testuser
+2026-05-01 16:59:55.022 [main] WARN  o.e.chat.controller.AuthController - Login failed for username testuser: Invalid username or password
+2026-05-01 16:59:55.023 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 16:59:55.036 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.LoginResponse> org.example.chat.controller.AuthController.login(org.example.chat.dto.LoginRequest): [Field error in object 'loginRequest' on field 'username': rejected value []; codes [NotBlank.loginRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [loginRequest.username,username]; arguments []; default message [username]]; default message [Username is required]] 
+2026-05-01 16:59:55.554 [main] INFO  o.e.c.c.ChatMessageController - User: testuser joining room: 1
+2026-05-01 16:59:55.662 [main] INFO  o.e.c.c.ChatMessageController - User: nonexistent leaving room: 1
+2026-05-01 16:59:55.671 [main] ERROR o.e.c.c.ChatMessageController - Error processing STOMP message for user: testuser
+java.lang.RuntimeException: Test error
+	at org.example.chat.controller.ChatMessageControllerTest.handleException_WithPrincipal_ReturnsErrorResponse(ChatMessageControllerTest.java:198)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:59:55.702 [main] ERROR o.e.c.c.ChatMessageController - Error processing STOMP message for user: unknown
+java.lang.RuntimeException: Test error
+	at org.example.chat.controller.ChatMessageControllerTest.handleException_WithoutPrincipal_ReturnsErrorResponse(ChatMessageControllerTest.java:214)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:59:55.742 [main] INFO  o.e.c.c.ChatMessageController - Received message from user: testuser for room: 1
+2026-05-01 16:59:55.747 [main] INFO  o.e.c.c.ChatMessageController - Message sent successfully by user: testuser to room: 1
+2026-05-01 16:59:55.762 [main] INFO  o.e.c.c.ChatMessageController - User: testuser joining room: 1
+2026-05-01 16:59:55.764 [main] INFO  o.e.c.c.ChatMessageController - User: testuser successfully joined room: 1
+2026-05-01 16:59:55.783 [main] INFO  o.e.c.c.ChatMessageController - User: testuser leaving room: 1
+2026-05-01 16:59:55.796 [main] INFO  o.e.c.c.ChatMessageController - User: testuser leaving room: 1
+2026-05-01 16:59:55.797 [main] INFO  o.e.c.c.ChatMessageController - User: testuser successfully left room: 1
+2026-05-01 16:59:55.818 [main] INFO  o.e.c.c.ChatMessageController - User: nonexistent joining room: 1
+2026-05-01 16:59:55.831 [main] INFO  o.e.c.c.ChatMessageController - Received message from user: nonexistent for room: 1
+2026-05-01 16:59:55.946 [main] INFO  o.e.c.c.ChatRoomControllerTest - Starting ChatRoomControllerTest using Java 17.0.17 with PID 11396 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:59:55.947 [main] INFO  o.e.c.c.ChatRoomControllerTest - The following 1 profile is active: "test"
+2026-05-01 16:59:56.721 [main] INFO  o.e.c.c.ChatRoomControllerTest - Started ChatRoomControllerTest in 0.847 seconds (process running for 9.869)
+2026-05-01 16:59:56.776 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room by user: testuser
+2026-05-01 16:59:56.777 [main] WARN  o.e.c.controller.ChatRoomController - Room creation failed for Test Room: Room name already exists
+2026-05-01 16:59:56.779 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Room name already exists
+2026-05-01 16:59:56.820 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room by user: testuser
+2026-05-01 16:59:56.821 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room with ID: 1
+2026-05-01 16:59:56.870 [main] WARN  o.e.c.controller.ChatRoomController - Chat room not found: 999
+2026-05-01 16:59:56.870 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 999
+2026-05-01 16:59:56.887 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.ChatRoomResponse> org.example.chat.controller.ChatRoomController.createRoom(org.example.chat.dto.CreateRoomRequest,org.springframework.security.core.userdetails.UserDetails) with 2 errors: [Field error in object 'createRoomRequest' on field 'name': rejected value []; codes [Size.createRoomRequest.name,Size.name,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createRoomRequest.name,name]; arguments []; default message [name],100,1]; default message [Room name must be between 1 and 100 characters]] [Field error in object 'createRoomRequest' on field 'name': rejected value []; codes [NotBlank.createRoomRequest.name,NotBlank.name,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [createRoomRequest.name,name]; arguments []; default message [name]]; default message [Room name is required]] 
+2026-05-01 16:59:56.901 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 999
+2026-05-01 16:59:57.168 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:59:57.174 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 1
+2026-05-01 16:59:57.181 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:59:57.182 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 1 messages for room ID: 1
+2026-05-01 16:59:57.207 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:59:57.208 [main] WARN  o.e.c.c.MessageHistoryController - Message history request failed: chat room not found: 1
+2026-05-01 16:59:57.219 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:59:57.219 [main] WARN  o.e.c.c.MessageHistoryController - Message history request denied: user 1 is not a member of room 1
+2026-05-01 16:59:57.245 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:59:57.246 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 1 messages for room ID: 1
+2026-05-01 16:59:57.311 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 1 by user: testuser
+2026-05-01 16:59:57.312 [main] WARN  o.e.c.c.MessageHistoryController - Message history request failed for room 1: Authenticated user not found
+2026-05-01 16:59:57.547 [main] INFO  o.e.c.controller.UserControllerTest - Starting UserControllerTest using Java 17.0.17 with PID 11396 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:59:57.548 [main] INFO  o.e.c.controller.UserControllerTest - The following 1 profile is active: "test"
+2026-05-01 16:59:58.507 [main] INFO  o.e.c.controller.UserControllerTest - Started UserControllerTest in 1.151 seconds (process running for 11.656)
+2026-05-01 16:59:58.542 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: testuser
+2026-05-01 16:59:58.543 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: testuser
+2026-05-01 16:59:58.567 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.UserController.updateCurrentUser(org.example.chat.dto.UpdateProfileRequest): [Field error in object 'updateProfileRequest' on field 'email': rejected value [invalid-email]; codes [Email.updateProfileRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [updateProfileRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@1e2b37cd,.*]; default message [Email must be valid]] 
+2026-05-01 16:59:58.583 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: testuser
+2026-05-01 16:59:58.584 [main] WARN  o.e.chat.controller.UserController - Profile update failed for user testuser: Email already exists
+2026-05-01 16:59:58.585 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Email already exists
+2026-05-01 16:59:58.596 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: testuser
+2026-05-01 16:59:58.597 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: testuser
+2026-05-01 16:59:58.644 [main] INFO  o.e.chat.controller.UserController - Get current user request for: testuser
+2026-05-01 16:59:58.655 [main] ERROR o.e.c.e.GlobalExceptionHandler - Unexpected error occurred
+java.lang.RuntimeException: Unexpected error
+	at org.example.chat.exception.GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerError(GlobalExceptionHandlerTest.java:166)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:59:58.763 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public void org.example.chat.exception.GlobalExceptionHandlerTest.dummyMethod(java.lang.String): [Field error in object 'user' on field 'username': rejected value [null]; codes []; arguments []; default message [Username is required]] [Field error in object 'user' on field 'email': rejected value [null]; codes []; arguments []; default message [Email is invalid]] 
+2026-05-01 16:59:58.765 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid argument provided
+2026-05-01 16:59:58.767 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: USER_NOT_FOUND - User not found with id: 1
+2026-05-01 16:59:58.770 [main] ERROR o.e.c.e.GlobalExceptionHandler - Illegal state exception: Invalid state
+2026-05-01 16:59:58.807 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: UNAUTHORIZED - Access denied
+2026-05-01 16:59:58.810 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 5
+2026-05-01 16:59:58.816 [main] ERROR o.e.c.e.GlobalExceptionHandler - Application error occurred: WEBSOCKET_ERROR - WebSocket connection failed
+org.example.chat.exception.WebSocketException: WebSocket connection failed
+	at org.example.chat.exception.GlobalExceptionHandlerTest.handleChatApplicationException_WithWebSocketException_ShouldReturnInternalServerError(GlobalExceptionHandlerTest.java:204)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+2026-05-01 16:59:58.818 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: VALIDATION_ERROR - Invalid input
+2026-05-01 16:59:59.003 [main] INFO  o.e.c.i.AuthenticationIntegrationTest - Starting AuthenticationIntegrationTest using Java 17.0.17 with PID 11396 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 16:59:59.004 [main] INFO  o.e.c.i.AuthenticationIntegrationTest - The following 1 profile is active: "test"
+2026-05-01 17:00:01.882 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-01 17:00:05.604 [main] INFO  o.e.c.i.AuthenticationIntegrationTest - Started AuthenticationIntegrationTest in 6.741 seconds (process running for 18.753)
+2026-05-01 17:00:05.650 [main] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/auth/register' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-05-01 17:00:05.663 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: integrationuser
+2026-05-01 17:00:05.668 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: integrationuser
+2026-05-01 17:00:05.996 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: integrationuser
+2026-05-01 17:00:05.996 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: integrationuser
+2026-05-01 17:00:06.138 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: integrationuser
+2026-05-01 17:00:06.138 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: integrationuser
+2026-05-01 17:00:06.377 [main] INFO  o.e.c.service.AuthenticationService - Successfully authenticated user: integrationuser
+2026-05-01 17:00:06.381 [main] INFO  o.e.chat.controller.AuthController - User logged in successfully: integrationuser
+2026-05-01 17:00:06.404 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: firstuser
+2026-05-01 17:00:06.404 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: firstuser
+2026-05-01 17:00:06.498 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: firstuser
+2026-05-01 17:00:06.499 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: firstuser
+2026-05-01 17:00:06.502 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: seconduser
+2026-05-01 17:00:06.502 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: seconduser
+2026-05-01 17:00:06.509 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: email already exists: duplicate@example.com
+2026-05-01 17:00:06.510 [main] WARN  o.e.chat.controller.AuthController - Registration failed for username seconduser: Email already exists
+2026-05-01 17:00:06.511 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Email already exists
+2026-05-01 17:00:06.531 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: nonexistent
+2026-05-01 17:00:06.531 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: nonexistent
+2026-05-01 17:00:06.535 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: nonexistent
+2026-05-01 17:00:06.535 [main] WARN  o.e.chat.controller.AuthController - Login failed for username nonexistent: Invalid username or password
+2026-05-01 17:00:06.535 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 17:00:06.546 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: duplicateuser
+2026-05-01 17:00:06.547 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: duplicateuser
+2026-05-01 17:00:06.663 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: duplicateuser
+2026-05-01 17:00:06.663 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: duplicateuser
+2026-05-01 17:00:06.669 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: duplicateuser
+2026-05-01 17:00:06.669 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: duplicateuser
+2026-05-01 17:00:06.673 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: username already exists: duplicateuser
+2026-05-01 17:00:06.674 [main] WARN  o.e.chat.controller.AuthController - Registration failed for username duplicateuser: Username already exists
+2026-05-01 17:00:06.674 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Username already exists
+2026-05-01 17:00:06.690 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'email': rejected value [invalid-email]; codes [Email.registerRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@1e2b37cd,.*]; default message [Email must be valid]] 
+2026-05-01 17:00:06.707 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'password': rejected value [short]; codes [Size.registerRequest.password,Size.password,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.password,password]; arguments []; default message [password],2147483647,8]; default message [Password must be at least 8 characters long]] 
+2026-05-01 17:00:06.721 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser
+2026-05-01 17:00:06.721 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:06.861 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: testuser
+2026-05-01 17:00:06.862 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: testuser
+2026-05-01 17:00:06.865 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: testuser
+2026-05-01 17:00:06.866 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 17:00:06.961 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: invalid password for user: testuser
+2026-05-01 17:00:06.961 [main] WARN  o.e.chat.controller.AuthController - Login failed for username testuser: Invalid username or password
+2026-05-01 17:00:06.962 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 17:00:07.779 [main] WARN  o.e.chat.service.ChatRoomService - Chat room not found: 99999
+2026-05-01 17:00:07.780 [main] WARN  o.e.c.controller.ChatRoomController - Chat room not found: 99999
+2026-05-01 17:00:07.780 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 99999
+2026-05-01 17:00:07.916 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room by user: roomtestuser
+2026-05-01 17:00:07.919 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room by user ID: 10
+2026-05-01 17:00:07.927 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room with ID: 4
+2026-05-01 17:00:07.927 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 10 to chat room ID: 4 with role: OWNER
+2026-05-01 17:00:07.931 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 10 to chat room ID: 4
+2026-05-01 17:00:07.932 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room with ID: 4
+2026-05-01 17:00:08.222 [main] WARN  o.e.c.controller.ChatRoomController - Unauthorized access to chat room: 5
+2026-05-01 17:00:08.223 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: UNAUTHORIZED - User is not a member of this chat room
+2026-05-01 17:00:08.381 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Integration Test Room by user: roomtestuser
+2026-05-01 17:00:08.384 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Integration Test Room by user ID: 13
+2026-05-01 17:00:08.390 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Integration Test Room with ID: 6
+2026-05-01 17:00:08.390 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 13 to chat room ID: 6 with role: OWNER
+2026-05-01 17:00:08.394 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 13 to chat room ID: 6
+2026-05-01 17:00:08.394 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Integration Test Room with ID: 6
+2026-05-01 17:00:08.554 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 99999 by user: messageuser
+2026-05-01 17:00:08.558 [main] WARN  o.e.c.c.MessageHistoryController - Message history request failed: chat room not found: 99999
+2026-05-01 17:00:08.558 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: ROOM_NOT_FOUND - Chat room not found with id: 99999
+2026-05-01 17:00:08.678 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 8 by user: messageuser
+2026-05-01 17:00:08.693 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 8
+2026-05-01 17:00:08.801 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 9 by user: messageuser
+2026-05-01 17:00:08.812 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 3 messages for room ID: 9
+2026-05-01 17:00:09.103 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 10 by user: messageuser
+2026-05-01 17:00:09.117 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 2 messages for room ID: 10
+2026-05-01 17:00:09.375 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 12 by user: messageuser
+2026-05-01 17:00:09.383 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 3 messages for room ID: 12
+2026-05-01 17:00:09.572 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 13 by user: otheruser
+2026-05-01 17:00:09.577 [main] WARN  o.e.c.c.MessageHistoryController - Message history request denied: user 22 is not a member of room 13
+2026-05-01 17:00:09.578 [main] WARN  o.e.c.e.GlobalExceptionHandler - Application error occurred: UNAUTHORIZED - User is not a member of this chat room
+2026-05-01 17:00:09.688 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 14 by user: messageuser
+2026-05-01 17:00:09.700 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 5 messages for room ID: 14
+2026-05-01 17:00:09.883 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 15 by user: member_0
+2026-05-01 17:00:09.892 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 15
+2026-05-01 17:00:10.006 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 16 by user: member_1
+2026-05-01 17:00:10.011 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 16
+2026-05-01 17:00:10.238 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 17 by user: member_2
+2026-05-01 17:00:10.254 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 17
+2026-05-01 17:00:10.479 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 18 by user: member_3
+2026-05-01 17:00:10.488 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 18
+2026-05-01 17:00:10.646 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 19 by user: member_4
+2026-05-01 17:00:10.653 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 19
+2026-05-01 17:00:10.774 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_0
+2026-05-01 17:00:10.794 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_0
+2026-05-01 17:00:10.795 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_0
+2026-05-01 17:00:10.801 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_0
+2026-05-01 17:00:10.801 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_0
+2026-05-01 17:00:10.938 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_1
+2026-05-01 17:00:10.949 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_1
+2026-05-01 17:00:10.950 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_1
+2026-05-01 17:00:10.961 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_1
+2026-05-01 17:00:10.961 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_1
+2026-05-01 17:00:11.065 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_2
+2026-05-01 17:00:11.078 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_2
+2026-05-01 17:00:11.078 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_2
+2026-05-01 17:00:11.080 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_2
+2026-05-01 17:00:11.080 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_2
+2026-05-01 17:00:11.182 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_3
+2026-05-01 17:00:11.193 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_3
+2026-05-01 17:00:11.194 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_3
+2026-05-01 17:00:11.197 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_3
+2026-05-01 17:00:11.197 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_3
+2026-05-01 17:00:11.292 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profile_4
+2026-05-01 17:00:11.302 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profile_4
+2026-05-01 17:00:11.302 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profile_4
+2026-05-01 17:00:11.305 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profile_4
+2026-05-01 17:00:11.305 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profile_4
+2026-05-01 17:00:11.316 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'email': rejected value [invalid-email]; codes [Email.registerRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@1e2b37cd,.*]; default message [Email must be valid]] 
+2026-05-01 17:00:11.320 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.AuthController.register(org.example.chat.dto.RegisterRequest): [Field error in object 'registerRequest' on field 'password': rejected value [short]; codes [Size.registerRequest.password,Size.password,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [registerRequest.password,password]; arguments []; default message [password],2147483647,8]; default message [Password must be at least 8 characters long]] 
+2026-05-01 17:00:11.332 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_0
+2026-05-01 17:00:11.332 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_0
+2026-05-01 17:00:11.422 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_0
+2026-05-01 17:00:11.422 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_0
+2026-05-01 17:00:11.426 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_1
+2026-05-01 17:00:11.426 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_1
+2026-05-01 17:00:11.514 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_1
+2026-05-01 17:00:11.515 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_1
+2026-05-01 17:00:11.519 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_2
+2026-05-01 17:00:11.520 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_2
+2026-05-01 17:00:11.679 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_2
+2026-05-01 17:00:11.679 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_2
+2026-05-01 17:00:11.687 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_3
+2026-05-01 17:00:11.687 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_3
+2026-05-01 17:00:11.890 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_3
+2026-05-01 17:00:11.891 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_3
+2026-05-01 17:00:11.898 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: pub_user_4
+2026-05-01 17:00:11.899 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: pub_user_4
+2026-05-01 17:00:12.040 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: pub_user_4
+2026-05-01 17:00:12.041 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: pub_user_4
+2026-05-01 17:00:12.234 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 20 by user: msguser_0
+2026-05-01 17:00:12.247 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 20
+2026-05-01 17:00:12.370 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 21 by user: msguser_1
+2026-05-01 17:00:12.379 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 1 messages for room ID: 21
+2026-05-01 17:00:12.533 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 22 by user: msguser_3
+2026-05-01 17:00:12.556 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 3 messages for room ID: 22
+2026-05-01 17:00:12.768 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 23 by user: msguser_5
+2026-05-01 17:00:12.777 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 5 messages for room ID: 23
+2026-05-01 17:00:12.909 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 24 by user: msguser_10
+2026-05-01 17:00:12.922 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 10 messages for room ID: 24
+2026-05-01 17:00:13.051 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 25 by user: auth_user_0
+2026-05-01 17:00:13.064 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 25
+2026-05-01 17:00:13.096 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_0
+2026-05-01 17:00:13.305 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 26 by user: auth_user_1
+2026-05-01 17:00:13.314 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 26
+2026-05-01 17:00:13.345 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_1
+2026-05-01 17:00:13.449 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 27 by user: auth_user_2
+2026-05-01 17:00:13.462 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 27
+2026-05-01 17:00:13.480 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_2
+2026-05-01 17:00:13.593 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 28 by user: auth_user_3
+2026-05-01 17:00:13.599 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 28
+2026-05-01 17:00:13.616 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_3
+2026-05-01 17:00:13.711 [main] INFO  o.e.c.c.MessageHistoryController - Message history request for room ID: 29 by user: auth_user_4
+2026-05-01 17:00:13.720 [main] INFO  o.e.c.c.MessageHistoryController - Retrieved 0 messages for room ID: 29
+2026-05-01 17:00:13.736 [main] INFO  o.e.chat.controller.UserController - Get current user request for: auth_user_4
+2026-05-01 17:00:13.852 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 0 by user: creator_0
+2026-05-01 17:00:13.868 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 0 by user ID: 49
+2026-05-01 17:00:13.875 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 0 with ID: 30
+2026-05-01 17:00:13.875 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 49 to chat room ID: 30 with role: OWNER
+2026-05-01 17:00:13.905 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 49 to chat room ID: 30
+2026-05-01 17:00:13.905 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 0 with ID: 30
+2026-05-01 17:00:14.027 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 1 by user: creator_1
+2026-05-01 17:00:14.030 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 1 by user ID: 50
+2026-05-01 17:00:14.044 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 1 with ID: 31
+2026-05-01 17:00:14.045 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 50 to chat room ID: 31 with role: OWNER
+2026-05-01 17:00:14.050 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 50 to chat room ID: 31
+2026-05-01 17:00:14.050 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 1 with ID: 31
+2026-05-01 17:00:14.163 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 2 by user: creator_2
+2026-05-01 17:00:14.168 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 2 by user ID: 51
+2026-05-01 17:00:14.183 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 2 with ID: 32
+2026-05-01 17:00:14.183 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 51 to chat room ID: 32 with role: OWNER
+2026-05-01 17:00:14.189 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 51 to chat room ID: 32
+2026-05-01 17:00:14.190 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 2 with ID: 32
+2026-05-01 17:00:14.305 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 3 by user: creator_3
+2026-05-01 17:00:14.306 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 3 by user ID: 52
+2026-05-01 17:00:14.309 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 3 with ID: 33
+2026-05-01 17:00:14.310 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 52 to chat room ID: 33 with role: OWNER
+2026-05-01 17:00:14.314 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 52 to chat room ID: 33
+2026-05-01 17:00:14.314 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 3 with ID: 33
+2026-05-01 17:00:14.412 [main] INFO  o.e.c.controller.ChatRoomController - Room creation request received: Test Room 4 by user: creator_4
+2026-05-01 17:00:14.414 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Test Room 4 by user ID: 53
+2026-05-01 17:00:14.419 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: Test Room 4 with ID: 34
+2026-05-01 17:00:14.420 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 53 to chat room ID: 34 with role: OWNER
+2026-05-01 17:00:14.424 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 53 to chat room ID: 34
+2026-05-01 17:00:14.424 [main] INFO  o.e.c.controller.ChatRoomController - Room created successfully: Test Room 4 with ID: 34
+2026-05-01 17:00:14.549 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 17:00:14.550 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 17:00:14.552 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profileuser
+2026-05-01 17:00:14.553 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profileuser
+2026-05-01 17:00:14.769 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 17:00:14.769 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 17:00:14.773 [main] WARN  o.e.c.service.AuthenticationService - Profile update failed: email already exists: other@example.com
+2026-05-01 17:00:14.773 [main] WARN  o.e.chat.controller.UserController - Profile update failed for user profileuser: Email already exists
+2026-05-01 17:00:14.774 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Email already exists
+2026-05-01 17:00:14.910 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profileuser
+2026-05-01 17:00:14.928 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 17:00:14.928 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 17:00:14.935 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profileuser
+2026-05-01 17:00:14.935 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profileuser
+2026-05-01 17:00:14.945 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profileuser
+2026-05-01 17:00:15.062 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.UserController.updateCurrentUser(org.example.chat.dto.UpdateProfileRequest): [Field error in object 'updateProfileRequest' on field 'displayName': rejected value []; codes [Size.updateProfileRequest.displayName,Size.displayName,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [updateProfileRequest.displayName,displayName]; arguments []; default message [displayName],100,1]; default message [Display name must be between 1 and 100 characters]] 
+2026-05-01 17:00:15.176 [main] WARN  o.e.c.e.GlobalExceptionHandler - Validation error occurred: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.example.chat.dto.UserResponse> org.example.chat.controller.UserController.updateCurrentUser(org.example.chat.dto.UpdateProfileRequest): [Field error in object 'updateProfileRequest' on field 'email': rejected value [invalid-email]; codes [Email.updateProfileRequest.email,Email.email,Email.java.lang.String,Email]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [updateProfileRequest.email,email]; arguments []; default message [email],[Ljakarta.validation.constraints.Pattern$Flag;@1e2b37cd,.*]; default message [Email must be valid]] 
+2026-05-01 17:00:15.278 [main] INFO  o.e.chat.controller.UserController - Get current user request for: profileuser
+2026-05-01 17:00:15.387 [main] INFO  o.e.chat.controller.UserController - Update profile request for user: profileuser
+2026-05-01 17:00:15.388 [main] INFO  o.e.c.service.AuthenticationService - Updating profile for user: profileuser
+2026-05-01 17:00:15.394 [main] INFO  o.e.c.service.AuthenticationService - Successfully updated profile for user: profileuser
+2026-05-01 17:00:15.395 [main] INFO  o.e.chat.controller.UserController - Profile updated successfully for user: profileuser
+2026-05-01 17:00:16.069 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: nonexistent
+2026-05-01 17:00:16.075 [main] INFO  o.e.c.l.WebSocketEventListener - User disconnected: testuser
+2026-05-01 17:00:16.080 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: testuser
+2026-05-01 17:00:16.088 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: testuser
+2026-05-01 17:00:16.099 [main] INFO  o.e.c.l.WebSocketEventListener - User connected: testuser
+2026-05-01 17:00:16.107 [main] INFO  o.e.c.l.WebSocketEventListener - User disconnected: testuser
+2026-05-01 17:00:16.118 [main] ERROR org.example.chat.security.JwtUtil - Invalid JWT signature: JWT signature does not match locally computed signature. JWT validity cannot be asserted and should not be trusted.
+2026-05-01 17:00:16.119 [main] ERROR org.example.chat.security.JwtUtil - JWT claims string is empty: CharSequence cannot be null or empty.
+2026-05-01 17:00:16.158 [main] ERROR org.example.chat.security.JwtUtil - Invalid JWT token: Malformed protected header JSON: Unable to deserialize: Unexpected character ('?' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
+ at [Source: (InputStreamReader); line: 1, column: 2]
+2026-05-01 17:00:16.163 [main] ERROR org.example.chat.security.JwtUtil - JWT claims string is empty: CharSequence cannot be null or empty.
+2026-05-01 17:00:16.169 [main] ERROR org.example.chat.security.JwtUtil - Expired JWT token: JWT expired 1168 milliseconds ago at 2026-05-01T09:00:15.000Z. Current time: 2026-05-01T09:00:16.168Z. Allowed clock skew: 0 milliseconds.
+2026-05-01 17:00:16.282 [main] INFO  o.e.chat.security.SecurityConfigTest - Starting SecurityConfigTest using Java 17.0.17 with PID 11396 (started by echob in C:\Users\echob\IdeaProjects\java-proj-maven)
+2026-05-01 17:00:16.283 [main] INFO  o.e.chat.security.SecurityConfigTest - The following 1 profile is active: "test"
+2026-05-01 17:00:17.108 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-01 17:00:17.892 [main] INFO  o.e.chat.security.SecurityConfigTest - Started SecurityConfigTest in 1.677 seconds (process running for 31.04)
+2026-05-01 17:00:17.920 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: test
+2026-05-01 17:00:17.921 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: test
+2026-05-01 17:00:17.971 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: test
+2026-05-01 17:00:17.972 [main] WARN  o.e.chat.controller.AuthController - Login failed for username test: Invalid username or password
+2026-05-01 17:00:17.972 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 17:00:17.996 [main] INFO  o.e.chat.controller.AuthController - Registration request received for username: testuser1
+2026-05-01 17:00:18.000 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser1
+2026-05-01 17:00:18.108 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: testuser1
+2026-05-01 17:00:18.110 [main] INFO  o.e.chat.controller.AuthController - User registered successfully: testuser1
+2026-05-01 17:00:18.117 [main] INFO  o.e.chat.controller.AuthController - Login request received for username: nonexistentuser
+2026-05-01 17:00:18.118 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: nonexistentuser
+2026-05-01 17:00:18.120 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: nonexistentuser
+2026-05-01 17:00:18.121 [main] WARN  o.e.chat.controller.AuthController - Login failed for username nonexistentuser: Invalid username or password
+2026-05-01 17:00:18.121 [main] WARN  o.e.c.e.GlobalExceptionHandler - Illegal argument exception: Invalid username or password
+2026-05-01 17:00:18.248 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: User not found
+2026-05-01 17:00:18.255 [main] INFO  o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket connection authenticated for user: testuser
+2026-05-01 17:00:18.263 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - Missing Authorization header in STOMP CONNECT frame
+2026-05-01 17:00:18.263 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: Missing authentication token
+2026-05-01 17:00:18.266 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - Missing Authorization header in STOMP CONNECT frame
+2026-05-01 17:00:18.266 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: Missing authentication token
+2026-05-01 17:00:18.269 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - Invalid JWT token in STOMP CONNECT frame
+2026-05-01 17:00:18.270 [main] ERROR o.e.c.s.WebSocketAuthenticationInterceptor - WebSocket authentication failed: Invalid authentication token
+2026-05-01 17:00:18.412 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 17:00:18.497 [main] INFO  o.e.c.service.AuthenticationService - Successfully authenticated user: testuser
+2026-05-01 17:00:18.519 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:18.522 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: 
+2026-05-01 17:00:18.531 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:18.546 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+2026-05-01 17:00:18.551 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:18.648 [main] INFO  o.e.c.service.AuthenticationService - Successfully registered user: testuser
+2026-05-01 17:00:18.653 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: 
+2026-05-01 17:00:18.653 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: username is empty
+2026-05-01 17:00:18.656 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: nonexistent
+2026-05-01 17:00:18.657 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: user not found: nonexistent
+2026-05-01 17:00:18.663 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: existinguser
+2026-05-01 17:00:18.663 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: username already exists: existinguser
+2026-05-01 17:00:18.666 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 17:00:18.666 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: password is empty
+2026-05-01 17:00:18.763 [main] INFO  o.e.c.service.AuthenticationService - Attempting to authenticate user: testuser
+2026-05-01 17:00:18.852 [main] WARN  o.e.c.service.AuthenticationService - Authentication failed: invalid password for user: testuser
+2026-05-01 17:00:18.856 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:18.867 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:18.867 [main] WARN  o.e.c.service.AuthenticationService - Registration failed: email already exists: existing@example.com
+2026-05-01 17:00:18.875 [main] INFO  o.e.c.service.AuthenticationService - Attempting to register user: testuser
+2026-05-01 17:00:19.002 [main] WARN  o.e.chat.service.ChatMessageService - Get message history failed: chat room not found: 1
+2026-05-01 17:00:19.007 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.016 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.018 [main] INFO  o.e.chat.service.ChatMessageService - Message persisted with ID: 1 in room ID: 1
+2026-05-01 17:00:19.023 [main] INFO  o.e.chat.service.ChatMessageService - Message ID: 1 successfully broadcast to topic: /topic/room/1
+2026-05-01 17:00:19.029 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.029 [main] INFO  o.e.chat.service.ChatMessageService - Message persisted with ID: 1 in room ID: 1
+2026-05-01 17:00:19.029 [main] INFO  o.e.chat.service.ChatMessageService - Message ID: 1 successfully broadcast to topic: /topic/room/1
+2026-05-01 17:00:19.039 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.049 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.058 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.060 [main] WARN  o.e.chat.service.ChatMessageService - Send message failed: chat room not found: 1
+2026-05-01 17:00:19.068 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.069 [main] WARN  o.e.chat.service.ChatMessageService - User ID: 1 is not a member of room ID: 1
+2026-05-01 17:00:19.073 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.075 [main] INFO  o.e.chat.service.ChatMessageService - Message persisted with ID: 1 in room ID: 1
+2026-05-01 17:00:19.076 [main] INFO  o.e.chat.service.ChatMessageService - Message ID: 1 successfully broadcast to topic: /topic/room/1
+2026-05-01 17:00:19.081 [main] INFO  o.e.chat.service.ChatMessageService - User ID: 1 attempting to send message to room ID: 1
+2026-05-01 17:00:19.081 [main] WARN  o.e.chat.service.ChatMessageService - Send message failed: sender not found: 1
+2026-05-01 17:00:19.087 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: Existing Room by user ID: 1
+2026-05-01 17:00:19.088 [main] WARN  o.e.chat.service.ChatRoomService - Room creation failed: room name already exists: Existing Room
+2026-05-01 17:00:19.093 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: New Room by user ID: 1
+2026-05-01 17:00:19.093 [main] INFO  o.e.chat.service.ChatRoomService - Successfully created chat room: New Room with ID: 1
+2026-05-01 17:00:19.093 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 1 to chat room ID: 1 with role: OWNER
+2026-05-01 17:00:19.093 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 1 to chat room ID: 1
+2026-05-01 17:00:19.098 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa by user ID: 1
+2026-05-01 17:00:19.107 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 999 from chat room ID: 1
+2026-05-01 17:00:19.108 [main] WARN  o.e.chat.service.ChatRoomService - Remove member failed: user not found: 999
+2026-05-01 17:00:19.111 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 2 to chat room ID: 1 with role: null
+2026-05-01 17:00:19.111 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 2 to chat room ID: 1
+2026-05-01 17:00:19.125 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room:  by user ID: 1
+2026-05-01 17:00:19.134 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 2 to chat room ID: 1 with role: MEMBER
+2026-05-01 17:00:19.135 [main] INFO  o.e.chat.service.ChatRoomService - Successfully added user ID: 2 to chat room ID: 1
+2026-05-01 17:00:19.139 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 999 to chat room ID: 1 with role: MEMBER
+2026-05-01 17:00:19.140 [main] WARN  o.e.chat.service.ChatRoomService - Add member failed: user not found: 999
+2026-05-01 17:00:19.151 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 2 from chat room ID: 1
+2026-05-01 17:00:19.153 [main] WARN  o.e.chat.service.ChatRoomService - Remove member failed: user 2 is not a member of room 1
+2026-05-01 17:00:19.160 [main] WARN  o.e.chat.service.ChatRoomService - Chat room not found: 999
+2026-05-01 17:00:19.169 [main] WARN  o.e.chat.service.ChatRoomService - Chat room not found: 999
+2026-05-01 17:00:19.197 [main] INFO  o.e.chat.service.ChatRoomService - Attempting to create chat room: New Room by user ID: 999
+2026-05-01 17:00:19.198 [main] WARN  o.e.chat.service.ChatRoomService - Room creation failed: creator user not found: 999
+2026-05-01 17:00:19.240 [main] INFO  o.e.chat.service.ChatRoomService - Adding user ID: 1 to chat room ID: 1 with role: MEMBER
+2026-05-01 17:00:19.240 [main] WARN  o.e.chat.service.ChatRoomService - Add member failed: user 1 is already a member of room 1
+2026-05-01 17:00:19.247 [main] INFO  o.e.chat.service.ChatRoomService - Removing user ID: 1 from chat room ID: 1
+2026-05-01 17:00:19.248 [main] INFO  o.e.chat.service.ChatRoomService - Successfully removed user ID: 1 from chat room ID: 1

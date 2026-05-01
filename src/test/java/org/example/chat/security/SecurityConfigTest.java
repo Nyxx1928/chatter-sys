@@ -45,11 +45,11 @@ class SecurityConfigTest {
     void testProtectedEndpointsRequireAuthentication() throws Exception {
         // GET /api/users/me should require authentication
         mockMvc.perform(get("/api/users/me"))
-                .andExpect(status().isForbidden()); // 403 Forbidden (Spring Security default for missing auth)
+                .andExpect(status().isUnauthorized()); // 401 Unauthorized for missing auth
 
         // GET /api/rooms should require authentication
         mockMvc.perform(get("/api/rooms"))
-                .andExpect(status().isForbidden()); // 403 Forbidden (Spring Security default for missing auth)
+                .andExpect(status().isUnauthorized()); // 401 Unauthorized for missing auth
     }
 
     @Test
@@ -73,6 +73,6 @@ class SecurityConfigTest {
         mockMvc.perform(get("/api/users/me")
                 .header("Origin", "http://localhost:3000")
                 .header("Access-Control-Request-Method", "GET"))
-                .andExpect(status().isForbidden()); // Should still require auth
+                .andExpect(status().isUnauthorized()); // Should return 401 for missing auth
     }
 }
