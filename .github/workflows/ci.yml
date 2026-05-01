@@ -13,8 +13,8 @@ env:
   JAVA_VERSION: "17"
   NODE_VERSION: "20"
   IMAGE_TAG: ${{ github.sha }}
-  BACKEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/java-proj-backend
-  FRONTEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/java-proj-frontend
+  BACKEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME != '' && format('{0}/java-proj-backend', secrets.DOCKERHUB_USERNAME) || 'local/java-proj-backend' }}
+  FRONTEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME != '' && format('{0}/java-proj-frontend', secrets.DOCKERHUB_USERNAME) || 'local/java-proj-frontend' }}
 
 jobs:
   phase1-lint-validate:
