@@ -206,6 +206,26 @@ jobs:
           format: spdx-json
           output-file: sbom-frontend.spdx.json
 
+      - name: Trivy scan (backend)
+        if: steps.dockerfiles.outputs.backend == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.images.outputs.backend_image }}:${{ env.IMAGE_TAG }}
+          format: table
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Trivy scan (frontend)
+        if: steps.dockerfiles.outputs.frontend == 'true'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.images.outputs.frontend_image }}:${{ env.IMAGE_TAG }}
+          format: table
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
   phase6-security-scan:
     name: phase 6 - security scan
     runs-on: ubuntu-latest
@@ -213,25 +233,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
 
-      - name: Trivy scan (backend)
-        if: needs.phase5-test-build-docker.outputs.backend_built == 'true'
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ${{ needs.phase5-test-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }}
-          format: table
-          exit-code: "1"
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-
-      - name: Trivy scan (frontend)
-        if: needs.phase5-test-build-docker.outputs.frontend_built == 'true'
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ${{ needs.phase5-test-build-docker.outputs.frontend_image }}:${{ env.IMAGE_TAG }}
-          format: table
-          exit-code: "1"
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
 
       - name: Install Cosign
         if: needs.phase5-test-build-docker.outputs.images_pushed == 'true'
