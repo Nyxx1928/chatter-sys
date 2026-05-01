@@ -10,6 +10,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -55,6 +56,7 @@ class WebSocketAuthenticationInterceptorTest {
         
         StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECT);
         accessor.setNativeHeader("Authorization", "Bearer " + validToken);
+        accessor.setLeaveMutable(true);  // Allow the accessor to be modified
         Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
         UserDetails userDetails = new User(username, "password", 
@@ -69,7 +71,8 @@ class WebSocketAuthenticationInterceptorTest {
 
         // Assert
         assertNotNull(result);
-        StompHeaderAccessor resultAccessor = StompHeaderAccessor.wrap(result);
+        StompHeaderAccessor resultAccessor = MessageHeaderAccessor.getAccessor(result, StompHeaderAccessor.class);
+        assertNotNull(resultAccessor);
         assertNotNull(resultAccessor.getUser());
         assertTrue(resultAccessor.getUser() instanceof UsernamePasswordAuthenticationToken);
         
