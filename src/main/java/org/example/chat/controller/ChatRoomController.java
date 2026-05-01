@@ -6,6 +6,9 @@ import org.example.chat.dto.CreateRoomRequest;
 import org.example.chat.dto.UserResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.User;
+import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
+import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatRoomService;
 import org.slf4j.Logger;
@@ -31,10 +34,14 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
+    private final RoomMembershipRepository roomMembershipRepository;
 
-    public ChatRoomController(ChatRoomService chatRoomService, UserRepository userRepository) {
+    public ChatRoomController(ChatRoomService chatRoomService, 
+                            UserRepository userRepository,
+                            RoomMembershipRepository roomMembershipRepository) {
         this.chatRoomService = chatRoomService;
         this.userRepository = userRepository;
+        this.roomMembershipRepository = roomMembershipRepository;
     }
 
     /**
@@ -97,20 +104,36 @@ public class ChatRoomController {
      * Retrieves details of a specific chat room.
      *
      * @param id the ID of the chat room
+     * @param userDetails the authenticated user making the request
      * @return ResponseEntity with ChatRoomResponse
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ChatRoomResponse> getRoomById(@PathVariable Long id) {
+    public ResponseEntity<ChatRoomResponse> getRoomById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
         logger.debug("Retrieving chat room with ID: {}", id);
 
         try {
-            ChatRoom chatRoom = chatRoomService.getRoomById(id);
-            ChatRoomResponse response = ChatRoomResponse.from(chatRoom);
+            // Get the authenticated user
+            User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
 
+            // Get the chat room
+            ChatRoom chatRoom = chatRoomService.getRoomById(id);
+            
+            // Validate that the user is a member of the room
+            roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
+                .orElseThrow(() -> new UnauthorizedException("User is not a member of this chat room"));
+
+            ChatRoomResponse response = ChatRoomResponse.from(chatRoom);
             logger.debug("Retrieved chat room: {}", chatRoom.getName());
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
+        } catch (RoomNotFoundException e) {
             logger.warn("Chat room not found: {}", id);
+            throw e;
+        } catch (UnauthorizedException e) {
+            logger.warn("Unauthorized access to chat room: {}", id);
             throw e;
         }
     }

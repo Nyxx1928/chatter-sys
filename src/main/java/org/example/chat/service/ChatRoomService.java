@@ -4,6 +4,7 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.RoomNotFoundException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
@@ -88,14 +89,14 @@ public class ChatRoomService {
      *
      * @param roomId the ID of the chat room
      * @return the ChatRoom entity
-     * @throws IllegalArgumentException if room is not found
+     * @throws RoomNotFoundException if room is not found
      */
     public ChatRoom getRoomById(Long roomId) {
         logger.debug("Retrieving chat room by ID: {}", roomId);
         return chatRoomRepository.findById(roomId)
             .orElseThrow(() -> {
                 logger.warn("Chat room not found: {}", roomId);
-                return new IllegalArgumentException("Chat room not found");
+                return new RoomNotFoundException(roomId);
             });
     }
 

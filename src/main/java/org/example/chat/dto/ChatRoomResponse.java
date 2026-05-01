@@ -29,12 +29,16 @@ public class ChatRoomResponse {
      * @return ChatRoomResponse instance
      */
     public static ChatRoomResponse from(ChatRoom chatRoom) {
+        UserResponse createdByResponse = chatRoom.getCreatedBy() != null 
+            ? UserResponse.from(chatRoom.getCreatedBy()) 
+            : null;
+        
         return new ChatRoomResponse(
             chatRoom.getId(),
             chatRoom.getName(),
             chatRoom.getDescription(),
             chatRoom.getCreatedAt(),
-            UserResponse.from(chatRoom.getCreatedBy())
+            createdByResponse
         );
     }
 }

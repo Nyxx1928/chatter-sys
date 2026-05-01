@@ -5,6 +5,8 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
@@ -17,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST controller for message history operations.
@@ -50,11 +54,11 @@ public class MessageHistoryController {
      * @param roomId the ID of the chat room
      * @param pageable pagination parameters (page, size, sort)
      * @param userDetails the authenticated user making the request
-     * @return ResponseEntity with Page of MessageResponse
+     * @return ResponseEntity with List of MessageResponse
      * @throws IllegalArgumentException if room not found or user is not a member
      */
     @GetMapping("/{roomId}/messages")
-    public ResponseEntity<Page<MessageResponse>> getMessageHistory(
+    public ResponseEntity<List<MessageResponse>> getMessageHistory(
             @PathVariable Long roomId,
             Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -71,7 +75,7 @@ public class MessageHistoryController {
             ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> {
                     logger.warn("Message history request failed: chat room not found: {}", roomId);
-                    return new IllegalArgumentException("Chat room not found");
+                    return new RoomNotFoundException(roomId);
                 });
 
             // Validate that the user is a member of the room
@@ -79,7 +83,7 @@ public class MessageHistoryController {
                 .orElseThrow(() -> {
                     logger.warn("Message history request denied: user {} is not a member of room {}", 
                                currentUser.getId(), roomId);
-                    return new IllegalArgumentException("User is not a member of this chat room");
+                    return new UnauthorizedException("User is not a member of this chat room");
                 });
 
             logger.debug("Membership validated for user ID: {} in room ID: {}", 
@@ -88,12 +92,11 @@ public class MessageHistoryController {
             // Retrieve paginated message history
             Page<Message> messages = chatMessageService.getMessageHistory(roomId, pageable);
 
-            // Convert to DTOs
-            Page<MessageResponse> response = messages.map(MessageResponse::from);
+            // Convert to DTOs and extract content list
+            List<MessageResponse> response = messages.map(MessageResponse::from).getContent();
 
-            logger.info("Retrieved {} messages for room ID: {} (page {}/{})", 
-                       response.getNumberOfElements(), roomId, 
-                       response.getNumber(), response.getTotalPages());
+            logger.info("Retrieved {} messages for room ID: {}", 
+                       response.size(), roomId);
 
             return ResponseEntity.ok(response);
 

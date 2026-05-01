@@ -1,5 +1,6 @@
 package org.example.chat.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -41,6 +43,7 @@ public class SecurityConfig {
      * - Configures CORS
      * - Disables CSRF (not needed for stateless JWT authentication)
      * - Sets session management to stateless
+     * - Configures custom authentication entry point to return 401 instead of 403
      *
      * @param http the HttpSecurity to configure
      * @return the configured SecurityFilterChain
@@ -67,6 +70,11 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             
+            // Configure exception handling to return 401 for unauthenticated requests
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(authenticationEntryPoint())
+            )
+            
             // Set session management to stateless (no sessions, using JWT)
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -76,6 +84,25 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * Custom authentication entry point that returns 401 Unauthorized instead of 403 Forbidden
+     * when authentication is required but not provided.
+     * 
+     * This ensures proper HTTP semantics:
+     * - 401 Unauthorized: Authentication is required but not provided
+     * - 403 Forbidden: Authentication is provided but insufficient permissions
+     *
+     * @return the custom AuthenticationEntryPoint
+     */
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
+        };
     }
 
     /**

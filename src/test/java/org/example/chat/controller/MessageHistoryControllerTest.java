@@ -109,15 +109,15 @@ class MessageHistoryControllerTest {
         when(chatMessageService.getMessageHistory(1L, pageable)).thenReturn(messagePage);
 
         // Act
-        ResponseEntity<Page<MessageResponse>> response = controller.getMessageHistory(1L, pageable, userDetails);
+        ResponseEntity<List<MessageResponse>> response = controller.getMessageHistory(1L, pageable, userDetails);
 
         // Assert
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getTotalElements());
+        assertEquals(1, response.getBody().size());
         
-        MessageResponse messageResponse = response.getBody().getContent().get(0);
+        MessageResponse messageResponse = response.getBody().get(0);
         assertEquals(testMessage.getId(), messageResponse.getId());
         assertEquals(testMessage.getContent(), messageResponse.getContent());
         assertEquals(testUser.getId(), messageResponse.getSenderId());
@@ -195,14 +195,14 @@ class MessageHistoryControllerTest {
         when(chatMessageService.getMessageHistory(1L, pageable)).thenReturn(emptyPage);
 
         // Act
-        ResponseEntity<Page<MessageResponse>> response = controller.getMessageHistory(1L, pageable, userDetails);
+        ResponseEntity<List<MessageResponse>> response = controller.getMessageHistory(1L, pageable, userDetails);
 
         // Assert
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals(0, response.getBody().getTotalElements());
-        assertTrue(response.getBody().getContent().isEmpty());
+        assertEquals(0, response.getBody().size());
+        assertTrue(response.getBody().isEmpty());
 
         verify(chatMessageService).getMessageHistory(1L, pageable);
     }
@@ -220,15 +220,14 @@ class MessageHistoryControllerTest {
         when(chatMessageService.getMessageHistory(1L, secondPage)).thenReturn(messagePage);
 
         // Act
-        ResponseEntity<Page<MessageResponse>> response = controller.getMessageHistory(1L, secondPage, userDetails);
+        ResponseEntity<List<MessageResponse>> response = controller.getMessageHistory(1L, secondPage, userDetails);
 
         // Assert
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals(25, response.getBody().getTotalElements());
-        assertEquals(1, response.getBody().getNumber()); // Page number
-        assertEquals(3, response.getBody().getTotalPages()); // 25 items / 10 per page = 3 pages
+        assertEquals(1, response.getBody().size());
+        // Note: List response no longer contains pagination metadata like totalElements, totalPages
 
         verify(chatMessageService).getMessageHistory(1L, secondPage);
     }
