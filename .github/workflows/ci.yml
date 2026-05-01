@@ -233,7 +233,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
 
-
       - name: Install Cosign
         if: needs.phase5-test-build-docker.outputs.images_pushed == 'true'
         uses: sigstore/cosign-installer@v4.1.1
