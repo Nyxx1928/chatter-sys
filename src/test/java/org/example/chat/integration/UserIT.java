@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for user operations.
  * Tests user profile management with real database.
  */
-class UserIntegrationTest extends BaseIntegrationTest {
+class UserIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -55,34 +55,33 @@ class UserIntegrationTest extends BaseIntegrationTest {
     void getCurrentUser_Authenticated_ReturnsUserProfile() throws Exception {
         mockMvc.perform(get("/api/users/me")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username").value("profileuser"))
-            .andExpect(jsonPath("$.email").value("profile@example.com"))
-            .andExpect(jsonPath("$.displayName").value("Profile Test User"))
-            .andExpect(jsonPath("$.online").value(false));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("profileuser"))
+                .andExpect(jsonPath("$.email").value("profile@example.com"))
+                .andExpect(jsonPath("$.displayName").value("Profile Test User"))
+                .andExpect(jsonPath("$.online").value(false));
     }
 
     @Test
     void getCurrentUser_Unauthenticated_ReturnsUnauthorized() throws Exception {
         mockMvc.perform(get("/api/users/me"))
-            .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     void updateProfile_ValidRequest_UpdatesUser() throws Exception {
         UpdateProfileRequest request = new UpdateProfileRequest(
-            "profile@example.com",
-            "Updated Display Name"
-        );
+                "profile@example.com",
+                "Updated Display Name");
 
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.displayName").value("Updated Display Name"))
-            .andExpect(jsonPath("$.email").value("profile@example.com"))
-            .andExpect(jsonPath("$.username").value("profileuser"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Updated Display Name"))
+                .andExpect(jsonPath("$.email").value("profile@example.com"))
+                .andExpect(jsonPath("$.username").value("profileuser"));
 
         // Verify database was updated
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -93,16 +92,15 @@ class UserIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateProfile_ChangeEmail_UpdatesEmail() throws Exception {
         UpdateProfileRequest request = new UpdateProfileRequest(
-            "newemail@example.com",
-            "Profile Test User"
-        );
+                "newemail@example.com",
+                "Profile Test User");
 
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.email").value("newemail@example.com"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("newemail@example.com"));
 
         // Verify database was updated
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -112,15 +110,14 @@ class UserIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateProfile_InvalidEmail_ReturnsBadRequest() throws Exception {
         UpdateProfileRequest request = new UpdateProfileRequest(
-            "invalid-email",
-            "Profile Test User"
-        );
+                "invalid-email",
+                "Profile Test User");
 
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
 
         // Verify database was not updated
         User unchangedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -141,16 +138,15 @@ class UserIntegrationTest extends BaseIntegrationTest {
 
         // Try to update to existing email
         UpdateProfileRequest request = new UpdateProfileRequest(
-            "other@example.com",
-            "Profile Test User"
-        );
+                "other@example.com",
+                "Profile Test User");
 
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Email already exists"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Email already exists"));
 
         // Verify database was not updated
         User unchangedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -160,15 +156,14 @@ class UserIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateProfile_EmptyDisplayName_ReturnsBadRequest() throws Exception {
         UpdateProfileRequest request = new UpdateProfileRequest(
-            "profile@example.com",
-            ""
-        );
+                "profile@example.com",
+                "");
 
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
 
         // Verify database was not updated
         User unchangedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -178,14 +173,13 @@ class UserIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateProfile_Unauthenticated_ReturnsUnauthorized() throws Exception {
         UpdateProfileRequest request = new UpdateProfileRequest(
-            "profile@example.com",
-            "Updated Display Name"
-        );
+                "profile@example.com",
+                "Updated Display Name");
 
         mockMvc.perform(put("/api/users/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -193,28 +187,27 @@ class UserIntegrationTest extends BaseIntegrationTest {
         // Step 1: Get current profile
         mockMvc.perform(get("/api/users/me")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.displayName").value("Profile Test User"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Profile Test User"));
 
         // Step 2: Update profile
         UpdateProfileRequest updateRequest = new UpdateProfileRequest(
-            "updated@example.com",
-            "Updated Name"
-        );
+                "updated@example.com",
+                "Updated Name");
 
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(updateRequest)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.displayName").value("Updated Name"))
-            .andExpect(jsonPath("$.email").value("updated@example.com"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Updated Name"))
+                .andExpect(jsonPath("$.email").value("updated@example.com"));
 
         // Step 3: Verify changes persisted
         mockMvc.perform(get("/api/users/me")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.displayName").value("Updated Name"))
-            .andExpect(jsonPath("$.email").value("updated@example.com"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Updated Name"))
+                .andExpect(jsonPath("$.email").value("updated@example.com"));
     }
 }

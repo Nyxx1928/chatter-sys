@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for message operations.
  * Tests message history retrieval with real database.
  */
-class MessageIntegrationTest extends BaseIntegrationTest {
+class MessageIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -107,20 +107,20 @@ class MessageIntegrationTest extends BaseIntegrationTest {
         // Get message history
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(3)))
-            .andExpect(jsonPath("$[0].content").value("First message"))
-            .andExpect(jsonPath("$[1].content").value("Second message"))
-            .andExpect(jsonPath("$[2].content").value("Third message"))
-            .andExpect(jsonPath("$[*].senderUsername", everyItem(is("messageuser"))));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].content").value("First message"))
+                .andExpect(jsonPath("$[1].content").value("Second message"))
+                .andExpect(jsonPath("$[2].content").value("Third message"))
+                .andExpect(jsonPath("$[*].senderUsername", everyItem(is("messageuser"))));
     }
 
     @Test
     void getMessageHistory_EmptyRoom_ReturnsEmptyList() throws Exception {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
@@ -140,8 +140,8 @@ class MessageIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken)
                 .param("size", "5"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(5)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(5)));
     }
 
     @Test
@@ -161,20 +161,20 @@ class MessageIntegrationTest extends BaseIntegrationTest {
         // Try to get messages as non-member
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + otherToken))
-            .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void getMessageHistory_NonexistentRoom_ReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/rooms/99999/messages")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void getMessageHistory_WithoutAuthentication_ReturnsUnauthorized() throws Exception {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages"))
-            .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -217,12 +217,12 @@ class MessageIntegrationTest extends BaseIntegrationTest {
         // Get message history
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].senderUsername").value("messageuser"))
-            .andExpect(jsonPath("$[0].content").value("Message from user 1"))
-            .andExpect(jsonPath("$[1].senderUsername").value("user2"))
-            .andExpect(jsonPath("$[1].content").value("Message from user 2"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].senderUsername").value("messageuser"))
+                .andExpect(jsonPath("$[0].content").value("Message from user 1"))
+                .andExpect(jsonPath("$[1].senderUsername").value("user2"))
+                .andExpect(jsonPath("$[1].content").value("Message from user 2"));
     }
 
     @Test
@@ -255,10 +255,10 @@ class MessageIntegrationTest extends BaseIntegrationTest {
         // Get message history
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(3)))
-            .andExpect(jsonPath("$[0].messageType").value("TEXT"))
-            .andExpect(jsonPath("$[1].messageType").value("JOIN"))
-            .andExpect(jsonPath("$[2].messageType").value("LEAVE"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].messageType").value("TEXT"))
+                .andExpect(jsonPath("$[1].messageType").value("JOIN"))
+                .andExpect(jsonPath("$[2].messageType").value("LEAVE"));
     }
 }

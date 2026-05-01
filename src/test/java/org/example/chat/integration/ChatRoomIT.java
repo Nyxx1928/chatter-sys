@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for chat room operations.
  * Tests room creation, membership, and retrieval with real database.
  */
-class ChatRoomIntegrationTest extends BaseIntegrationTest {
+class ChatRoomIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -72,10 +72,10 @@ class ChatRoomIntegrationTest extends BaseIntegrationTest {
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("Test Room"))
-            .andExpect(jsonPath("$.id").isNumber())
-            .andExpect(jsonPath("$.createdAt").isNotEmpty());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Test Room"))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
         // Verify room was created in database
         List<ChatRoom> rooms = chatRoomRepository.findAll();
@@ -96,7 +96,7 @@ class ChatRoomIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/api/rooms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
 
         // Verify no room was created
         assertEquals(0, chatRoomRepository.count());
@@ -133,17 +133,17 @@ class ChatRoomIntegrationTest extends BaseIntegrationTest {
         // Get rooms for user
         mockMvc.perform(get("/api/rooms")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[*].name", containsInAnyOrder("Room 1", "Room 2")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].name", containsInAnyOrder("Room 1", "Room 2")));
     }
 
     @Test
     void getRooms_UserHasNoRooms_ReturnsEmptyList() throws Exception {
         mockMvc.perform(get("/api/rooms")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
@@ -165,16 +165,16 @@ class ChatRoomIntegrationTest extends BaseIntegrationTest {
         // Get room by ID
         mockMvc.perform(get("/api/rooms/" + room.getId())
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(room.getId()))
-            .andExpect(jsonPath("$.name").value("Test Room"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(room.getId()))
+                .andExpect(jsonPath("$.name").value("Test Room"));
     }
 
     @Test
     void getRoomById_NonexistentRoom_ReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/rooms/99999")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -205,7 +205,7 @@ class ChatRoomIntegrationTest extends BaseIntegrationTest {
         // Try to access room as non-member
         mockMvc.perform(get("/api/rooms/" + room.getId())
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -217,24 +217,24 @@ class ChatRoomIntegrationTest extends BaseIntegrationTest {
                 .header("Authorization", "Bearer " + authToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(createRequest)))
-            .andExpect(status().isCreated())
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         Long roomId = objectMapper.readTree(response).get("id").asLong();
 
         // Step 2: Retrieve the room
         mockMvc.perform(get("/api/rooms/" + roomId)
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Integration Test Room"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Integration Test Room"));
 
         // Step 3: Verify room appears in user's room list
         mockMvc.perform(get("/api/rooms")
                 .header("Authorization", "Bearer " + authToken))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].name").value("Integration Test Room"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name").value("Integration Test Room"));
     }
 }

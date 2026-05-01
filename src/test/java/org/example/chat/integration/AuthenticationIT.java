@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for authentication flow.
  * Tests the complete registration and login process with real database.
  */
-class AuthenticationIntegrationTest extends BaseIntegrationTest {
+class AuthenticationIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -30,21 +30,20 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
     void completeAuthenticationFlow_RegisterAndLogin_Success() throws Exception {
         // Step 1: Register a new user
         RegisterRequest registerRequest = new RegisterRequest(
-            "integrationuser",
-            "integration@example.com",
-            "password123",
-            "Integration Test User"
-        );
+                "integrationuser",
+                "integration@example.com",
+                "password123",
+                "Integration Test User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(registerRequest)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.username").value("integrationuser"))
-            .andExpect(jsonPath("$.email").value("integration@example.com"))
-            .andExpect(jsonPath("$.displayName").value("Integration Test User"))
-            .andExpect(jsonPath("$.id").isNumber())
-            .andExpect(jsonPath("$.online").value(false));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("integrationuser"))
+                .andExpect(jsonPath("$.email").value("integration@example.com"))
+                .andExpect(jsonPath("$.displayName").value("Integration Test User"))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.online").value(false));
 
         // Verify user was saved to database
         User savedUser = userRepository.findByUsername("integrationuser").orElse(null);
@@ -59,98 +58,93 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(loginRequest)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.token").isString())
-            .andExpect(jsonPath("$.token").isNotEmpty())
-            .andExpect(jsonPath("$.user.username").value("integrationuser"))
-            .andExpect(jsonPath("$.user.email").value("integration@example.com"))
-            .andExpect(jsonPath("$.user.displayName").value("Integration Test User"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.user.username").value("integrationuser"))
+                .andExpect(jsonPath("$.user.email").value("integration@example.com"))
+                .andExpect(jsonPath("$.user.displayName").value("Integration Test User"));
     }
 
     @Test
     void register_DuplicateUsername_ReturnsBadRequest() throws Exception {
         // Create first user
         RegisterRequest firstRequest = new RegisterRequest(
-            "duplicateuser",
-            "first@example.com",
-            "password123",
-            "First User"
-        );
+                "duplicateuser",
+                "first@example.com",
+                "password123",
+                "First User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(firstRequest)))
-            .andExpect(status().isCreated());
+                .andExpect(status().isCreated());
 
         // Try to create second user with same username
         RegisterRequest secondRequest = new RegisterRequest(
-            "duplicateuser",
-            "second@example.com",
-            "password456",
-            "Second User"
-        );
+                "duplicateuser",
+                "second@example.com",
+                "password456",
+                "Second User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(secondRequest)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Username already exists"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Username already exists"));
 
         // Verify only one user exists
         assertEquals(1, userRepository.findAll().stream()
-            .filter(u -> u.getUsername().equals("duplicateuser"))
-            .count());
+                .filter(u -> u.getUsername().equals("duplicateuser"))
+                .count());
     }
 
     @Test
     void register_DuplicateEmail_ReturnsBadRequest() throws Exception {
         // Create first user
         RegisterRequest firstRequest = new RegisterRequest(
-            "firstuser",
-            "duplicate@example.com",
-            "password123",
-            "First User"
-        );
+                "firstuser",
+                "duplicate@example.com",
+                "password123",
+                "First User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(firstRequest)))
-            .andExpect(status().isCreated());
+                .andExpect(status().isCreated());
 
         // Try to create second user with same email
         RegisterRequest secondRequest = new RegisterRequest(
-            "seconduser",
-            "duplicate@example.com",
-            "password456",
-            "Second User"
-        );
+                "seconduser",
+                "duplicate@example.com",
+                "password456",
+                "Second User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(secondRequest)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Email already exists"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Email already exists"));
 
         // Verify only one user with this email exists
         assertEquals(1, userRepository.findAll().stream()
-            .filter(u -> u.getEmail().equals("duplicate@example.com"))
-            .count());
+                .filter(u -> u.getEmail().equals("duplicate@example.com"))
+                .count());
     }
 
     @Test
     void login_InvalidCredentials_ReturnsBadRequest() throws Exception {
         // Register a user
         RegisterRequest registerRequest = new RegisterRequest(
-            "testuser",
-            "test@example.com",
-            "correctpassword",
-            "Test User"
-        );
+                "testuser",
+                "test@example.com",
+                "correctpassword",
+                "Test User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(registerRequest)))
-            .andExpect(status().isCreated());
+                .andExpect(status().isCreated());
 
         // Try to login with wrong password
         LoginRequest loginRequest = new LoginRequest("testuser", "wrongpassword");
@@ -158,8 +152,8 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(loginRequest)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Invalid username or password"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid username or password"));
     }
 
     @Test
@@ -169,23 +163,22 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(loginRequest)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Invalid username or password"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid username or password"));
     }
 
     @Test
     void register_InvalidEmail_ReturnsBadRequest() throws Exception {
         RegisterRequest request = new RegisterRequest(
-            "testuser",
-            "invalid-email",
-            "password123",
-            "Test User"
-        );
+                "testuser",
+                "invalid-email",
+                "password123",
+                "Test User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
 
         // Verify user was not created
         assertFalse(userRepository.findByUsername("testuser").isPresent());
@@ -194,16 +187,15 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
     @Test
     void register_ShortPassword_ReturnsBadRequest() throws Exception {
         RegisterRequest request = new RegisterRequest(
-            "testuser",
-            "test@example.com",
-            "short",
-            "Test User"
-        );
+                "testuser",
+                "test@example.com",
+                "short",
+                "Test User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
 
         // Verify user was not created
         assertFalse(userRepository.findByUsername("testuser").isPresent());

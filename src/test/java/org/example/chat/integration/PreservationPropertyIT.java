@@ -24,12 +24,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 
  * **Validates: Requirements 3.1-3.14 (Preservation Requirements)**
  * 
- * IMPORTANT: These tests MUST PASS on UNFIXED code to establish baseline behavior.
+ * IMPORTANT: These tests MUST PASS on UNFIXED code to establish baseline
+ * behavior.
  * 
- * These tests use a property-based testing approach by testing multiple scenarios
+ * These tests use a property-based testing approach by testing multiple
+ * scenarios
  * and verifying that certain properties hold across all inputs.
  */
-class PreservationPropertyTest extends BaseIntegrationTest {
+class PreservationPropertyIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -54,7 +56,8 @@ class PreservationPropertyTest extends BaseIntegrationTest {
      * 
      * **Validates: Requirements 3.1 (Authenticated requests work unchanged)**
      * 
-     * For any authenticated request to a protected endpoint where the user has proper
+     * For any authenticated request to a protected endpoint where the user has
+     * proper
      * authorization, the system SHALL continue to process the request normally.
      */
     @Test
@@ -90,19 +93,19 @@ class PreservationPropertyTest extends BaseIntegrationTest {
             // Test authenticated request to get message history
             mockMvc.perform(get("/api/rooms/" + room.getId() + "/messages")
                     .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk());
+                    .andExpect(status().isOk());
 
             // Test authenticated request to get room details
             mockMvc.perform(get("/api/rooms/" + room.getId())
                     .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Room " + i));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Room " + i));
 
             // Test authenticated request to get user profile
             mockMvc.perform(get("/api/users/me")
                     .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("auth_user_" + i));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.username").value("auth_user_" + i));
         }
     }
 
@@ -119,17 +122,16 @@ class PreservationPropertyTest extends BaseIntegrationTest {
         // Test multiple registration scenarios
         for (int i = 0; i < 5; i++) {
             RegisterRequest registerRequest = new RegisterRequest(
-                "pub_user_" + i,
-                "pub_user_" + i + "@example.com",
-                "password123",
-                "Public User " + i
-            );
+                    "pub_user_" + i,
+                    "pub_user_" + i + "@example.com",
+                    "password123",
+                    "Public User " + i);
 
             mockMvc.perform(post("/api/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(toJson(registerRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("pub_user_" + i));
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.username").value("pub_user_" + i));
         }
     }
 
@@ -145,8 +147,8 @@ class PreservationPropertyTest extends BaseIntegrationTest {
     @Test
     void messageHistoryContentAndOrderingUnchanged() throws Exception {
         // Test with different message counts
-        int[] messageCounts = {0, 1, 3, 5, 10};
-        
+        int[] messageCounts = { 0, 1, 3, 5, 10 };
+
         for (int count : messageCounts) {
             // Create user and room
             User user = new User();
@@ -189,19 +191,19 @@ class PreservationPropertyTest extends BaseIntegrationTest {
                 // For non-empty rooms, verify message structure
                 mockMvc.perform(get("/api/rooms/" + room.getId() + "/messages")
                         .header("Authorization", "Bearer " + authToken))
-                    .andExpect(status().isOk())
-                    // Note: We're checking that the response contains message data
-                    // The actual structure (array vs paginated) is what the bugfix will change
-                    // But the MESSAGE CONTENT must remain unchanged
-                    .andExpect(jsonPath("$..content").exists()) // Messages have content
-                    .andExpect(jsonPath("$..senderId").exists()) // Messages have sender info
-                    .andExpect(jsonPath("$..messageType").exists()) // Messages have type
-                    .andExpect(jsonPath("$..timestamp").exists()); // Messages have timestamp
+                        .andExpect(status().isOk())
+                        // Note: We're checking that the response contains message data
+                        // The actual structure (array vs paginated) is what the bugfix will change
+                        // But the MESSAGE CONTENT must remain unchanged
+                        .andExpect(jsonPath("$..content").exists())
+                        .andExpect(jsonPath("$..senderId").exists())
+                        .andExpect(jsonPath("$..messageType").exists())
+                        .andExpect(jsonPath("$..timestamp").exists());
             } else {
                 // For empty rooms, just verify 200 OK
                 mockMvc.perform(get("/api/rooms/" + room.getId() + "/messages")
                         .header("Authorization", "Bearer " + authToken))
-                    .andExpect(status().isOk());
+                        .andExpect(status().isOk());
             }
         }
     }
@@ -238,21 +240,21 @@ class PreservationPropertyTest extends BaseIntegrationTest {
                     .header("Authorization", "Bearer " + authToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(toJson(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(roomName))
-                .andExpect(jsonPath("$.id").isNumber());
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.name").value(roomName))
+                    .andExpect(jsonPath("$.id").isNumber());
 
             // Verify creator is added as OWNER
             ChatRoom createdRoom = chatRoomRepository.findAll().stream()
-                .filter(r -> r.getName().equals(roomName))
-                .findFirst()
-                .orElseThrow();
+                    .filter(r -> r.getName().equals(roomName))
+                    .findFirst()
+                    .orElseThrow();
 
             final Long userId = user.getId();
             RoomMembership membership = roomMembershipRepository.findByChatRoom(createdRoom).stream()
-                .filter(m -> m.getUser().getId().equals(userId))
-                .findFirst()
-                .orElseThrow();
+                    .filter(m -> m.getUser().getId().equals(userId))
+                    .findFirst()
+                    .orElseThrow();
 
             assertEquals(MemberRole.OWNER, membership.getRole());
         }
@@ -285,22 +287,21 @@ class PreservationPropertyTest extends BaseIntegrationTest {
             // Test get profile
             mockMvc.perform(get("/api/users/me")
                     .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("profile_" + i))
-                .andExpect(jsonPath("$.displayName").value("Original Name " + i));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.username").value("profile_" + i))
+                    .andExpect(jsonPath("$.displayName").value("Original Name " + i));
 
             // Test update profile
             UpdateProfileRequest updateRequest = new UpdateProfileRequest(
-                "profile_" + i + "@example.com",
-                "Updated Name " + i
-            );
+                    "profile_" + i + "@example.com",
+                    "Updated Name " + i);
 
             mockMvc.perform(put("/api/users/me")
                     .header("Authorization", "Bearer " + authToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(toJson(updateRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.displayName").value("Updated Name " + i));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.displayName").value("Updated Name " + i));
         }
     }
 
@@ -316,29 +317,27 @@ class PreservationPropertyTest extends BaseIntegrationTest {
     void validationErrorResponsesUnchanged() throws Exception {
         // Test invalid email format
         RegisterRequest invalidEmailRequest = new RegisterRequest(
-            "testuser",
-            "invalid-email",
-            "password123",
-            "Test User"
-        );
+                "testuser",
+                "invalid-email",
+                "password123",
+                "Test User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(invalidEmailRequest)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
 
         // Test short password
         RegisterRequest shortPasswordRequest = new RegisterRequest(
-            "testuser2",
-            "test@example.com",
-            "short",
-            "Test User"
-        );
+                "testuser2",
+                "test@example.com",
+                "short",
+                "Test User");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(shortPasswordRequest)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     /**
@@ -382,13 +381,13 @@ class PreservationPropertyTest extends BaseIntegrationTest {
             // Verify member can access room
             mockMvc.perform(get("/api/rooms/" + room.getId())
                     .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Member Room " + i));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Member Room " + i));
 
             // Verify member can access message history
             mockMvc.perform(get("/api/rooms/" + room.getId() + "/messages")
                     .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk());
+                    .andExpect(status().isOk());
         }
     }
 }
