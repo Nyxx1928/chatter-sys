@@ -197,23 +197,23 @@ jobs:
 
       - name: SBOM (backend)
         if: needs.phase5-test-build-docker.outputs.backend_built == 'true'
-        uses: anchore/syft-action@v0
+        uses: anchore/sbom-action@v0
         with:
           image: ${{ needs.phase5-test-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }}
-          output-format: spdx-json
+          format: spdx-json
           output-file: sbom-backend.spdx.json
 
       - name: SBOM (frontend)
         if: needs.phase5-test-build-docker.outputs.frontend_built == 'true'
-        uses: anchore/syft-action@v0
+        uses: anchore/sbom-action@v0
         with:
           image: ${{ needs.phase5-test-build-docker.outputs.frontend_image }}:${{ env.IMAGE_TAG }}
-          output-format: spdx-json
+          format: spdx-json
           output-file: sbom-frontend.spdx.json
 
       - name: Trivy scan (backend)
         if: needs.phase5-test-build-docker.outputs.backend_built == 'true'
-        uses: aquasecurity/trivy-action@v0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ needs.phase5-test-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }}
           format: table
