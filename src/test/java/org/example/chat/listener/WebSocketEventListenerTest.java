@@ -4,25 +4,20 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
-import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
+import org.example.chat.service.UserPresenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +30,7 @@ import static org.mockito.Mockito.*;
  * Tests the connection lifecycle management including:
  * - Marking users online on connect
  * - Marking users offline on disconnect
- * - Publishing presence updates to all user's rooms
+ * - Delegating presence tracking to UserPresenceService
  */
 @ExtendWith(MockitoExtension.class)
 class WebSocketEventListenerTest {
@@ -44,10 +39,7 @@ class WebSocketEventListenerTest {
     private UserRepository userRepository;
 
     @Mock
-    private RoomMembershipRepository roomMembershipRepository;
-
-    @Mock
-    private SimpMessagingTemplate messagingTemplate;
+    private UserPresenceService userPresenceService;
 
     @Mock
     private SessionConnectEvent connectEvent;
@@ -111,7 +103,6 @@ class WebSocketEventListenerTest {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(roomMembershipRepository.findByUser(testUser)).thenReturn(Arrays.asList(membership1, membership2));
 
         // Mock the event to return the principal
         when(connectEvent.getMessage()).thenReturn(
@@ -126,10 +117,7 @@ class WebSocketEventListenerTest {
 
         // Assert
         verify(userRepository).findByUsername("testuser");
-        verify(userRepository).save(argThat(user -> 
-            user.getOnline() && 
-            user.getLastSeen() != null
-        ));
+        verify(userPresenceService).markUserOnline(1L);
     }
 
     @Test
@@ -137,7 +125,6 @@ class WebSocketEventListenerTest {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(roomMembershipRepository.findByUser(testUser)).thenReturn(Arrays.asList(membership1, membership2));
 
         when(connectEvent.getMessage()).thenReturn(
             org.springframework.messaging.support.MessageBuilder
@@ -150,26 +137,7 @@ class WebSocketEventListenerTest {
         eventListener.handleWebSocketConnectListener(connectEvent);
 
         // Assert
-        ArgumentCaptor<String> destinationCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Map> payloadCaptor = ArgumentCaptor.forClass(Map.class);
-        
-        verify(messagingTemplate, times(2)).convertAndSend(
-            destinationCaptor.capture(),
-            payloadCaptor.capture()
-        );
-
-        List<String> destinations = destinationCaptor.getAllValues();
-        assertTrue(destinations.contains("/topic/presence/1"));
-        assertTrue(destinations.contains("/topic/presence/2"));
-
-        List<Map> payloads = payloadCaptor.getAllValues();
-        for (Map payload : payloads) {
-            assertEquals(1L, payload.get("userId"));
-            assertEquals("testuser", payload.get("username"));
-            assertEquals("Test User", payload.get("displayName"));
-            assertEquals(true, payload.get("online"));
-            assertNotNull(payload.get("lastSeen"));
-        }
+        verify(userPresenceService).markUserOnline(1L);
     }
 
     @Test
@@ -178,7 +146,6 @@ class WebSocketEventListenerTest {
         testUser.setOnline(true);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(roomMembershipRepository.findByUser(testUser)).thenReturn(Arrays.asList(membership1, membership2));
 
         when(disconnectEvent.getMessage()).thenReturn(
             org.springframework.messaging.support.MessageBuilder
@@ -192,10 +159,7 @@ class WebSocketEventListenerTest {
 
         // Assert
         verify(userRepository).findByUsername("testuser");
-        verify(userRepository).save(argThat(user -> 
-            !user.getOnline() && 
-            user.getLastSeen() != null
-        ));
+        verify(userPresenceService).markUserOffline(1L);
     }
 
     @Test
@@ -204,7 +168,6 @@ class WebSocketEventListenerTest {
         testUser.setOnline(true);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(roomMembershipRepository.findByUser(testUser)).thenReturn(Arrays.asList(membership1, membership2));
 
         when(disconnectEvent.getMessage()).thenReturn(
             org.springframework.messaging.support.MessageBuilder
@@ -217,26 +180,7 @@ class WebSocketEventListenerTest {
         eventListener.handleWebSocketDisconnectListener(disconnectEvent);
 
         // Assert
-        ArgumentCaptor<String> destinationCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Map> payloadCaptor = ArgumentCaptor.forClass(Map.class);
-        
-        verify(messagingTemplate, times(2)).convertAndSend(
-            destinationCaptor.capture(),
-            payloadCaptor.capture()
-        );
-
-        List<String> destinations = destinationCaptor.getAllValues();
-        assertTrue(destinations.contains("/topic/presence/1"));
-        assertTrue(destinations.contains("/topic/presence/2"));
-
-        List<Map> payloads = payloadCaptor.getAllValues();
-        for (Map payload : payloads) {
-            assertEquals(1L, payload.get("userId"));
-            assertEquals("testuser", payload.get("username"));
-            assertEquals("Test User", payload.get("displayName"));
-            assertEquals(false, payload.get("online"));
-            assertNotNull(payload.get("lastSeen"));
-        }
+        verify(userPresenceService).markUserOffline(1L);
     }
 
     @Test
@@ -253,8 +197,7 @@ class WebSocketEventListenerTest {
 
         // Assert
         verify(userRepository, never()).findByUsername(anyString());
-        verify(userRepository, never()).save(any());
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any());
+        verify(userPresenceService, never()).markUserOnline(anyLong());
     }
 
     @Test
@@ -271,8 +214,7 @@ class WebSocketEventListenerTest {
 
         // Assert
         verify(userRepository, never()).findByUsername(anyString());
-        verify(userRepository, never()).save(any());
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any());
+        verify(userPresenceService, never()).markUserOffline(anyLong());
     }
 
     @Test
@@ -290,8 +232,7 @@ class WebSocketEventListenerTest {
 
         // Act & Assert
         assertDoesNotThrow(() -> eventListener.handleWebSocketConnectListener(connectEvent));
-        verify(userRepository, never()).save(any());
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any());
+        verify(userPresenceService, never()).markUserOnline(anyLong());
     }
 
     @Test
@@ -299,7 +240,6 @@ class WebSocketEventListenerTest {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(roomMembershipRepository.findByUser(testUser)).thenReturn(Arrays.asList());
 
         when(connectEvent.getMessage()).thenReturn(
             org.springframework.messaging.support.MessageBuilder
@@ -312,7 +252,6 @@ class WebSocketEventListenerTest {
         eventListener.handleWebSocketConnectListener(connectEvent);
 
         // Assert
-        verify(userRepository).save(any());
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any());
+        verify(userPresenceService).markUserOnline(1L);
     }
 }
