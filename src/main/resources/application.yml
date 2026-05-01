@@ -44,12 +44,17 @@ logging:
     org.springframework.web: INFO
     org.springframework.security: INFO
     org.springframework.messaging: INFO
+    org.springframework.websocket: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.example: DEBUG
+    org.example.chat: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/chat-application.log
+    max-size: 10MB
+    max-history: 7
 
 # JWT Configuration
 jwt:
@@ -75,10 +80,16 @@ spring:
       ddl-auto: create-drop
 logging:
   level:
+    root: DEBUG
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
     org.springframework.messaging: DEBUG
-    org.example: DEBUG
+    org.springframework.websocket: DEBUG
+    org.example.chat: TRACE
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
 ---
 # Production Profile
@@ -94,10 +105,16 @@ logging:
   level:
     root: WARN
     org.springframework.web: WARN
-    org.springframework.security: WARN
+    org.springframework.security: INFO
     org.springframework.messaging: INFO
-    org.example: INFO
+    org.springframework.websocket: INFO
+    org.example.chat: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: logs/chat-application.log
     max-size: 10MB
     max-history: 30
+    total-size-cap: 1GB

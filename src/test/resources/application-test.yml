@@ -1,0 +1,56 @@
+# Test Configuration for Real-Time Chat System
+# Uses H2 in-memory database for testing
+
+spring:
+  application:
+    name: realtime-chat-system-test
+
+  # H2 In-Memory Database Configuration for Tests
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  
+  # JPA/Hibernate Configuration for Tests
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    open-in-view: false
+  
+  # H2 Console (disabled for tests)
+  h2:
+    console:
+      enabled: false
+
+# Server Configuration
+server:
+  port: 0  # Random port for tests
+
+# Logging Configuration for Tests
+logging:
+  level:
+    root: WARN
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.springframework.messaging: WARN
+    org.springframework.websocket: WARN
+    org.example.chat: INFO
+    org.hibernate.SQL: WARN
+
+# JWT Configuration for Tests
+jwt:
+  secret: test-secret-key-for-testing-purposes-minimum-256-bits-required-for-security
+  expiration: 3600000 # 1 hour for tests
+
+# WebSocket Configuration for Tests
+websocket:
+  allowed-origins: http://localhost:3000
+  message-size-limit: 128000
+  send-buffer-size-limit: 512000
+  send-time-limit: 20000

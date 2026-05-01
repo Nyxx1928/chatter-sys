@@ -35,5 +35,16 @@ build/
 ### VS Code ###
 .vscode/
 
+### Environment ###
+.env
+
 ### Mac OS ###
 .DS_Store
+
+### files ###
+test-docs/
+
+
+
+
+
