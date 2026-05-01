@@ -164,7 +164,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: (steps.dockerfiles.outputs.backend == 'true' || steps.dockerfiles.outputs.frontend == 'true') && github.event_name == 'push' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != ''
+        if: (steps.dockerfiles.outputs.backend == 'true' || steps.dockerfiles.outputs.frontend == 'true') && github.event_name == 'push' && steps.images.outputs.images_pushed == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -176,7 +176,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          push: ${{ github.event_name == 'push' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+          push: ${{ github.event_name == 'push' && steps.images.outputs.images_pushed == 'true' }}
           tags: ${{ env.BACKEND_IMAGE }}:${{ env.IMAGE_TAG }}
 
       - name: Build frontend image
@@ -185,7 +185,7 @@ jobs:
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: ${{ github.event_name == 'push' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+          push: ${{ github.event_name == 'push' && steps.images.outputs.images_pushed == 'true' }}
           tags: ${{ env.FRONTEND_IMAGE }}:${{ env.IMAGE_TAG }}
 
   phase6-security-scan:
