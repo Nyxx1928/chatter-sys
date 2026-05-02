@@ -1,0 +1,13 @@
+**/.git
+**/.gitignore
+**/.idea
+**/.vscode
+**/node_modules
+**/.next
+**/target
+**/logs
+**/dist
+**/build
+**/.env
+frontend/node_modules
+frontend/.next
