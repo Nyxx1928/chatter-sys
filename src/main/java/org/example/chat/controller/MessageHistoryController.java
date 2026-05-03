@@ -6,11 +6,11 @@ import org.example.chat.entity.Message;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
-import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
+import org.example.chat.service.ChatRoomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -33,15 +33,18 @@ public class MessageHistoryController {
     private static final Logger logger = LoggerFactory.getLogger(MessageHistoryController.class);
 
     private final ChatMessageService chatMessageService;
+    private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
     private final RoomMembershipRepository roomMembershipRepository;
     private final UserRepository userRepository;
 
     public MessageHistoryController(ChatMessageService chatMessageService,
-                                   ChatRoomRepository chatRoomRepository,
-                                   RoomMembershipRepository roomMembershipRepository,
-                                   UserRepository userRepository) {
+            ChatRoomService chatRoomService,
+            ChatRoomRepository chatRoomRepository,
+            RoomMembershipRepository roomMembershipRepository,
+            UserRepository userRepository) {
         this.chatMessageService = chatMessageService;
+        this.chatRoomService = chatRoomService;
         this.chatRoomRepository = chatRoomRepository;
         this.roomMembershipRepository = roomMembershipRepository;
         this.userRepository = userRepository;
@@ -49,10 +52,11 @@ public class MessageHistoryController {
 
     /**
      * Retrieves paginated message history for a chat room.
-     * Validates that the requesting user is a member of the room before returning messages.
+     * Validates that the requesting user is a member of the room before returning
+     * messages.
      *
-     * @param roomId the ID of the chat room
-     * @param pageable pagination parameters (page, size, sort)
+     * @param roomId      the ID of the chat room
+     * @param pageable    pagination parameters (page, size, sort)
      * @param userDetails the authenticated user making the request
      * @return ResponseEntity with List of MessageResponse
      * @throws IllegalArgumentException if room not found or user is not a member
@@ -62,32 +66,28 @@ public class MessageHistoryController {
             @PathVariable Long roomId,
             Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails) {
-        
-        logger.info("Message history request for room ID: {} by user: {}", 
-                    roomId, userDetails.getUsername());
+
+        logger.info("Message history request for room ID: {} by user: {}",
+                roomId, userDetails.getUsername());
 
         try {
             // Get the authenticated user
             User currentUser = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
 
             // Get the chat room
             ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> {
-                    logger.warn("Message history request failed: chat room not found: {}", roomId);
-                    return new RoomNotFoundException(roomId);
-                });
+                    .orElseThrow(() -> {
+                        logger.warn("Message history request failed: chat room not found: {}", roomId);
+                        return new RoomNotFoundException(roomId);
+                    });
 
-            // Validate that the user is a member of the room
+            // Ensure the user is a member of the room (auto-join if needed)
             RoomMembership membership = roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
-                .orElseThrow(() -> {
-                    logger.warn("Message history request denied: user {} is not a member of room {}", 
-                               currentUser.getId(), roomId);
-                    return new UnauthorizedException("User is not a member of this chat room");
-                });
+                    .orElseGet(() -> chatRoomService.addMember(roomId, currentUser.getId(), null));
 
-            logger.debug("Membership validated for user ID: {} in room ID: {}", 
-                        currentUser.getId(), roomId);
+            logger.debug("Membership validated for user ID: {} in room ID: {}",
+                    currentUser.getId(), roomId);
 
             // Retrieve paginated message history
             Page<Message> messages = chatMessageService.getMessageHistory(roomId, pageable);
@@ -95,8 +95,8 @@ public class MessageHistoryController {
             // Convert to DTOs and extract content list
             List<MessageResponse> response = messages.map(MessageResponse::from).getContent();
 
-            logger.info("Retrieved {} messages for room ID: {}", 
-                       response.size(), roomId);
+            logger.info("Retrieved {} messages for room ID: {}",
+                    response.size(), roomId);
 
             return ResponseEntity.ok(response);
 

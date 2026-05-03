@@ -36,9 +36,9 @@ public class ChatRoomController {
     private final UserRepository userRepository;
     private final RoomMembershipRepository roomMembershipRepository;
 
-    public ChatRoomController(ChatRoomService chatRoomService, 
-                            UserRepository userRepository,
-                            RoomMembershipRepository roomMembershipRepository) {
+    public ChatRoomController(ChatRoomService chatRoomService,
+            UserRepository userRepository,
+            RoomMembershipRepository roomMembershipRepository) {
         this.chatRoomService = chatRoomService;
         this.userRepository = userRepository;
         this.roomMembershipRepository = roomMembershipRepository;
@@ -47,7 +47,8 @@ public class ChatRoomController {
     /**
      * Creates a new chat room.
      *
-     * @param request the room creation request containing name and optional description
+     * @param request     the room creation request containing name and optional
+     *                    description
      * @param userDetails the authenticated user creating the room
      * @return ResponseEntity with ChatRoomResponse and HTTP 201 Created status
      */
@@ -55,29 +56,28 @@ public class ChatRoomController {
     public ResponseEntity<ChatRoomResponse> createRoom(
             @Valid @RequestBody CreateRoomRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        
-        logger.info("Room creation request received: {} by user: {}", 
-                    request.getName(), userDetails.getUsername());
+
+        logger.info("Room creation request received: {} by user: {}",
+                request.getName(), userDetails.getUsername());
 
         try {
             // Get the User entity from the authenticated username
             User currentUser = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
-            
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
             ChatRoom chatRoom = chatRoomService.createRoom(
-                request.getName(),
-                request.getDescription(),
-                currentUser.getId()
-            );
+                    request.getName(),
+                    request.getDescription(),
+                    currentUser.getId());
 
             ChatRoomResponse response = ChatRoomResponse.from(chatRoom);
-            logger.info("Room created successfully: {} with ID: {}", 
-                        request.getName(), chatRoom.getId());
+            logger.info("Room created successfully: {} with ID: {}",
+                    request.getName(), chatRoom.getId());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            logger.warn("Room creation failed for {}: {}", 
-                        request.getName(), e.getMessage());
+            logger.warn("Room creation failed for {}: {}",
+                    request.getName(), e.getMessage());
             throw e;
         }
     }
@@ -93,8 +93,8 @@ public class ChatRoomController {
 
         List<ChatRoom> rooms = chatRoomService.listRooms();
         List<ChatRoomResponse> response = rooms.stream()
-            .map(ChatRoomResponse::from)
-            .collect(Collectors.toList());
+                .map(ChatRoomResponse::from)
+                .collect(Collectors.toList());
 
         logger.debug("Retrieved {} chat rooms", response.size());
         return ResponseEntity.ok(response);
@@ -103,7 +103,7 @@ public class ChatRoomController {
     /**
      * Retrieves details of a specific chat room.
      *
-     * @param id the ID of the chat room
+     * @param id          the ID of the chat room
      * @param userDetails the authenticated user making the request
      * @return ResponseEntity with ChatRoomResponse
      */
@@ -111,20 +111,20 @@ public class ChatRoomController {
     public ResponseEntity<ChatRoomResponse> getRoomById(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        
+
         logger.debug("Retrieving chat room with ID: {}", id);
 
         try {
             // Get the authenticated user
             User currentUser = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
 
             // Get the chat room
             ChatRoom chatRoom = chatRoomService.getRoomById(id);
-            
-            // Validate that the user is a member of the room
+
+            // Ensure the user is a member of the room (auto-join if needed)
             roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
-                .orElseThrow(() -> new UnauthorizedException("User is not a member of this chat room"));
+                    .orElseGet(() -> chatRoomService.addMember(chatRoom.getId(), currentUser.getId(), null));
 
             ChatRoomResponse response = ChatRoomResponse.from(chatRoom);
             logger.debug("Retrieved chat room: {}", chatRoom.getName());
@@ -151,8 +151,8 @@ public class ChatRoomController {
         try {
             List<User> members = chatRoomService.getRoomMembers(id);
             List<UserResponse> response = members.stream()
-                .map(UserResponse::from)
-                .collect(Collectors.toList());
+                    .map(UserResponse::from)
+                    .collect(Collectors.toList());
 
             logger.debug("Retrieved {} members for chat room ID: {}", response.size(), id);
             return ResponseEntity.ok(response);
@@ -160,5 +160,25 @@ public class ChatRoomController {
             logger.warn("Failed to retrieve members for chat room {}: {}", id, e.getMessage());
             throw e;
         }
+    }
+
+    /**
+     * Deletes a chat room if the user is an owner or moderator.
+     *
+     * @param id the ID of the chat room
+     * @param userDetails the authenticated user making the request
+     * @return ResponseEntity with HTTP 204 No Content status
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRoom(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Room deletion request for room ID: {} by user: {}", id, userDetails.getUsername());
+
+        User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
+        chatRoomService.deleteRoom(id, currentUser.getId());
+        return ResponseEntity.noContent().build();
     }
 }
