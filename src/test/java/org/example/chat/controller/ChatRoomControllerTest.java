@@ -7,6 +7,7 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatRoomService;
@@ -30,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -210,6 +213,42 @@ class ChatRoomControllerTest {
             .thenThrow(new RoomNotFoundException(999L));
 
         mockMvc.perform(get("/api/rooms/999/members"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void deleteRoom_AsOwner_ReturnsNoContent() throws Exception {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        mockMvc.perform(delete("/api/rooms/1")
+                .with(csrf()))
+            .andExpect(status().isNoContent());
+
+        verify(chatRoomService).deleteRoom(1L, 1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void deleteRoom_Unauthorized_ReturnsForbidden() throws Exception {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        doThrow(new UnauthorizedException("Only owners or moderators can delete rooms"))
+            .when(chatRoomService).deleteRoom(1L, 1L);
+
+        mockMvc.perform(delete("/api/rooms/1")
+                .with(csrf()))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void deleteRoom_RoomNotFound_ReturnsNotFound() throws Exception {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        doThrow(new RoomNotFoundException(999L))
+            .when(chatRoomService).deleteRoom(999L, 1L);
+
+        mockMvc.perform(delete("/api/rooms/999")
+                .with(csrf()))
             .andExpect(status().isNotFound());
     }
 }
