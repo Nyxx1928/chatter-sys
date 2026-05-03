@@ -4,6 +4,12 @@ import { useState } from 'react';
 import { MessageList, MessageInput, UserList, RoomSelector } from '@/components/chat';
 import { Message, MessageType, User, ChatRoom } from '@/types/domain';
 
+const DEMO_NOW = new Date('2026-05-03T12:00:00Z').getTime();
+const ONE_HOUR = 3600000;
+const ONE_DAY = 86400000;
+
+const demoTimestamp = (offsetMs: number) => new Date(DEMO_NOW - offsetMs).toISOString();
+
 /**
  * Demo page for chat UI components.
  * This page demonstrates the MessageList, MessageInput, UserList, and RoomSelector components.
@@ -18,7 +24,7 @@ export default function ChatDemoPage() {
       senderDisplayName: 'Alice Johnson',
       chatRoomId: 1,
       content: 'Hey everyone! Welcome to the chat demo.',
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      timestamp: demoTimestamp(ONE_HOUR),
       messageType: MessageType.TEXT
     },
     {
@@ -28,7 +34,7 @@ export default function ChatDemoPage() {
       senderDisplayName: 'Bob Smith',
       chatRoomId: 1,
       content: 'Thanks Alice! This looks great.',
-      timestamp: new Date(Date.now() - 3000000).toISOString(),
+      timestamp: demoTimestamp(3000000),
       messageType: MessageType.TEXT
     },
     {
@@ -38,7 +44,7 @@ export default function ChatDemoPage() {
       senderDisplayName: 'Charlie Brown',
       chatRoomId: 1,
       content: 'Charlie Brown joined the room',
-      timestamp: new Date(Date.now() - 1800000).toISOString(),
+      timestamp: demoTimestamp(1800000),
       messageType: MessageType.JOIN
     },
     {
@@ -48,7 +54,7 @@ export default function ChatDemoPage() {
       senderDisplayName: 'Charlie Brown',
       chatRoomId: 1,
       content: 'Hi everyone! Excited to be here.',
-      timestamp: new Date(Date.now() - 1200000).toISOString(),
+      timestamp: demoTimestamp(1200000),
       messageType: MessageType.TEXT
     }
   ]);
@@ -59,7 +65,7 @@ export default function ChatDemoPage() {
       username: 'alice',
       email: 'alice@example.com',
       displayName: 'Alice Johnson',
-      createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 30),
       lastSeen: new Date().toISOString(),
       online: true
     },
@@ -68,7 +74,7 @@ export default function ChatDemoPage() {
       username: 'bob',
       email: 'bob@example.com',
       displayName: 'Bob Smith',
-      createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 20),
       lastSeen: new Date().toISOString(),
       online: true
     },
@@ -77,7 +83,7 @@ export default function ChatDemoPage() {
       username: 'charlie',
       email: 'charlie@example.com',
       displayName: 'Charlie Brown',
-      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 10),
       lastSeen: new Date().toISOString(),
       online: true
     },
@@ -86,8 +92,8 @@ export default function ChatDemoPage() {
       username: 'diana',
       email: 'diana@example.com',
       displayName: 'Diana Prince',
-      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-      lastSeen: new Date(Date.now() - 3600000).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 5),
+      lastSeen: demoTimestamp(ONE_HOUR),
       online: false
     }
   ];
@@ -97,21 +103,21 @@ export default function ChatDemoPage() {
       id: 1,
       name: 'General',
       description: 'General discussion for everyone',
-      createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 30),
       createdBy: users[0]
     },
     {
       id: 2,
       name: 'Random',
       description: 'Random thoughts and off-topic conversations',
-      createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 20),
       createdBy: users[1]
     },
     {
       id: 3,
       name: 'Tech Talk',
       description: 'Discuss technology, programming, and development',
-      createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+      createdAt: demoTimestamp(ONE_DAY * 10),
       createdBy: users[0]
     }
   ];

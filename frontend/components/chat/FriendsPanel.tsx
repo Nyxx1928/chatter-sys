@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApiError } from '@/lib/api/client';
 import {
   acceptFriendRequest,
@@ -50,7 +50,20 @@ export function FriendsPanel() {
     return mapping;
   }, [requests.incoming]);
 
-  const refreshPanel = async () => {
+  const fetchPanelData = useCallback(async () => {
+    if (!token) {
+      return null;
+    }
+
+    const [friendsList, requestList] = await Promise.all([
+      listFriends(token),
+      listFriendRequests(token)
+    ]);
+
+    return { friendsList, requestList };
+  }, [token]);
+
+  const refreshPanel = useCallback(async () => {
     if (!token) {
       return;
     }
@@ -58,10 +71,13 @@ export function FriendsPanel() {
     try {
       setLoading(true);
       setError(null);
-      const [friendsList, requestList] = await Promise.all([
-        listFriends(token),
-        listFriendRequests(token)
-      ]);
+      const panelData = await fetchPanelData();
+
+      if (!panelData) {
+        return;
+      }
+
+      const { friendsList, requestList } = panelData;
       setFriends(friendsList);
       setRequests(requestList);
       
@@ -77,18 +93,54 @@ export function FriendsPanel() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    refreshPanel();
-  }, [token]);
+  }, [fetchPanelData, token, batchUpdatePresence]);
 
   useEffect(() => {
     if (!token) {
       return;
     }
 
-    if (query.trim().length === 0) {
+    let isActive = true;
+
+    const loadInitialPanel = async () => {
+      try {
+        const panelData = await fetchPanelData();
+
+        if (!panelData || !isActive) {
+          return;
+        }
+
+        const { friendsList, requestList } = panelData;
+        setFriends(friendsList);
+        setRequests(requestList);
+        batchUpdatePresence(
+          friendsList.map((friend) => ({
+            userId: friend.id,
+            online: friend.online
+          }))
+        );
+      } catch (err) {
+        if (isActive) {
+          setError(getErrorMessage(err, 'Failed to load friends data.'));
+        }
+      } finally {
+        if (isActive) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadInitialPanel();
+
+    return () => {
+      isActive = false;
+    };
+  }, [token, fetchPanelData, batchUpdatePresence]);
+
+  const handleQueryChange = useCallback((value: string) => {
+    setQuery(value);
+
+    if (value.trim().length === 0) {
       setSearchResults([]);
       setSearchError(null);
       setSearchLoading(false);
@@ -97,6 +149,16 @@ export function FriendsPanel() {
 
     setSearchLoading(true);
     setSearchError(null);
+  }, []);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    if (query.trim().length === 0) {
+      return;
+    }
 
     const handle = window.setTimeout(async () => {
       try {
@@ -171,6 +233,7 @@ export function FriendsPanel() {
   }, [friends, presenceMap]);
 
   const onlineCount = friendsWithPresence.filter((friend) => friend.online).length;
+  const isSearching = query.trim().length > 0;
 
   return (
     <div className="flex h-full flex-col gap-6 overflow-hidden">
@@ -313,10 +376,10 @@ export function FriendsPanel() {
         )}
         <UserSearch
           query={query}
-          loading={searchLoading}
-          results={searchResults}
+          loading={isSearching && searchLoading}
+          results={isSearching ? searchResults : []}
           incomingRequestIds={incomingRequestIds}
-          onQueryChange={setQuery}
+          onQueryChange={handleQueryChange}
           onSendRequest={handleSendRequest}
           onAcceptRequest={handleAcceptRequest}
           onDeclineRequest={handleDeclineRequest}

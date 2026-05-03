@@ -27,7 +27,8 @@ export function Input({
   ...props
 }: InputProps) {
   // Generate unique ID if not provided
-  const inputId = id || `input-${React.useId()}`;
+  const generatedInputId = React.useId();
+  const inputId = id || `input-${generatedInputId}`;
   
   // Base input styles - mobile-first with minimum 44px height for touch targets
   const baseInputStyles = 'min-h-[44px] px-4 py-3 text-base rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100';
@@ -114,7 +115,8 @@ export function TextArea({
   ...props
 }: TextAreaProps) {
   // Generate unique ID if not provided
-  const textareaId = id || `textarea-${React.useId()}`;
+  const generatedTextareaId = React.useId();
+  const textareaId = id || `textarea-${generatedTextareaId}`;
   
   // Base textarea styles - mobile-first with proper touch targets
   const baseTextareaStyles = 'min-h-[88px] px-4 py-3 text-base rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 resize-vertical';

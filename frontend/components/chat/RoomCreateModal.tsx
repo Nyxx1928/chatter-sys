@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, Input, Modal, TextArea } from '@/components/ui';
 
 export interface RoomCreateModalProps {
@@ -23,13 +23,6 @@ export function RoomCreateModal({
 }: RoomCreateModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-
-  useEffect(() => {
-    if (open) {
-      setName('');
-      setDescription('');
-    }
-  }, [open]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
