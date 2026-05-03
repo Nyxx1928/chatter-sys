@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/friends';
 import { searchUsers } from '@/lib/api/users';
 import { useAuthStore } from '@/lib/store/authStore';
+import { usePresenceStore } from '@/lib/store/presenceStore';
 import { Button } from '@/components/ui';
 import { FriendRequestList, PublicUser, RelationshipStatus, UserSearchResult } from '@/types/domain';
 import { UserSearch } from './UserSearch';
@@ -30,6 +31,7 @@ const getErrorMessage = (error: unknown, fallback: string) => {
  */
 export function FriendsPanel() {
   const { token } = useAuthStore();
+  const { presenceMap, batchUpdatePresence } = usePresenceStore();
   const [friends, setFriends] = useState<PublicUser[]>([]);
   const [requests, setRequests] = useState<FriendRequestList>(emptyRequests);
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,14 @@ export function FriendsPanel() {
       ]);
       setFriends(friendsList);
       setRequests(requestList);
+      
+      // Sync presence data from API response to presence store
+      batchUpdatePresence(
+        friendsList.map((friend) => ({
+          userId: friend.id,
+          online: friend.online
+        }))
+      );
     } catch (err) {
       setError(getErrorMessage(err, 'Failed to load friends data.'));
     } finally {
@@ -148,7 +158,19 @@ export function FriendsPanel() {
     }
   };
 
-  const onlineCount = friends.filter((friend) => friend.online).length;
+  // Merge friends list with real-time presence data from the presence store
+  const friendsWithPresence = useMemo(() => {
+    return friends.map((friend) => {
+      // Use presence store data if available, otherwise fall back to API data
+      const onlineStatus = presenceMap[friend.id] ?? friend.online;
+      return {
+        ...friend,
+        online: onlineStatus
+      };
+    });
+  }, [friends, presenceMap]);
+
+  const onlineCount = friendsWithPresence.filter((friend) => friend.online).length;
 
   return (
     <div className="flex h-full flex-col gap-6 overflow-hidden">
@@ -156,7 +178,7 @@ export function FriendsPanel() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Friends</h3>
           <p className="text-sm text-gray-500">
-            {friends.length} total · {onlineCount} online
+            {friendsWithPresence.length} total · {onlineCount} online
           </p>
         </div>
         <Button size="sm" variant="secondary" onClick={refreshPanel}>
@@ -174,13 +196,13 @@ export function FriendsPanel() {
         <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600" role="status">
           Loading friends data...
         </div>
-      ) : friends.length === 0 ? (
+      ) : friendsWithPresence.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500">
           Your friends list is empty. Search for people to connect with.
         </div>
       ) : (
         <ul className="space-y-3" role="list" aria-label="Friends list">
-          {friends.map((friend) => (
+          {friendsWithPresence.map((friend) => (
             <li
               key={friend.id}
               className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3"
@@ -202,11 +224,13 @@ export function FriendsPanel() {
                     ? 'bg-green-100 text-green-700'
                     : 'bg-gray-100 text-gray-600'
                 }`}
+                aria-label={friend.online ? `${friend.displayName} is online` : `${friend.displayName} is offline`}
               >
                 <span
                   className={`h-2 w-2 rounded-full ${
                     friend.online ? 'bg-green-500' : 'bg-gray-400'
                   }`}
+                  aria-hidden="true"
                 />
                 {friend.online ? 'Online' : 'Offline'}
               </span>

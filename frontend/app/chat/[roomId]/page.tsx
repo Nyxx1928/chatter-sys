@@ -10,6 +10,7 @@ import { UserList } from '@/components/chat/UserList';
 import { Button, Modal } from '@/components/ui';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useConnectionStore } from '@/lib/store/connectionStore';
+import { usePresenceStore } from '@/lib/store/presenceStore';
 import { useStompSubscription } from '@/lib/stomp/hooks';
 import { getMessageHistory } from '@/lib/api/messages';
 import { deleteRoom, getRoomDetails, getRoomMembers } from '@/lib/api/rooms';
@@ -27,6 +28,7 @@ export default function ChatRoomPage() {
   const roomId = params.roomId as string;
   const { user, token } = useAuthStore();
   const { connected, sendMessage } = useConnectionStore();
+  const { updatePresence } = usePresenceStore();
 
   const [room, setRoom] = useState<ChatRoom | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -92,6 +94,7 @@ export default function ChatRoomPage() {
 
   // Subscribe to presence updates
   const handlePresenceUpdate = useCallback((update: { userId: number; online: boolean }) => {
+    // Update local members list
     setMembers((prev) =>
       prev.map((member) =>
         member.id === update.userId
@@ -99,7 +102,10 @@ export default function ChatRoomPage() {
           : member
       )
     );
-  }, []);
+    
+    // Sync to global presence store for friends list
+    updatePresence(update.userId, update.online);
+  }, [updatePresence]);
 
   useStompSubscription<{ userId: number; online: boolean }>(
     connected ? `/topic/presence/${roomId}` : null,
