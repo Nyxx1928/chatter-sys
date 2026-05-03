@@ -1,5 +1,6 @@
 package org.example.chat.service;
 
+import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.RoomMembership;
@@ -20,7 +21,8 @@ import java.time.LocalDateTime;
 
 /**
  * Service for managing chat messages.
- * Handles message sending, validation, persistence, broadcasting, and history retrieval.
+ * Handles message sending, validation, persistence, broadcasting, and history
+ * retrieval.
  */
 @Service
 public class ChatMessageService {
@@ -35,10 +37,10 @@ public class ChatMessageService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public ChatMessageService(MessageRepository messageRepository,
-                             ChatRoomRepository chatRoomRepository,
-                             UserRepository userRepository,
-                             RoomMembershipRepository roomMembershipRepository,
-                             SimpMessagingTemplate messagingTemplate) {
+            ChatRoomRepository chatRoomRepository,
+            UserRepository userRepository,
+            RoomMembershipRepository roomMembershipRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.messageRepository = messageRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
@@ -48,13 +50,15 @@ public class ChatMessageService {
 
     /**
      * Sends a message to a chat room.
-     * Validates the message, checks membership, persists to database, and broadcasts to STOMP topic.
+     * Validates the message, checks membership, persists to database, and
+     * broadcasts to STOMP topic.
      *
      * @param senderId the ID of the user sending the message
-     * @param roomId the ID of the chat room
-     * @param content the message content
+     * @param roomId   the ID of the chat room
+     * @param content  the message content
      * @return the persisted Message entity
-     * @throws IllegalArgumentException if validation fails or sender is not a member
+     * @throws IllegalArgumentException if validation fails or sender is not a
+     *                                  member
      */
     @Transactional
     public Message sendMessage(Long senderId, Long roomId, String content) {
@@ -65,17 +69,17 @@ public class ChatMessageService {
 
         // Find sender
         User sender = userRepository.findById(senderId)
-            .orElseThrow(() -> {
-                logger.warn("Send message failed: sender not found: {}", senderId);
-                return new IllegalArgumentException("Sender not found");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Send message failed: sender not found: {}", senderId);
+                    return new IllegalArgumentException("Sender not found");
+                });
 
         // Find chat room
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-            .orElseThrow(() -> {
-                logger.warn("Send message failed: chat room not found: {}", roomId);
-                return new IllegalArgumentException("Chat room not found");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Send message failed: chat room not found: {}", roomId);
+                    return new IllegalArgumentException("Chat room not found");
+                });
 
         // Validate sender is a member of the chat room
         validateMembership(sender, chatRoom);
@@ -99,7 +103,7 @@ public class ChatMessageService {
     /**
      * Retrieves paginated message history for a chat room.
      *
-     * @param roomId the ID of the chat room
+     * @param roomId   the ID of the chat room
      * @param pageable pagination parameters
      * @return page of messages ordered by timestamp descending
      * @throws IllegalArgumentException if room is not found
@@ -109,10 +113,10 @@ public class ChatMessageService {
 
         // Find chat room
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-            .orElseThrow(() -> {
-                logger.warn("Get message history failed: chat room not found: {}", roomId);
-                return new IllegalArgumentException("Chat room not found");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Get message history failed: chat room not found: {}", roomId);
+                    return new IllegalArgumentException("Chat room not found");
+                });
 
         // Retrieve paginated messages
         Page<Message> messages = messageRepository.findByChatRoomOrderByTimestampAsc(chatRoom, pageable);
@@ -140,16 +144,16 @@ public class ChatMessageService {
     /**
      * Validates that a user is a member of a chat room.
      *
-     * @param user the user to validate
+     * @param user     the user to validate
      * @param chatRoom the chat room to check membership in
      * @throws IllegalArgumentException if user is not a member
      */
     private void validateMembership(User user, ChatRoom chatRoom) {
         RoomMembership membership = roomMembershipRepository.findByUserAndChatRoom(user, chatRoom)
-            .orElseThrow(() -> {
-                logger.warn("User ID: {} is not a member of room ID: {}", user.getId(), chatRoom.getId());
-                return new IllegalArgumentException("User is not a member of this chat room");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("User ID: {} is not a member of room ID: {}", user.getId(), chatRoom.getId());
+                    return new IllegalArgumentException("User is not a member of this chat room");
+                });
 
         logger.debug("Membership validated for user ID: {} in room ID: {}", user.getId(), chatRoom.getId());
     }
@@ -161,11 +165,12 @@ public class ChatMessageService {
      */
     private void broadcastMessage(Message message) {
         String destination = "/topic/room/" + message.getChatRoom().getId();
-        
+
         logger.debug("Broadcasting message ID: {} to topic: {}", message.getId(), destination);
-        
-        messagingTemplate.convertAndSend(destination, message);
-        
+
+        MessageResponse payload = MessageResponse.from(message);
+        messagingTemplate.convertAndSend(destination, payload);
+
         logger.info("Message ID: {} successfully broadcast to topic: {}", message.getId(), destination);
     }
 }
