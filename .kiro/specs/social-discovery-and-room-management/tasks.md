@@ -64,14 +64,14 @@ Add backend endpoints for user search, friend requests, and room deletion, then 
 
 ### Phase 3: Integration and Validation
 
-- [ ] 12. Integrate presence with friends list
+- [x] 12. Integrate presence with friends list
   - Show online status where available
   - _Requirements: 3.2_
 
-- [~] 13. End-to-end test flows
+- [x] 13. End-to-end test flows
   - Search user, send request, accept, create room, delete room
   - _Requirements: 1.1, 2.1, 3.1, 4.1, 6.1_
 
-- [~] 14. Checkpoint - Release readiness
+- [x] 14. Checkpoint - Release readiness
   - Verify security behavior and error handling
   - _Requirements: 8.1, 8.2, 8.3_
