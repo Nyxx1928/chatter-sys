@@ -40,9 +40,57 @@ export default function ChatRoomPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const fetchRoomData = useCallback(async () => {
+    if (!token) {
+      return null;
+    }
+
+    // Load room details, messages, and members in parallel
+    const [roomDetails, messageHistory, roomMembers] = await Promise.all([
+      getRoomDetails(token, parseInt(roomId)),
+      getMessageHistory(token, parseInt(roomId), { page: 0, size: 50 }),
+      getRoomMembers(token, parseInt(roomId))
+    ]);
+
+    return {
+      roomDetails,
+      messages: messageHistory?.content ?? [],
+      members: roomMembers
+    };
+  }, [roomId, token]);
+
   // Load room data on mount and send join message
   useEffect(() => {
-    loadRoomData();
+    if (!token) {
+      return;
+    }
+
+    let isActive = true;
+
+    const loadInitialRoomData = async () => {
+      try {
+        const roomData = await fetchRoomData();
+
+        if (!roomData || !isActive) {
+          return;
+        }
+
+        setRoom(roomData.roomDetails);
+        setMessages(roomData.messages);
+        setMembers(roomData.members);
+      } catch (err) {
+        if (isActive) {
+          console.error('Failed to load room data:', err);
+          setError('Failed to load chat room. Please try again.');
+        }
+      } finally {
+        if (isActive) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadInitialRoomData();
     
     // Send room join message when connected
     if (connected && user) {
@@ -51,36 +99,13 @@ export default function ChatRoomPage() {
 
     // Send room leave message on unmount
     return () => {
+      isActive = false;
+
       if (connected && user) {
         sendMessage(`/app/room.leave/${roomId}`, {});
       }
     };
-  }, [roomId, token, connected, user, sendMessage]);
-
-  const loadRoomData = async () => {
-    if (!token) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load room details, messages, and members in parallel
-      const [roomDetails, messageHistory, roomMembers] = await Promise.all([
-        getRoomDetails(token, parseInt(roomId)),
-        getMessageHistory(token, parseInt(roomId), { page: 0, size: 50 }),
-        getRoomMembers(token, parseInt(roomId))
-      ]);
-
-      setRoom(roomDetails);
-      setMessages(messageHistory?.content ?? []);
-      setMembers(roomMembers);
-    } catch (err) {
-      console.error('Failed to load room data:', err);
-      setError('Failed to load chat room. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [roomId, token, connected, user, sendMessage, fetchRoomData]);
 
   // Subscribe to room messages
   const handleNewMessage = useCallback((message: Message) => {

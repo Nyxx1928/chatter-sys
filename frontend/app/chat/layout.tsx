@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useConnectionStore } from '@/lib/store/connectionStore';
@@ -20,12 +20,11 @@ export default function ChatLayout({
   const router = useRouter();
   const { isAuthenticated, user, token } = useAuthStore();
   const { connected, connecting, error, connect, disconnect } = useConnectionStore();
-  const [isClient, setIsClient] = useState(false);
-
-  // Set client-side flag to prevent hydration mismatch
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   // Protect chat pages - redirect to login if not authenticated
   useEffect(() => {

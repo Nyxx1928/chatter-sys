@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChatRoom } from '@/types/domain';
 import { FriendsPanel } from '@/components/chat/FriendsPanel';
@@ -30,20 +30,21 @@ export default function ChatRoomsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Load available rooms on mount
-  useEffect(() => {
-    if (token) {
-      loadRooms();
+  const fetchRooms = useCallback(async () => {
+    if (!token) {
+      return [] as ChatRoom[];
     }
+
+    return listRooms(token);
   }, [token]);
 
-  const loadRooms = async () => {
+  const loadRooms = useCallback(async () => {
     if (!token) return;
 
     try {
       setLoading(true);
       setError(null);
-      const roomsList = await listRooms(token);
+      const roomsList = await fetchRooms();
       setRooms(roomsList);
     } catch (err) {
       console.error('Failed to load rooms:', err);
@@ -51,7 +52,43 @@ export default function ChatRoomsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, fetchRooms]);
+
+  // Load available rooms on mount
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let isActive = true;
+
+    const loadInitialRooms = async () => {
+      try {
+        const roomsList = await fetchRooms();
+
+        if (!isActive) {
+          return;
+        }
+
+        setRooms(roomsList);
+      } catch (err) {
+        if (isActive) {
+          console.error('Failed to load rooms:', err);
+          setError('Failed to load chat rooms. Please try again.');
+        }
+      } finally {
+        if (isActive) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadInitialRooms();
+
+    return () => {
+      isActive = false;
+    };
+  }, [token, fetchRooms]);
 
   const handleRoomSelect = (room: ChatRoom) => {
     router.push(`/chat/${room.id}`);
@@ -231,6 +268,7 @@ export default function ChatRoomsPage() {
       </aside>
 
       <RoomCreateModal
+        key={showCreateModal ? 'room-create-open' : 'room-create-closed'}
         open={showCreateModal}
         isSubmitting={isCreating}
         errorMessage={createError}
