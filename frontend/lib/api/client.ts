@@ -34,6 +34,35 @@ const parseResponseBody = async (response: Response): Promise<unknown> => {
   return response.text();
 };
 
+const getErrorMessage = (details: unknown): string => {
+  if (typeof details === 'string' && details.trim()) {
+    return details;
+  }
+
+  if (details && typeof details === 'object') {
+    const detailObject = details as {
+      message?: unknown;
+      errors?: Record<string, unknown>;
+    };
+
+    if (typeof detailObject.message === 'string' && detailObject.message.trim()) {
+      return detailObject.message;
+    }
+
+    if (detailObject.errors && typeof detailObject.errors === 'object') {
+      const firstError = Object.values(detailObject.errors).find(
+        (value) => typeof value === 'string' && value.trim()
+      );
+
+      if (typeof firstError === 'string') {
+        return firstError;
+      }
+    }
+  }
+
+  return 'Request failed with a non-success status.';
+};
+
 export const apiCall = async <T>(
   path: string,
   options: ApiCallOptions = {}
@@ -61,10 +90,7 @@ export const apiCall = async <T>(
 
     if (!response.ok) {
       const details = await parseResponseBody(response);
-      const message =
-        typeof details === 'string'
-          ? details
-          : 'Request failed with a non-success status.';
+      const message = getErrorMessage(details);
 
       throw new ApiError(message, response.status, details);
     }
