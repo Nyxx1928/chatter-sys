@@ -7,11 +7,11 @@ import org.example.chat.entity.MessageType;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
-import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
+import org.example.chat.service.ChatRoomService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +39,9 @@ class MessageHistoryControllerTest {
 
     @Mock
     private ChatMessageService chatMessageService;
+
+    @Mock
+    private ChatRoomService chatRoomService;
 
     @Mock
     private ChatRoomRepository chatRoomRepository;
@@ -103,11 +106,11 @@ class MessageHistoryControllerTest {
     void getMessageHistory_ValidMember_ReturnsMessages() {
         // Arrange
         Page<Message> messagePage = new PageImpl<>(List.of(testMessage), pageable, 1);
-        
+
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
         when(chatMessageService.getMessageHistory(1L, pageable)).thenReturn(messagePage);
 
         // Act
@@ -118,7 +121,7 @@ class MessageHistoryControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
-        
+
         MessageResponse messageResponse = response.getBody().get(0);
         assertEquals(testMessage.getId(), messageResponse.getId());
         assertEquals(testMessage.getContent(), messageResponse.getContent());
@@ -165,35 +168,42 @@ class MessageHistoryControllerTest {
     }
 
     @Test
-    void getMessageHistory_UserNotMember_ThrowsException() {
+    void getMessageHistory_UserNotMember_AddsMembershipAndReturnsMessages() {
         // Arrange
+        Page<Message> messagePage = new PageImpl<>(List.of(testMessage), pageable, 1);
+
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
+        when(chatRoomService.addMember(1L, 1L, null)).thenReturn(testMembership);
+        when(chatMessageService.getMessageHistory(1L, pageable)).thenReturn(messagePage);
 
-        // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
-            controller.getMessageHistory(1L, pageable, userDetails);
-        });
+        // Act
+        ResponseEntity<List<MessageResponse>> response = controller.getMessageHistory(1L, pageable, userDetails);
 
-        assertEquals("User is not a member of this chat room", exception.getMessage());
+        // Assert
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
 
         verify(userRepository).findByUsername("testuser");
         verify(chatRoomRepository).findById(1L);
         verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
-        verify(chatMessageService, never()).getMessageHistory(any(), any());
+        verify(chatRoomService).addMember(1L, 1L, null);
+        verify(chatMessageService).getMessageHistory(1L, pageable);
     }
 
     @Test
     void getMessageHistory_EmptyHistory_ReturnsEmptyPage() {
         // Arrange
         Page<Message> emptyPage = new PageImpl<>(List.of(), pageable, 0);
-        
+
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
         when(chatMessageService.getMessageHistory(1L, pageable)).thenReturn(emptyPage);
 
         // Act
@@ -214,11 +224,11 @@ class MessageHistoryControllerTest {
         // Arrange
         Pageable secondPage = PageRequest.of(1, 10);
         Page<Message> messagePage = new PageImpl<>(List.of(testMessage), secondPage, 25);
-        
+
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
         when(chatMessageService.getMessageHistory(1L, secondPage)).thenReturn(messagePage);
 
         // Act
@@ -229,7 +239,8 @@ class MessageHistoryControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
-        // Note: List response no longer contains pagination metadata like totalElements, totalPages
+        // Note: List response no longer contains pagination metadata like
+        // totalElements, totalPages
 
         verify(chatMessageService).getMessageHistory(1L, secondPage);
     }
