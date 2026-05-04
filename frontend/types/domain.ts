@@ -39,6 +39,27 @@ export interface User {
 }
 
 /**
+ * Public user profile for search and friends views.
+ */
+export interface PublicUser {
+  id: number;
+  username: string;
+  displayName: string;
+  lastSeen: string | null; // ISO 8601 date string
+  online: boolean;
+}
+
+/**
+ * Relationship status between the current user and another user.
+ */
+export enum RelationshipStatus {
+  NONE = 'NONE',
+  PENDING_INCOMING = 'PENDING_INCOMING',
+  PENDING_OUTGOING = 'PENDING_OUTGOING',
+  FRIENDS = 'FRIENDS'
+}
+
+/**
  * ChatRoom interface matching the backend ChatRoom entity.
  * Represents a chat room where users can send messages.
  */
@@ -75,4 +96,38 @@ export interface RoomMembership {
   chatRoomId: number;
   joinedAt: string; // ISO 8601 date string
   role: MemberRole;
+}
+
+/**
+ * Friend request interface matching backend DTOs.
+ */
+export interface FriendRequest {
+  id: number;
+  requester: PublicUser;
+  recipient: PublicUser;
+  createdAt: string; // ISO 8601 date string
+}
+
+/**
+ * Pending friend request lists.
+ */
+export interface FriendRequestList {
+  incoming: FriendRequest[];
+  outgoing: FriendRequest[];
+}
+
+/**
+ * Friendship response containing the friend profile.
+ */
+export interface Friendship {
+  friend: PublicUser;
+  createdAt: string; // ISO 8601 date string
+}
+
+/**
+ * User search result entry.
+ */
+export interface UserSearchResult {
+  user: PublicUser;
+  relationshipStatus: RelationshipStatus;
 }

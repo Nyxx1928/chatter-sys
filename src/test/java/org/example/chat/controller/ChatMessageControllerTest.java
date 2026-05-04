@@ -1,5 +1,6 @@
 package org.example.chat.controller;
 
+import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.MessageType;
@@ -125,15 +126,17 @@ class ChatMessageControllerTest {
         // Assert
         verify(userRepository).findByUsername("testuser");
         verify(chatRoomService).addMember(1L, 1L, null);
-        
-        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+
+        ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
-        
-        Message broadcastedMessage = messageCaptor.getValue();
+
+        MessageResponse broadcastedMessage = messageCaptor.getValue();
         assertEquals(MessageType.JOIN, broadcastedMessage.getMessageType());
         assertEquals("Test User joined the room", broadcastedMessage.getContent());
-        assertEquals(testUser, broadcastedMessage.getSender());
-        assertEquals(testRoom, broadcastedMessage.getChatRoom());
+        assertEquals(testUser.getId(), broadcastedMessage.getSenderId());
+        assertEquals(testUser.getUsername(), broadcastedMessage.getSenderUsername());
+        assertEquals(testUser.getDisplayName(), broadcastedMessage.getSenderDisplayName());
+        assertEquals(testRoom.getId(), broadcastedMessage.getChatRoomId());
         assertNotNull(broadcastedMessage.getTimestamp());
     }
 
@@ -165,15 +168,17 @@ class ChatMessageControllerTest {
         // Assert
         verify(userRepository).findByUsername("testuser");
         verify(chatRoomService).removeMember(1L, 1L);
-        
-        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+
+        ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
-        
-        Message broadcastedMessage = messageCaptor.getValue();
+
+        MessageResponse broadcastedMessage = messageCaptor.getValue();
         assertEquals(MessageType.LEAVE, broadcastedMessage.getMessageType());
         assertEquals("Test User left the room", broadcastedMessage.getContent());
-        assertEquals(testUser, broadcastedMessage.getSender());
-        assertEquals(testRoom, broadcastedMessage.getChatRoom());
+        assertEquals(testUser.getId(), broadcastedMessage.getSenderId());
+        assertEquals(testUser.getUsername(), broadcastedMessage.getSenderUsername());
+        assertEquals(testUser.getDisplayName(), broadcastedMessage.getSenderDisplayName());
+        assertEquals(testRoom.getId(), broadcastedMessage.getChatRoomId());
         assertNotNull(broadcastedMessage.getTimestamp());
     }
 
@@ -229,7 +234,7 @@ class ChatMessageControllerTest {
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         doThrow(new IllegalArgumentException("User is already a member"))
-            .when(chatRoomService).addMember(1L, 1L, null);
+                .when(chatRoomService).addMember(1L, 1L, null);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
@@ -245,7 +250,7 @@ class ChatMessageControllerTest {
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         doThrow(new IllegalArgumentException("User is not a member"))
-            .when(chatRoomService).removeMember(1L, 1L);
+                .when(chatRoomService).removeMember(1L, 1L);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {

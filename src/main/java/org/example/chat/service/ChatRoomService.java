@@ -5,6 +5,8 @@ import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
+import org.example.chat.exception.UserNotFoundException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
@@ -31,8 +33,8 @@ public class ChatRoomService {
     private final UserRepository userRepository;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
-                          RoomMembershipRepository roomMembershipRepository,
-                          UserRepository userRepository) {
+            RoomMembershipRepository roomMembershipRepository,
+            UserRepository userRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.roomMembershipRepository = roomMembershipRepository;
         this.userRepository = userRepository;
@@ -41,11 +43,12 @@ public class ChatRoomService {
     /**
      * Creates a new chat room and adds the creator as OWNER.
      *
-     * @param name the name of the chat room (must be unique)
+     * @param name        the name of the chat room (must be unique)
      * @param description optional description of the chat room
-     * @param creatorId the ID of the user creating the room
+     * @param creatorId   the ID of the user creating the room
      * @return the created ChatRoom entity with creator as OWNER member
-     * @throws IllegalArgumentException if name is invalid, already exists, or creator not found
+     * @throws IllegalArgumentException if name is invalid, already exists, or
+     *                                  creator not found
      */
     @Transactional
     public ChatRoom createRoom(String name, String description, Long creatorId) {
@@ -62,10 +65,10 @@ public class ChatRoomService {
 
         // Find creator user
         User creator = userRepository.findById(creatorId)
-            .orElseThrow(() -> {
-                logger.warn("Room creation failed: creator user not found: {}", creatorId);
-                return new IllegalArgumentException("Creator user not found");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Room creation failed: creator user not found: {}", creatorId);
+                    return new IllegalArgumentException("Creator user not found");
+                });
 
         // Create chat room
         ChatRoom chatRoom = new ChatRoom();
@@ -94,10 +97,10 @@ public class ChatRoomService {
     public ChatRoom getRoomById(Long roomId) {
         logger.debug("Retrieving chat room by ID: {}", roomId);
         return chatRoomRepository.findById(roomId)
-            .orElseThrow(() -> {
-                logger.warn("Chat room not found: {}", roomId);
-                return new RoomNotFoundException(roomId);
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Chat room not found: {}", roomId);
+                    return new RoomNotFoundException(roomId);
+                });
     }
 
     /**
@@ -128,8 +131,8 @@ public class ChatRoomService {
 
         // Extract users from memberships
         List<User> members = memberships.stream()
-            .map(RoomMembership::getUser)
-            .collect(Collectors.toList());
+                .map(RoomMembership::getUser)
+                .collect(Collectors.toList());
 
         logger.debug("Found {} members for chat room ID: {}", members.size(), roomId);
         return members;
@@ -140,9 +143,10 @@ public class ChatRoomService {
      *
      * @param roomId the ID of the chat room
      * @param userId the ID of the user to add
-     * @param role the role to assign to the user (defaults to MEMBER if null)
+     * @param role   the role to assign to the user (defaults to MEMBER if null)
      * @return the created RoomMembership entity
-     * @throws IllegalArgumentException if room or user not found, or if user is already a member
+     * @throws IllegalArgumentException if room or user not found, or if user is
+     *                                  already a member
      */
     @Transactional
     public RoomMembership addMember(Long roomId, Long userId, MemberRole role) {
@@ -151,15 +155,17 @@ public class ChatRoomService {
         // Find room and user
         ChatRoom room = getRoomById(roomId);
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> {
-                logger.warn("Add member failed: user not found: {}", userId);
-                return new IllegalArgumentException("User not found");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Add member failed: user not found: {}", userId);
+                    return new IllegalArgumentException("User not found");
+                });
 
-        // Check if user is already a member
-        if (roomMembershipRepository.findByUserAndChatRoom(user, room).isPresent()) {
-            logger.warn("Add member failed: user {} is already a member of room {}", userId, roomId);
-            throw new IllegalArgumentException("User is already a member of this room");
+        // Return existing membership when user is already a member
+        RoomMembership existingMembership = roomMembershipRepository.findByUserAndChatRoom(user, room)
+                .orElse(null);
+        if (existingMembership != null) {
+            logger.debug("User {} is already a member of room {}, returning existing membership", userId, roomId);
+            return existingMembership;
         }
 
         // Create membership
@@ -181,7 +187,8 @@ public class ChatRoomService {
      *
      * @param roomId the ID of the chat room
      * @param userId the ID of the user to remove
-     * @throws IllegalArgumentException if room or user not found, or if user is not a member
+     * @throws IllegalArgumentException if room or user not found, or if user is not
+     *                                  a member
      */
     @Transactional
     public void removeMember(Long roomId, Long userId) {
@@ -190,10 +197,10 @@ public class ChatRoomService {
         // Find room and user
         ChatRoom room = getRoomById(roomId);
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> {
-                logger.warn("Remove member failed: user not found: {}", userId);
-                return new IllegalArgumentException("User not found");
-            });
+                .orElseThrow(() -> {
+                    logger.warn("Remove member failed: user not found: {}", userId);
+                    return new IllegalArgumentException("User not found");
+                });
 
         // Check if user is a member
         if (roomMembershipRepository.findByUserAndChatRoom(user, room).isEmpty()) {
@@ -204,6 +211,31 @@ public class ChatRoomService {
         // Delete membership
         roomMembershipRepository.deleteByUserAndChatRoom(user, room);
         logger.info("Successfully removed user ID: {} from chat room ID: {}", userId, roomId);
+    }
+
+    /**
+     * Deletes a chat room if the user has OWNER or MODERATOR role.
+     *
+     * @param roomId the ID of the chat room
+     * @param userId the ID of the user attempting deletion
+     */
+    @Transactional
+    public void deleteRoom(Long roomId, Long userId) {
+        logger.info("Deleting chat room ID: {} by user ID: {}", roomId, userId);
+
+        ChatRoom room = getRoomById(roomId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        RoomMembership membership = roomMembershipRepository.findByUserAndChatRoom(user, room)
+                .orElseThrow(() -> new UnauthorizedException("User is not a member of this room"));
+
+        if (membership.getRole() != MemberRole.OWNER && membership.getRole() != MemberRole.MODERATOR) {
+            throw new UnauthorizedException("Only owners or moderators can delete rooms");
+        }
+
+        chatRoomRepository.delete(room);
+        logger.info("Deleted chat room ID: {}", roomId);
     }
 
     /**

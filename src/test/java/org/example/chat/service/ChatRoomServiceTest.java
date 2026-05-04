@@ -5,6 +5,8 @@ import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
+import org.example.chat.exception.UserNotFoundException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
@@ -312,7 +314,7 @@ class ChatRoomServiceTest {
     }
 
     @Test
-    void addMember_AlreadyMember_ThrowsException() {
+    void addMember_AlreadyMember_ReturnsExistingMembership() {
         // Arrange
         Long roomId = 1L;
         Long userId = 1L;
@@ -322,12 +324,13 @@ class ChatRoomServiceTest {
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
             .thenReturn(Optional.of(testMembership));
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.addMember(roomId, userId, MemberRole.MEMBER)
-        );
-        assertEquals("User is already a member of this room", exception.getMessage());
+        // Act
+        RoomMembership result = chatRoomService.addMember(roomId, userId, MemberRole.MEMBER);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(testMembership, result);
+        verify(roomMembershipRepository, never()).save(any(RoomMembership.class));
     }
 
     @Test
@@ -384,5 +387,116 @@ class ChatRoomServiceTest {
             () -> chatRoomService.removeMember(roomId, userId)
         );
         assertEquals("User is not a member of this room", exception.getMessage());
+    }
+
+    @Test
+    void deleteRoom_AsOwner_DeletesRoom() {
+        // Arrange
+        Long roomId = 1L;
+        Long userId = 1L;
+
+        when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+            .thenReturn(Optional.of(testMembership));
+
+        // Act
+        chatRoomService.deleteRoom(roomId, userId);
+
+        // Assert
+        verify(chatRoomRepository).delete(testRoom);
+    }
+
+    @Test
+    void deleteRoom_AsModerator_DeletesRoom() {
+        // Arrange
+        Long roomId = 1L;
+        Long userId = 1L;
+        testMembership.setRole(MemberRole.MODERATOR);
+
+        when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+            .thenReturn(Optional.of(testMembership));
+
+        // Act
+        chatRoomService.deleteRoom(roomId, userId);
+
+        // Assert
+        verify(chatRoomRepository).delete(testRoom);
+    }
+
+    @Test
+    void deleteRoom_AsMember_ThrowsUnauthorizedException() {
+        // Arrange
+        Long roomId = 1L;
+        Long userId = 1L;
+        testMembership.setRole(MemberRole.MEMBER);
+
+        when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+            .thenReturn(Optional.of(testMembership));
+
+        // Act & Assert
+        UnauthorizedException exception = assertThrows(
+            UnauthorizedException.class,
+            () -> chatRoomService.deleteRoom(roomId, userId)
+        );
+        assertEquals("Only owners or moderators can delete rooms", exception.getMessage());
+        verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
+    }
+
+    @Test
+    void deleteRoom_UserNotFound_ThrowsUserNotFoundException() {
+        // Arrange
+        Long roomId = 1L;
+        Long userId = 999L;
+
+        when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(
+            UserNotFoundException.class,
+            () -> chatRoomService.deleteRoom(roomId, userId)
+        );
+        verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
+    }
+
+    @Test
+    void deleteRoom_RoomNotFound_ThrowsRoomNotFoundException() {
+        // Arrange
+        Long roomId = 999L;
+        Long userId = 1L;
+
+        when(chatRoomRepository.findById(roomId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(
+            RoomNotFoundException.class,
+            () -> chatRoomService.deleteRoom(roomId, userId)
+        );
+        verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
+    }
+
+    @Test
+    void deleteRoom_UserNotMember_ThrowsUnauthorizedException() {
+        // Arrange
+        Long roomId = 1L;
+        Long userId = 1L;
+
+        when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+            .thenReturn(Optional.empty());
+
+        // Act & Assert
+        UnauthorizedException exception = assertThrows(
+            UnauthorizedException.class,
+            () -> chatRoomService.deleteRoom(roomId, userId)
+        );
+        assertEquals("User is not a member of this room", exception.getMessage());
+        verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
     }
 }

@@ -35,12 +35,29 @@ export interface RegisterRequest {
 }
 
 /**
+ * Update profile request payload.
+ * Sent to PUT /api/users/me
+ */
+export interface UpdateProfileRequest {
+  email?: string;
+  displayName?: string;
+}
+
+/**
  * Create room request payload.
  * Sent to POST /api/rooms
  */
 export interface CreateRoomRequest {
   name: string;
   description?: string;
+}
+
+/**
+ * Friend request creation payload.
+ * Sent to POST /api/friends/requests
+ */
+export interface FriendRequestCreateRequest {
+  recipientId: number;
 }
 
 /**

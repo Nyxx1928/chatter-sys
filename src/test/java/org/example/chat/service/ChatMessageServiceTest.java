@@ -1,5 +1,6 @@
 package org.example.chat.service;
 
+import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.RoomMembership;
@@ -94,7 +95,7 @@ class ChatMessageServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
         when(messageRepository.save(any(Message.class))).thenReturn(testMessage);
 
         // Act
@@ -104,7 +105,7 @@ class ChatMessageServiceTest {
         assertNotNull(result);
         assertEquals(testMessage.getId(), result.getId());
         verify(messageRepository).save(any(Message.class));
-        verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), any(Message.class));
+        verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), any(MessageResponse.class));
     }
 
     @Test
@@ -180,7 +181,7 @@ class ChatMessageServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -199,7 +200,7 @@ class ChatMessageServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
         when(messageRepository.save(any(Message.class))).thenReturn(testMessage);
 
         // Act
@@ -207,7 +208,7 @@ class ChatMessageServiceTest {
 
         // Assert
         ArgumentCaptor<String> destinationCaptor = ArgumentCaptor.forClass(String.class);
-        verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), any(Message.class));
+        verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), any(MessageResponse.class));
         assertEquals("/topic/room/1", destinationCaptor.getValue());
     }
 
@@ -218,7 +219,7 @@ class ChatMessageServiceTest {
         Page<Message> expectedPage = new PageImpl<>(List.of(testMessage), pageable, 1);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(messageRepository.findByChatRoomOrderByTimestampAsc(testRoom, pageable))
-            .thenReturn(expectedPage);
+                .thenReturn(expectedPage);
 
         // Act
         Page<Message> result = chatMessageService.getMessageHistory(1L, pageable);
@@ -252,7 +253,7 @@ class ChatMessageServiceTest {
         Page<Message> emptyPage = new PageImpl<>(List.of(), pageable, 0);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(messageRepository.findByChatRoomOrderByTimestampAsc(testRoom, pageable))
-            .thenReturn(emptyPage);
+                .thenReturn(emptyPage);
 
         // Act
         Page<Message> result = chatMessageService.getMessageHistory(1L, pageable);
@@ -270,7 +271,7 @@ class ChatMessageServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
         when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> {
             Message msg = invocation.getArgument(0);
             msg.setId(1L);

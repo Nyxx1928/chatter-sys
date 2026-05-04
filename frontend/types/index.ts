@@ -6,14 +6,20 @@
 // Domain types
 export type {
   User,
+  PublicUser,
   ChatRoom,
   Message,
-  RoomMembership
+  RoomMembership,
+  FriendRequest,
+  FriendRequestList,
+  Friendship,
+  UserSearchResult
 } from './domain';
 
 export {
   MessageType,
-  MemberRole
+  MemberRole,
+  RelationshipStatus
 } from './domain';
 
 // API types
@@ -21,7 +27,9 @@ export type {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  UpdateProfileRequest,
   CreateRoomRequest,
+  FriendRequestCreateRequest,
   MessageHistoryResponse,
   PaginationParams
 } from './api';

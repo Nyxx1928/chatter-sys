@@ -65,3 +65,6 @@ Template: `TEMPLATE.md`
 | 2026-05-02 | Room Search and Filter UI Implementation                                                  | 2026-05-02-room-search-filter-ui.md                        |
 | 2026-05-02 | Room Deletion UI with Confirmation and Redirection                                        | 2026-05-02-room-deletion-ui.md                             |
 | 2026-05-02 | Frontend UX Accessibility Checkpoint                                                      | 2026-05-02-frontend-ux-checkpoint.md                       |
+| 2026-05-03 | Integrating Real-Time Presence with Friends List                                          | 2026-05-03-integrate-presence-with-friends-list.md         |
+| 2026-05-03 | End-to-End Testing for Social Discovery and Room Management                               | 2026-05-03-e2e-social-discovery-room-management.md         |
+| 2026-05-03 | Release Readiness Checkpoint - Social Discovery and Room Management                       | 2026-05-03-release-readiness-checkpoint.md                 |

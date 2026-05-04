@@ -1,5 +1,6 @@
 package org.example.chat.controller;
 
+import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.MessageType;
 import org.example.chat.entity.User;
@@ -41,9 +42,9 @@ public class ChatMessageController {
     private final SimpMessagingTemplate messagingTemplate;
 
     public ChatMessageController(ChatMessageService chatMessageService,
-                                ChatRoomService chatRoomService,
-                                UserRepository userRepository,
-                                SimpMessagingTemplate messagingTemplate) {
+            ChatRoomService chatRoomService,
+            UserRepository userRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
         this.userRepository = userRepository;
@@ -56,19 +57,19 @@ public class ChatMessageController {
      * Receives a message from a STOMP client, validates it, persists it,
      * and broadcasts it to all subscribers of the room topic.
      * 
-     * @param message the message to send
-     * @param roomId the ID of the chat room
+     * @param message   the message to send
+     * @param roomId    the ID of the chat room
      * @param principal the authenticated user principal
      */
     @MessageMapping("/chat.send/{roomId}")
     public void sendMessage(@Payload Message message,
-                           @DestinationVariable Long roomId,
-                           Principal principal) {
+            @DestinationVariable Long roomId,
+            Principal principal) {
         logger.info("Received message from user: {} for room: {}", principal.getName(), roomId);
 
         // Extract authenticated user
         User sender = userRepository.findByUsername(principal.getName())
-            .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
 
         // Delegate to service to validate, persist, and broadcast
         chatMessageService.sendMessage(sender.getId(), roomId, message.getContent());
@@ -82,7 +83,7 @@ public class ChatMessageController {
      * Adds the user to the room membership and broadcasts a JOIN system message
      * to all room subscribers.
      * 
-     * @param roomId the ID of the chat room to join
+     * @param roomId    the ID of the chat room to join
      * @param principal the authenticated user principal
      */
     @MessageMapping("/room.join/{roomId}")
@@ -91,7 +92,7 @@ public class ChatMessageController {
 
         // Extract authenticated user
         User user = userRepository.findByUsername(principal.getName())
-            .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
 
         // Add user to room (service handles membership creation)
         chatRoomService.addMember(roomId, user.getId(), null);
@@ -106,7 +107,7 @@ public class ChatMessageController {
 
         // Broadcast to room topic
         String destination = "/topic/room/" + roomId;
-        messagingTemplate.convertAndSend(destination, joinMessage);
+        messagingTemplate.convertAndSend(destination, MessageResponse.from(joinMessage));
 
         logger.info("User: {} successfully joined room: {}", user.getUsername(), roomId);
     }
@@ -114,10 +115,11 @@ public class ChatMessageController {
     /**
      * Handles room leave requests from clients.
      * 
-     * Removes the user from the room membership and broadcasts a LEAVE system message
+     * Removes the user from the room membership and broadcasts a LEAVE system
+     * message
      * to all remaining room subscribers.
      * 
-     * @param roomId the ID of the chat room to leave
+     * @param roomId    the ID of the chat room to leave
      * @param principal the authenticated user principal
      */
     @MessageMapping("/room.leave/{roomId}")
@@ -126,7 +128,7 @@ public class ChatMessageController {
 
         // Extract authenticated user
         User user = userRepository.findByUsername(principal.getName())
-            .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
 
         // Remove user from room
         chatRoomService.removeMember(roomId, user.getId());
@@ -141,7 +143,7 @@ public class ChatMessageController {
 
         // Broadcast to room topic
         String destination = "/topic/room/" + roomId;
-        messagingTemplate.convertAndSend(destination, leaveMessage);
+        messagingTemplate.convertAndSend(destination, MessageResponse.from(leaveMessage));
 
         logger.info("User: {} successfully left room: {}", user.getUsername(), roomId);
     }
@@ -159,14 +161,13 @@ public class ChatMessageController {
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public ErrorResponse handleException(Exception exception, Principal principal) {
-        logger.error("Error processing STOMP message for user: {}", 
-                    principal != null ? principal.getName() : "unknown", exception);
+        logger.error("Error processing STOMP message for user: {}",
+                principal != null ? principal.getName() : "unknown", exception);
 
         ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            LocalDateTime.now(),
-            500
-        );
+                exception.getMessage(),
+                LocalDateTime.now(),
+                500);
 
         return errorResponse;
     }
