@@ -12,7 +12,11 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 COPY --from=build /app/target/first-java-proj-1.0-SNAPSHOT.jar ./app.jar
+COPY start.sh ./start.sh
+
+# Make start script executable
+RUN chmod +x /app/start.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["/app/start.sh"]
