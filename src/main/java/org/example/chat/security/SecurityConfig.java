@@ -52,42 +52,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF as we're using JWT tokens (stateless authentication)
-            .csrf(AbstractHttpConfigurer::disable)
-            
-            // Configure CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Configure authorization rules
-            .authorizeHttpRequests(auth -> auth
-                // Permit authentication endpoints
-                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                
-                // Permit WebSocket endpoint (authentication handled by STOMP interceptor)
-                .requestMatchers("/ws/**").permitAll()
-                
-                // Require authentication for all other endpoints
-                .anyRequest().authenticated()
-            )
-            
-            // Configure exception handling to return 401 for unauthenticated requests
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(authenticationEntryPoint())
-            )
-            
-            // Set session management to stateless (no sessions, using JWT)
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            
-            // Add JWT authentication filter before UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // Disable CSRF as we're using JWT tokens (stateless authentication)
+                .csrf(AbstractHttpConfigurer::disable)
+
+                // Configure CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Configure authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        // Permit authentication endpoints
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+
+                        // Permit health checks (Render)
+                        .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+
+                        // Permit WebSocket endpoint (authentication handled by STOMP interceptor)
+                        .requestMatchers("/ws/**").permitAll()
+
+                        // Require authentication for all other endpoints
+                        .anyRequest().authenticated())
+
+                // Configure exception handling to return 401 for unauthenticated requests
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint()))
+
+                // Set session management to stateless (no sessions, using JWT)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Add JWT authentication filter before UsernamePasswordAuthenticationFilter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     /**
-     * Custom authentication entry point that returns 401 Unauthorized instead of 403 Forbidden
+     * Custom authentication entry point that returns 401 Unauthorized instead of
+     * 403 Forbidden
      * when authentication is required but not provided.
      * 
      * This ensures proper HTTP semantics:
@@ -114,26 +115,26 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         // Allow frontend origin
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        
+
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        
+
         // Allow all headers
         configuration.setAllowedHeaders(List.of("*"));
-        
+
         // Allow credentials (cookies, authorization headers)
         configuration.setAllowCredentials(true);
-        
+
         // Expose Authorization header to frontend
         configuration.setExposedHeaders(List.of("Authorization"));
-        
+
         // Apply CORS configuration to all paths
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        
+
         return source;
     }
 
@@ -155,7 +156,7 @@ public class SecurityConfig {
      * @throws Exception if configuration fails
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) 
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
