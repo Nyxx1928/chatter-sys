@@ -178,7 +178,7 @@ class ChatRoomIT extends BaseIntegrationTest {
     }
 
     @Test
-    void getRoomById_UserNotMember_ReturnsForbidden() throws Exception {
+    void getRoomById_UserNotMember_AutoJoinsAndReturnsRoom() throws Exception {
         // Create a room without adding the test user as member
         ChatRoom room = new ChatRoom();
         room.setName("Private Room");
@@ -202,10 +202,14 @@ class ChatRoomIT extends BaseIntegrationTest {
         membership.setJoinedAt(LocalDateTime.now());
         roomMembershipRepository.save(membership);
 
-        // Try to access room as non-member
+        // Access room as non-member (auto-joins)
         mockMvc.perform(get("/api/rooms/" + room.getId())
                 .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(room.getId()))
+                .andExpect(jsonPath("$.name").value("Private Room"));
+
+        assertTrue(roomMembershipRepository.findByUserAndChatRoom(testUser, room).isPresent());
     }
 
     @Test

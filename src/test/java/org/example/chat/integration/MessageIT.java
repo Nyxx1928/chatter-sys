@@ -145,7 +145,7 @@ class MessageIT extends BaseIntegrationTest {
     }
 
     @Test
-    void getMessageHistory_UserNotMember_ReturnsForbidden() throws Exception {
+    void getMessageHistory_UserNotMember_AutoJoinsAndReturnsMessages() throws Exception {
         // Create another user
         User otherUser = new User();
         otherUser.setUsername("otheruser");
@@ -158,10 +158,13 @@ class MessageIT extends BaseIntegrationTest {
 
         String otherToken = jwtUtil.generateToken(otherUser.getUsername());
 
-        // Try to get messages as non-member
+        // Get messages as non-member (auto-joins)
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + otherToken))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        assertTrue(roomMembershipRepository.findByUserAndChatRoom(otherUser, testRoom).isPresent());
     }
 
     @Test
