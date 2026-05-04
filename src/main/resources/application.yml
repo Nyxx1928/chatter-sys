@@ -7,7 +7,11 @@ spring:
 
   # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/chatdb
+    # Render provides DATABASE_URL in format: postgresql://user:pass@host:port/db
+    # Spring Boot needs: jdbc:postgresql://host:port/db
+    # If DATABASE_URL is set, it will be used (with jdbc: prefix added if needed)
+    # Otherwise, falls back to individual DB_* variables
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/chatdb}
     username: ${DB_USERNAME:chatuser}
     password: ${DB_PASSWORD:chatpass}
     driver-class-name: org.postgresql.Driver
@@ -32,7 +36,7 @@ spring:
 
 # Server Configuration
 server:
-  port: 8080
+  port: ${PORT:8080}  # Render sets PORT env variable
   error:
     include-message: always
     include-binding-errors: always
@@ -67,6 +71,20 @@ websocket:
   message-size-limit: 128000 # 128KB
   send-buffer-size-limit: 512000 # 512KB
   send-time-limit: 20000 # 20 seconds
+
+# Actuator Configuration (for health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
 
 ---
 # Development Profile

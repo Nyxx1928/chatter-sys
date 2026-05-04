@@ -7,11 +7,32 @@ This document provides comprehensive instructions for deploying the Real-Time Ch
 1. [System Requirements](#system-requirements)
 2. [Environment Configuration](#environment-configuration)
 3. [Backend Deployment](#backend-deployment)
+   - [Render.com (Recommended)](#rendercom-recommended)
+   - [JAR Deployment](#jar-deployment)
+   - [Docker Deployment](#docker-deployment)
 4. [Frontend Deployment](#frontend-deployment)
 5. [Database Setup](#database-setup)
 6. [Security Configuration](#security-configuration)
 7. [Monitoring and Logging](#monitoring-and-logging)
 8. [Troubleshooting](#troubleshooting)
+
+## Quick Start: Deploy to Render
+
+**For the fastest deployment, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)**
+
+Render.com provides a simple, modern deployment platform with:
+- Free tier for testing
+- Automatic SSL certificates
+- Built-in PostgreSQL database
+- Auto-deploy from GitHub
+- WebSocket support
+
+**Quick Deploy:**
+1. Push code to GitHub
+2. Connect repository to Render
+3. Render detects `render.yaml` and deploys automatically
+
+See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) for step-by-step instructions.
 
 ## System Requirements
 
@@ -80,6 +101,33 @@ NEXT_PUBLIC_MAX_MESSAGE_LENGTH=2000
 ```
 
 ## Backend Deployment
+
+### Render.com (Recommended)
+
+**For detailed Render deployment instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)**
+
+Render is the recommended platform for quick deployment with minimal configuration:
+
+**Advantages:**
+- Free tier available
+- Automatic SSL/HTTPS
+- Built-in PostgreSQL
+- Auto-deploy from Git
+- WebSocket support included
+- No server management
+
+**Quick Steps:**
+1. Push code to GitHub
+2. Create Render account
+3. Connect repository
+4. Deploy using `render.yaml` (Blueprint)
+5. Configure environment variables
+
+**Files for Render:**
+- `render.yaml` - Infrastructure as code
+- `Dockerfile` - Container configuration
+- `RENDER_DEPLOYMENT.md` - Detailed guide
+- `RENDER_CHECKLIST.md` - Deployment checklist
 
 ### Option 1: JAR Deployment (Recommended)
 
