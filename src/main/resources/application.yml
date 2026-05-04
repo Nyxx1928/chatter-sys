@@ -7,11 +7,9 @@ spring:
 
   # Database Configuration
   datasource:
-    # Render provides DATABASE_URL in format: postgresql://user:pass@host:port/db
-    # Spring Boot needs: jdbc:postgresql://host:port/db
-    # If DATABASE_URL is set, it will be used (with jdbc: prefix added if needed)
-    # Otherwise, falls back to individual DB_* variables
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/chatdb}
+    # For local development, uses these defaults
+    # For Render (prod profile), RenderDatabaseConfig.java handles DATABASE_URL conversion
+    url: jdbc:postgresql://localhost:5432/chatdb
     username: ${DB_USERNAME:chatuser}
     password: ${DB_PASSWORD:chatpass}
     driver-class-name: org.postgresql.Driver
