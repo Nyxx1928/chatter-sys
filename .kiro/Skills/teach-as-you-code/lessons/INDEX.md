@@ -68,3 +68,4 @@ Template: `TEMPLATE.md`
 | 2026-05-03 | Integrating Real-Time Presence with Friends List                                          | 2026-05-03-integrate-presence-with-friends-list.md         |
 | 2026-05-03 | End-to-End Testing for Social Discovery and Room Management                               | 2026-05-03-e2e-social-discovery-room-management.md         |
 | 2026-05-03 | Release Readiness Checkpoint - Social Discovery and Room Management                       | 2026-05-03-release-readiness-checkpoint.md                 |
+| 2026-05-04 | Understanding the Database Structure and Using SQL Commands                               | 2026-05-04-database-structure-and-sql.md                   |
