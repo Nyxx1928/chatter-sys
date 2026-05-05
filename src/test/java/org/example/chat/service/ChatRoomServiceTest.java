@@ -82,8 +82,8 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(testRoom);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(any(User.class), any(ChatRoom.class)))
-            .thenReturn(Optional.empty());
-        when(roomMembershipRepository.save(any(RoomMembership.class))).thenReturn(testMembership);
+                .thenReturn(Optional.empty());
+        when(roomMembershipRepository.saveAndFlush(any(RoomMembership.class))).thenReturn(testMembership);
 
         // Act
         ChatRoom result = chatRoomService.createRoom(roomName, description, creatorId);
@@ -91,7 +91,7 @@ class ChatRoomServiceTest {
         // Assert
         assertNotNull(result);
         verify(chatRoomRepository).save(any(ChatRoom.class));
-        verify(roomMembershipRepository).save(any(RoomMembership.class));
+        verify(roomMembershipRepository).saveAndFlush(any(RoomMembership.class));
     }
 
     @Test
@@ -105,9 +105,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.createRoom(roomName, description, creatorId)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.createRoom(roomName, description, creatorId));
         assertEquals("Room name already exists", exception.getMessage());
         verify(chatRoomRepository, never()).save(any(ChatRoom.class));
     }
@@ -121,9 +120,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.createRoom(roomName, description, creatorId)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.createRoom(roomName, description, creatorId));
         assertEquals("Room name cannot be empty", exception.getMessage());
     }
 
@@ -136,9 +134,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.createRoom(roomName, description, creatorId)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.createRoom(roomName, description, creatorId));
         assertEquals("Room name cannot exceed 100 characters", exception.getMessage());
     }
 
@@ -154,9 +151,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.createRoom(roomName, description, creatorId)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.createRoom(roomName, description, creatorId));
         assertEquals("Creator user not found", exception.getMessage());
     }
 
@@ -183,9 +179,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         RoomNotFoundException exception = assertThrows(
-            RoomNotFoundException.class,
-            () -> chatRoomService.getRoomById(roomId)
-        );
+                RoomNotFoundException.class,
+                () -> chatRoomService.getRoomById(roomId));
         assertTrue(exception.getMessage().contains("999"));
     }
 
@@ -243,9 +238,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         assertThrows(
-            RoomNotFoundException.class,
-            () -> chatRoomService.getRoomMembers(roomId)
-        );
+                RoomNotFoundException.class,
+                () -> chatRoomService.getRoomMembers(roomId));
     }
 
     @Test
@@ -260,15 +254,15 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(newUser));
         when(roomMembershipRepository.findByUserAndChatRoom(newUser, testRoom))
-            .thenReturn(Optional.empty());
-        when(roomMembershipRepository.save(any(RoomMembership.class))).thenReturn(testMembership);
+                .thenReturn(Optional.empty());
+        when(roomMembershipRepository.saveAndFlush(any(RoomMembership.class))).thenReturn(testMembership);
 
         // Act
         RoomMembership result = chatRoomService.addMember(roomId, userId, MemberRole.MEMBER);
 
         // Assert
         assertNotNull(result);
-        verify(roomMembershipRepository).save(any(RoomMembership.class));
+        verify(roomMembershipRepository).saveAndFlush(any(RoomMembership.class));
     }
 
     @Test
@@ -282,8 +276,8 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(newUser));
         when(roomMembershipRepository.findByUserAndChatRoom(newUser, testRoom))
-            .thenReturn(Optional.empty());
-        when(roomMembershipRepository.save(any(RoomMembership.class))).thenAnswer(invocation -> {
+                .thenReturn(Optional.empty());
+        when(roomMembershipRepository.saveAndFlush(any(RoomMembership.class))).thenAnswer(invocation -> {
             RoomMembership membership = invocation.getArgument(0);
             assertEquals(MemberRole.MEMBER, membership.getRole());
             return membership;
@@ -293,7 +287,7 @@ class ChatRoomServiceTest {
         chatRoomService.addMember(roomId, userId, null);
 
         // Assert
-        verify(roomMembershipRepository).save(any(RoomMembership.class));
+        verify(roomMembershipRepository).saveAndFlush(any(RoomMembership.class));
     }
 
     @Test
@@ -307,9 +301,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.addMember(roomId, userId, MemberRole.MEMBER)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.addMember(roomId, userId, MemberRole.MEMBER));
         assertEquals("User not found", exception.getMessage());
     }
 
@@ -322,7 +315,7 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
 
         // Act
         RoomMembership result = chatRoomService.addMember(roomId, userId, MemberRole.MEMBER);
@@ -342,7 +335,7 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
 
         // Act
         chatRoomService.removeMember(roomId, userId);
@@ -362,9 +355,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.removeMember(roomId, userId)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.removeMember(roomId, userId));
         assertEquals("User not found", exception.getMessage());
     }
 
@@ -379,13 +371,12 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(nonMember));
         when(roomMembershipRepository.findByUserAndChatRoom(nonMember, testRoom))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> chatRoomService.removeMember(roomId, userId)
-        );
+                IllegalArgumentException.class,
+                () -> chatRoomService.removeMember(roomId, userId));
         assertEquals("User is not a member of this room", exception.getMessage());
     }
 
@@ -398,7 +389,7 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
 
         // Act
         chatRoomService.deleteRoom(roomId, userId);
@@ -417,7 +408,7 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
 
         // Act
         chatRoomService.deleteRoom(roomId, userId);
@@ -436,13 +427,12 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.of(testMembership));
+                .thenReturn(Optional.of(testMembership));
 
         // Act & Assert
         UnauthorizedException exception = assertThrows(
-            UnauthorizedException.class,
-            () -> chatRoomService.deleteRoom(roomId, userId)
-        );
+                UnauthorizedException.class,
+                () -> chatRoomService.deleteRoom(roomId, userId));
         assertEquals("Only owners or moderators can delete rooms", exception.getMessage());
         verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
     }
@@ -458,9 +448,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         assertThrows(
-            UserNotFoundException.class,
-            () -> chatRoomService.deleteRoom(roomId, userId)
-        );
+                UserNotFoundException.class,
+                () -> chatRoomService.deleteRoom(roomId, userId));
         verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
     }
 
@@ -474,9 +463,8 @@ class ChatRoomServiceTest {
 
         // Act & Assert
         assertThrows(
-            RoomNotFoundException.class,
-            () -> chatRoomService.deleteRoom(roomId, userId)
-        );
+                RoomNotFoundException.class,
+                () -> chatRoomService.deleteRoom(roomId, userId));
         verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
     }
 
@@ -489,13 +477,12 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(testRoom));
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
         // Act & Assert
         UnauthorizedException exception = assertThrows(
-            UnauthorizedException.class,
-            () -> chatRoomService.deleteRoom(roomId, userId)
-        );
+                UnauthorizedException.class,
+                () -> chatRoomService.deleteRoom(roomId, userId));
         assertEquals("User is not a member of this room", exception.getMessage());
         verify(chatRoomRepository, never()).delete(any(ChatRoom.class));
     }

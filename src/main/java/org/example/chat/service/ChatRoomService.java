@@ -12,8 +12,13 @@ import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +36,9 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final RoomMembershipRepository roomMembershipRepository;
     private final UserRepository userRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
             RoomMembershipRepository roomMembershipRepository,
@@ -148,7 +156,6 @@ public class ChatRoomService {
      * @throws IllegalArgumentException if room or user not found, or if user is
      *                                  already a member
      */
-    @Transactional
     public RoomMembership addMember(Long roomId, Long userId, MemberRole role) {
         logger.info("Adding user ID: {} to chat room ID: {} with role: {}", userId, roomId, role);
 
@@ -176,10 +183,23 @@ public class ChatRoomService {
         membership.setRole(role != null ? role : MemberRole.MEMBER);
 
         // Persist membership
-        RoomMembership savedMembership = roomMembershipRepository.save(membership);
-        logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
+        try {
+            RoomMembership savedMembership = saveMembership(membership);
+            logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
+            return savedMembership;
+        } catch (DataIntegrityViolationException ex) {
+            // Unique constraint may be hit under concurrent join requests
+            entityManager.clear();
+            RoomMembership existing = roomMembershipRepository.findByUserAndChatRoom(user, room)
+                    .orElseThrow(() -> ex);
+            logger.debug("Membership already exists for user {} in room {}, returning existing", userId, roomId);
+            return existing;
+        }
+    }
 
-        return savedMembership;
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = DataIntegrityViolationException.class)
+    private RoomMembership saveMembership(RoomMembership membership) {
+        return roomMembershipRepository.saveAndFlush(membership);
     }
 
     /**

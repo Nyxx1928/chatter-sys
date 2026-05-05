@@ -69,3 +69,6 @@ Template: `TEMPLATE.md`
 | 2026-05-03 | End-to-End Testing for Social Discovery and Room Management                               | 2026-05-03-e2e-social-discovery-room-management.md         |
 | 2026-05-03 | Release Readiness Checkpoint - Social Discovery and Room Management                       | 2026-05-03-release-readiness-checkpoint.md                 |
 | 2026-05-04 | Understanding the Database Structure and Using SQL Commands                               | 2026-05-04-database-structure-and-sql.md                   |
+| 2026-05-05 | Hero Section Component                                                                     | splash-landing-redesign/001-hero-section-component.md      |
+| 2026-05-05 | Accessibility ARIA Labels                                                                 | splash-landing-redesign/002-accessibility-aria-labels.md   |
+| 2026-05-05 | Hover Effects for Interactive Elements                                                    | splash-landing-redesign/005-hover-effects.md               |

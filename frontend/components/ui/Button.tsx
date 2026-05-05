@@ -26,7 +26,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   // Base styles - mobile-first with 44x44px minimum touch target
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
   // Size variants - all meet 44x44px minimum for mobile
   const sizeStyles = {
@@ -37,10 +37,10 @@ export function Button({
   
   // Color variants with proper contrast ratios (WCAG AA)
   const variantStyles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 active:bg-blue-800',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 active:bg-gray-400',
+    primary: 'bg-kiro-purple-500 text-white hover:bg-kiro-purple-600 focus:ring-kiro-purple-400 active:bg-kiro-purple-700',
+    secondary: 'bg-kiro-orange-500 text-white hover:bg-kiro-orange-600 focus:ring-kiro-orange-500 active:bg-kiro-orange-600',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500 active:bg-gray-200',
+    ghost: 'bg-transparent text-kiro-slate-500 hover:bg-kiro-slate-100 focus:ring-kiro-slate-200 active:bg-kiro-slate-200',
   };
   
   // Width styles

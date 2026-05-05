@@ -5,13 +5,13 @@ description: Always generate a step-by-step lesson in a dedicated lessons folder
 
 ## Teaching Instructions
 
-- Store lessons in a dedicated folder at `.kiro/Skills/teach-as-you-code/lessons/`.
-- For each new task, create a new lesson file in that folder instead of overwriting an old file.
-- Name lesson files with this scalable pattern: `YYYY-MM-DD-short-topic-slug.md`.
+- Store lessons in a dedicated folder at `.kiro/Skills/teach-as-you-code/lessons/{lesson-set}` (e.g., `frontend`, `backend`, `core`).
+- For each new lesson set, create a new directory and corresponding INDEX file to track lessons independently.
+- For each new task, create a new lesson file in the appropriate lesson-set folder instead of overwriting an old file.
+- Name lesson files with this scalable pattern: `NNN-short-topic-slug.md` where `NNN` is a zero-padded sequential number (001, 002, 003, etc.).
 - Make the `short-topic-slug` intuitive from the actual task (for example: `add-rate-limiter`, `fix-login-lockout`, `build-product-grid`).
-- If a filename already exists for the same date and topic, append a numeric suffix: `-2`, `-3`, and so on.
-- Maintain `.kiro/Skills/teach-as-you-code/lessons/INDEX.md` and add one entry per lesson with date, title, and file path.
-- Use this index row format: `| YYYY-MM-DD | Lesson Title | lessons-file-name.md |`.
+- Maintain `.kiro/Skills/teach-as-you-code/lessons/{lesson-set}/INDEX.md` and add one entry per lesson with sequence number, title, and file path.
+- Use this index row format: `| 001 | Lesson Title | 001-short-topic-slug.md |`.
 - In the `## Files Modified` section, list all files that were created, modified, or deleted during the task.
 - Use bullet points with relative paths from workspace root (e.g., `- valentines/package.json`, `- backend/src/app.module.ts`).
 - Mark file operations clearly: `(created)`, `(modified)`, or `(deleted)` after each file path.

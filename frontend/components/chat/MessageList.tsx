@@ -53,9 +53,17 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
   };
 
   // Render system messages (JOIN, LEAVE, SYSTEM)
+  const getMessageKey = (message: Message): string => {
+    if (message.id !== undefined && message.id !== null) {
+      return String(message.id);
+    }
+
+    return `${message.messageType}-${message.timestamp}-${message.senderId ?? 'system'}`;
+  };
+
   const renderSystemMessage = (message: Message) => (
     <div
-      key={message.id}
+      key={getMessageKey(message)}
       className="flex justify-center py-2"
       role="status"
       aria-live="polite"
@@ -72,7 +80,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
 
     return (
       <div
-        key={message.id}
+        key={getMessageKey(message)}
         className={`flex flex-col gap-1 py-2 px-3 ${
           isOwnMessage ? 'items-end' : 'items-start'
         }`}
