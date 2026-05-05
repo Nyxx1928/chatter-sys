@@ -27,7 +27,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     /**
-     * Register STOMP endpoints that clients will use to connect to the WebSocket server.
+     * Register STOMP endpoints that clients will use to connect to the WebSocket
+     * server.
      * 
      * Configures:
      * - Endpoint at /ws for WebSocket connections
@@ -39,7 +40,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000")
+                .setAllowedOrigins("https://chatter-sys.vercel.app/")
                 .withSockJS();
     }
 
@@ -49,7 +50,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * Configures:
      * - Simple in-memory broker with /topic prefix for pub/sub messaging
      * - Simple in-memory broker with /queue prefix for point-to-point messaging
-     * - Application destination prefix /app for messages bound for @MessageMapping methods
+     * - Application destination prefix /app for messages bound for @MessageMapping
+     * methods
      * - User destination prefix /user for user-specific messages
      * 
      * @param registry the message broker registry
@@ -58,10 +60,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // Enable a simple in-memory message broker with /topic and /queue prefixes
         registry.enableSimpleBroker("/topic", "/queue");
-        
+
         // Set prefix for messages bound for @MessageMapping-annotated methods
         registry.setApplicationDestinationPrefixes("/app");
-        
+
         // Set prefix for user-specific destinations
         registry.setUserDestinationPrefix("/user");
     }
