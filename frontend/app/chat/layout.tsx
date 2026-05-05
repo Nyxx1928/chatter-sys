@@ -18,7 +18,7 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, user, token } = useAuthStore();
+  const { isAuthenticated, isInitialized, isChecking, user, token } = useAuthStore();
   const { connected, connecting, error, connect, disconnect } = useConnectionStore();
   const isClient = useSyncExternalStore(
     () => () => {},
@@ -28,10 +28,10 @@ export default function ChatLayout({
 
   // Protect chat pages - redirect to login if not authenticated
   useEffect(() => {
-    if (isClient && (!isAuthenticated || !user)) {
+    if (isClient && isInitialized && (!isAuthenticated || !user)) {
       router.push('/auth/login');
     }
-  }, [isClient, isAuthenticated, user, router]);
+  }, [isClient, isInitialized, isAuthenticated, user, router]);
 
   // Connect to STOMP server when user is authenticated
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function ChatLayout({
   }, [isClient, isAuthenticated, token, connected, connecting, connect, disconnect]);
 
   // Show loading state while checking authentication or during SSR
-  if (!isClient || !isAuthenticated || !user) {
+  if (!isClient || isChecking || !isInitialized || !isAuthenticated || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
