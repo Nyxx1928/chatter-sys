@@ -7,7 +7,6 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRegistration;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -24,17 +23,16 @@ class WebSocketConfigTest {
         WebSocketAuthenticationInterceptor authInterceptor = mock(WebSocketAuthenticationInterceptor.class);
         WebSocketConfig config = new WebSocketConfig(authInterceptor);
         StompEndpointRegistry registry = mock(StompEndpointRegistry.class);
-        StompWebSocketEndpointRegistration registration = mock(StompWebSocketEndpointRegistration.class);
+        StompWebSocketEndpointRegistration registration = mock(StompWebSocketEndpointRegistration.class, RETURNS_SELF);
         
         when(registry.addEndpoint("/ws")).thenReturn(registration);
-        when(registration.setAllowedOrigins(any())).thenReturn(registration);
         
         // Act
         config.registerStompEndpoints(registry);
         
         // Assert
         verify(registry).addEndpoint("/ws");
-        verify(registration).setAllowedOrigins("http://localhost:3000");
+        verify(registration).setAllowedOrigins("http://localhost:3000", "https://chatter-sys.vercel.app");
         verify(registration).withSockJS();
     }
 

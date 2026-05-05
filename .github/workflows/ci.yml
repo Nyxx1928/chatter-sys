@@ -80,7 +80,7 @@ jobs:
           cache: maven
 
       - name: Run backend integration tests
-        run: mvn -Dtest="*IT" -DfailIfNoTests=false test
+        run: mvn -Dtest="*IntegrationTest" -DfailIfNoTests=false test
 
   phase4-e2e-playwright:
     name: phase 4 - e2e playwright
