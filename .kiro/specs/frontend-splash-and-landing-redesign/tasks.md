@@ -1,0 +1,332 @@
+# Implementation Plan: Frontend Splash and Landing Page Redesign
+
+## Overview
+
+This implementation plan breaks down the redesign of the frontend entry experience into actionable coding tasks. The implementation follows a 7-phase approach: theme configuration, splash screen, landing page components, integration, responsive design, accessibility, and testing/polish.
+
+The redesign introduces a splash screen with progress indicator and a modern landing page featuring Kiro IDE's color theme (purple primary, black/dark background, orange accents).
+
+## Tasks
+
+- [x] 1. Configure Kiro color theme and animations
+  - Update `frontend/tailwind.config.ts` with Kiro color palette (purple primary, orange accent, dark backgrounds)
+  - Add custom animations: fade-in, fade-out, slide-down, progress
+  - Add custom keyframes for smooth transitions
+  - Test theme by applying colors to existing Button component
+  - _Requirements: 1.4, 9.1, 9.2, 9.3, 9.4, 9.5_
+
+- [ ] 2. Implement SplashScreen component
+  - [x] 2.1 Create SplashScreen component with progress indicator
+    - Create `frontend/components/landing/SplashScreen.tsx`
+    - Implement props interface (onComplete callback, duration)
+    - Add state management for progress (0-100) and completion status
+    - Implement progress animation using requestAnimationFrame or interval
+    - Display progress percentage and animated progress bar
+    - Add fade-out animation on completion
+    - Call onComplete callback when progress reaches 100%
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [x]\* 2.2 Add prefers-reduced-motion support to SplashScreen
+    - Detect prefers-reduced-motion media query
+    - Disable or simplify animations when reduced motion is preferred
+    - Ensure progress still completes and transitions occur
+    - _Requirements: 7.6_
+  - [ ]\* 2.3 Write unit tests for SplashScreen
+    - Test initial render with progress at 0%
+    - Test progress increases over time
+    - Test onComplete callback is called at 100%
+    - Test prefers-reduced-motion behavior
+    - Test progress percentage display
+    - _Requirements: 1.1, 1.2, 1.3, 1.5, 7.6_
+
+- [ ] 3. Implement NavigationHeader component
+  - [x] 3.1 Create NavigationHeader component structure
+    - Create `frontend/components/landing/NavigationHeader.tsx`
+    - Implement props interface (className optional)
+    - Add state for mobile menu open/closed and active section
+    - Define menu items array (Home, About, How It Works, Pricing, Contact)
+    - Render navigation bar with menu items and Sign Up button
+    - _Requirements: 2.1, 3.1, 3.2_
+  - [x] 3.2 Implement desktop navigation behavior
+    - Add sticky positioning (sticky top-0)
+    - Implement smooth scroll to sections on menu item click
+    - Highlight active section based on scroll position
+    - Add hover effects with purple color
+    - Style Sign Up button with orange accent
+    - Navigate to /auth/register on Sign Up click
+    - _Requirements: 3.3, 3.4, 3.5_
+  - [x] 3.3 Implement mobile responsive navigation
+    - Add hamburger menu button for mobile (< 640px)
+    - Toggle mobile menu on hamburger click
+    - Display vertical menu when open
+    - Close menu on menu item click
+    - Add slide-down animation for mobile menu
+    - _Requirements: 2.6, 3.6, 8.1, 8.5_
+  - [ ]\* 3.4 Write unit tests for NavigationHeader
+    - Test all menu items render correctly
+    - Test Sign Up button navigates to /auth/register
+    - Test mobile menu toggles on hamburger click
+    - Test menu items trigger scroll behavior
+    - Test sticky positioning applies
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+
+- [ ] 4. Implement HeroSection component
+  - [x] 4.1 Create HeroSection component
+    - Create `frontend/components/landing/HeroSection.tsx`
+    - Implement props interface (className optional)
+    - Define content object (headline, subheading, CTA text/href)
+    - Render headline with "communication" word styled in orange
+    - Render subheading text
+    - Render "Register Now" CTA button with orange accent
+    - Navigate to /auth/register on CTA click
+    - Add fade-in animation on mount
+    - _Requirements: 2.2, 4.1, 4.2, 4.3, 4.4, 4.5_
+  - [x] 4.2 Implement responsive text sizing
+    - Use text-5xl on desktop, text-3xl on mobile for headline
+    - Use text-xl on desktop, text-lg on mobile for subheading
+    - Center layout on mobile, left-align on desktop
+    - _Requirements: 2.5, 8.1, 8.2, 8.3_
+  - [ ]\* 4.3 Write unit tests for HeroSection
+    - Test headline renders with orange-highlighted word
+    - Test subheading renders correctly
+    - Test CTA button navigates to /auth/register
+    - Test responsive text sizing classes apply
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+
+- [ ] 5. Implement UserAvatarDisplay component
+  - [x] 5.1 Create avatar data and layout configuration
+    - Create `frontend/lib/data/avatars.ts`
+    - Define AvatarData interface (id, imageUrl, alt)
+    - Define AvatarPosition interface (desktop, tablet, mobile positions)
+    - Create placeholderAvatars array with 6-8 avatars using DiceBear API
+    - Create avatarLayout object with responsive positions for each avatar
+    - _Requirements: 2.3, 5.1, 5.4_
+  - [x] 5.2 Create UserAvatarDisplay component
+    - Create `frontend/components/landing/UserAvatarDisplay.tsx`
+    - Implement props interface (className, avatarCount optional)
+    - Import avatar data and layout configuration
+    - Render avatars with absolute positioning based on viewport size
+    - Use circular images with border styling
+    - Add hover animation (scale effect)
+    - _Requirements: 2.3, 5.1, 5.2, 5.5_
+  - [x] 5.3 Implement SVG connecting lines
+    - Create SVG overlay for connecting lines between avatars
+    - Define Connection interface (from, to, color)
+    - Calculate line positions based on avatar positions
+    - Style lines with purple gradient and varying opacity
+    - Add subtle glow effect on hover
+    - _Requirements: 5.3_
+  - [x] 5.4 Implement responsive avatar repositioning
+    - Detect viewport size (mobile, tablet, desktop)
+    - Apply appropriate avatar positions from layout configuration
+    - Adjust avatar sizes based on viewport (sm, md, lg)
+    - Recalculate connecting lines on viewport change
+    - _Requirements: 2.5, 5.5, 8.1, 8.2, 8.3, 8.4_
+  - [x] 5.5 Add image loading error handling
+    - Implement fallback for failed avatar image loads
+    - Display colored circles with icons as fallback
+    - Ensure layout remains stable with fallbacks
+    - _Requirements: 5.4_
+  - [ ]\* 5.6 Write unit tests for UserAvatarDisplay
+    - Test correct number of avatars render
+    - Test connecting lines display between avatars
+    - Test image loading failure fallback
+    - Test responsive repositioning on viewport resize
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+
+- [ ] 6. Integrate landing page components
+  - [x] 6.1 Create landing components index file
+    - Create `frontend/components/landing/index.ts`
+    - Export SplashScreen, NavigationHeader, HeroSection, UserAvatarDisplay
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 6.2 Update root page with landing page
+    - Update `frontend/app/page.tsx` to replace existing content
+    - Add state for showSplash and isAuthenticated
+    - Check authentication state on mount using authStore
+    - If authenticated, redirect to /chat
+    - If not authenticated, show SplashScreen component
+    - After splash completes, hide splash and show landing page
+    - Render NavigationHeader, HeroSection, and UserAvatarDisplay
+    - Add fade-in transition when landing page appears
+    - _Requirements: 1.1, 1.5, 2.1, 2.2, 2.3, 6.1, 6.2, 6.3, 6.5_
+  - [x] 6.3 Implement smooth transitions between splash and landing
+    - Add fade-out animation to SplashScreen on completion
+    - Add fade-in animation to landing page content
+    - Ensure transition completes within 500ms
+    - _Requirements: 1.5, 10.2_
+  - [ ]\* 6.4 Write integration tests for landing page flow
+    - Test unauthenticated user sees splash screen then landing page
+    - Test authenticated user redirects to /chat
+    - Test all navigation links work correctly
+    - Test Sign Up and Register Now buttons navigate to /auth/register
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+
+- [x] 7. Checkpoint - Ensure all components render correctly
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 8. Implement responsive design refinements
+  - [x] 8.1 Test and refine mobile layout (< 640px)
+    - Test NavigationHeader mobile menu functionality
+    - Test HeroSection text sizing and centering
+    - Test UserAvatarDisplay mobile positions
+    - Verify all interactive elements are touch-friendly (min 44x44px)
+    - Adjust spacing and padding for mobile viewport
+    - _Requirements: 2.5, 8.1_
+  - [x] 8.2 Test and refine tablet layout (640px - 1024px)
+    - Test NavigationHeader layout at tablet breakpoint
+    - Test HeroSection layout and text sizing
+    - Test UserAvatarDisplay tablet positions
+    - Verify layout transitions smoothly from mobile to tablet
+    - _Requirements: 2.5, 8.2_
+  - [x] 8.3 Test and refine desktop layout (> 1024px)
+    - Test NavigationHeader sticky positioning
+    - Test HeroSection left-aligned layout
+    - Test UserAvatarDisplay desktop positions
+    - Verify all hover effects work correctly
+    - _Requirements: 2.5, 8.3_
+  - [ ]\* 8.4 Create visual regression tests
+    - Set up Playwright or similar visual testing tool
+    - Capture screenshots at mobile (375px), tablet (768px), desktop (1280px)
+    - Capture splash screen appearance
+    - Capture navigation header expanded and collapsed states
+    - Capture button and link hover states
+    - _Requirements: 8.1, 8.2, 8.3_
+
+- [ ] 9. Implement accessibility features
+  - [x] 9.1 Add ARIA labels and semantic HTML
+    - Add role="progressbar" with aria-valuenow to SplashScreen
+    - Add aria-label="Main navigation" to NavigationHeader nav element
+    - Add aria-label and aria-expanded to mobile menu button
+    - Add aria-labelledby to HeroSection main element
+    - Add proper alt text to all avatar images
+    - Ensure semantic HTML structure (nav, main, section, button)
+    - _Requirements: 7.1, 7.3_
+  - [x] 9.2 Implement keyboard navigation
+    - Ensure all interactive elements are focusable via Tab
+    - Add visible focus indicators (2px purple outline)
+    - Implement logical tab order (top to bottom, left to right)
+    - Add Escape key handler to close mobile menu
+    - Trap focus in mobile menu when open
+    - Return focus to hamburger button when menu closes
+    - _Requirements: 7.2_
+  - [x] 9.3 Verify color contrast ratios
+    - Test text on dark background meets 4.5:1 ratio
+    - Test large text meets 3:1 ratio
+    - Test orange accent on dark background contrast
+    - Test purple on dark background contrast
+    - Fix any contrast issues found
+    - _Requirements: 7.4, 9.1, 9.2, 9.3_
+  - [ ]\* 9.4 Run automated accessibility tests
+    - Set up jest-axe or similar accessibility testing tool
+    - Test SplashScreen for accessibility violations
+    - Test NavigationHeader for accessibility violations
+    - Test HeroSection for accessibility violations
+    - Test UserAvatarDisplay for accessibility violations
+    - Test full landing page for accessibility violations
+    - Fix any violations found
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [ ]\* 9.5 Test with screen reader
+    - Test landing page with NVDA or JAWS (Windows) or VoiceOver (Mac)
+    - Verify all content is announced correctly
+    - Verify navigation is logical and clear
+    - Verify interactive elements are properly labeled
+    - Fix any issues found
+    - _Requirements: 7.3_
+
+- [ ] 10. Implement animations and transitions
+  - [x] 10.1 Add hover effects to interactive elements
+    - Add hover effect to navigation menu items (purple highlight)
+    - Add hover effect to Sign Up button (darker orange)
+    - Add hover effect to Register Now button (darker orange)
+    - Add hover effect to avatars (scale transform)
+    - Ensure all hover effects trigger within 100ms
+    - _Requirements: 10.3, 10.4_
+  - [~] 10.2 Optimize animation performance
+    - Use CSS transforms for animations (GPU-accelerated)
+    - Avoid animating layout properties (width, height)
+    - Use will-change sparingly for critical animations
+    - Test animations run at 60fps on target devices
+    - _Requirements: 7.5, 10.1, 10.5_
+  - [ ]\* 10.3 Test animation performance
+    - Use Chrome DevTools Performance tab to profile animations
+    - Verify splash screen progress animation runs smoothly
+    - Verify transitions between splash and landing are smooth
+    - Verify hover effects don't cause layout thrashing
+    - Fix any performance issues found
+    - _Requirements: 7.5, 10.1, 10.2, 10.3, 10.4, 10.5_
+
+- [x] 11. Checkpoint - Ensure accessibility and animations work correctly
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 12. Performance optimization and testing
+  - [~] 12.1 Optimize bundle size and loading
+    - Configure Tailwind to purge unused styles in production
+    - Verify Next.js optimizes images and bundles JavaScript
+    - Check bundle size and identify any large dependencies
+    - Implement code splitting if needed
+    - _Requirements: 7.5_
+  - [~] 12.2 Optimize image loading
+    - Use Next.js Image component for avatar images
+    - Implement lazy loading for below-the-fold images
+    - Add placeholder blur for loading states
+    - Verify images are served in WebP format with fallbacks
+    - _Requirements: 7.5_
+  - [ ]\* 12.3 Run performance audits
+    - Run Lighthouse audit on landing page
+    - Verify Performance score is 90+
+    - Verify Accessibility score is 100
+    - Verify First Contentful Paint < 1.5s
+    - Verify Largest Contentful Paint < 2.5s
+    - Verify Time to Interactive < 3.0s
+    - Verify Cumulative Layout Shift < 0.1
+    - Fix any performance issues found
+    - _Requirements: 7.5_
+
+- [ ] 13. Final testing and polish
+  - [ ]\* 13.1 Write comprehensive unit tests
+    - Ensure all components have unit tests
+    - Verify test coverage is 90%+ for landing components
+    - Test all edge cases and error scenarios
+    - _Requirements: All_
+  - [ ]\* 13.2 Create snapshot tests
+    - Create Jest snapshots for SplashScreen at 0%, 50%, 100%
+    - Create snapshots for NavigationHeader (desktop and mobile)
+    - Create snapshots for HeroSection
+    - Create snapshots for UserAvatarDisplay
+    - Create snapshot for full landing page composition
+    - _Requirements: All_
+  - [ ]\* 13.3 Run end-to-end tests
+    - Set up Playwright for E2E testing
+    - Test unauthenticated user flow (splash → landing → register)
+    - Test authenticated user flow (redirect to chat)
+    - Test navigation flow (menu clicks, scroll to sections)
+    - Test responsive behavior at all breakpoints
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 8.1, 8.2, 8.3_
+  - [~] 13.4 Manual testing and bug fixes
+    - Test on real mobile devices (iOS and Android)
+    - Test on different browsers (Chrome, Firefox, Safari, Edge)
+    - Test with different screen sizes and orientations
+    - Test with slow network conditions
+    - Fix any bugs or issues found
+    - _Requirements: All_
+  - [~] 13.5 Code review and refinement
+    - Review all code for consistency and best practices
+    - Ensure TypeScript types are properly defined
+    - Ensure components follow React best practices
+    - Ensure accessibility standards are met
+    - Refactor any code that needs improvement
+    - _Requirements: All_
+
+- [x] 14. Final checkpoint - Verify complete implementation
+  - Ensure all tests pass, ask the user if questions arise.
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for faster MVP delivery
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation and user feedback
+- The implementation uses TypeScript and React with Next.js App Router
+- All components follow the existing project structure and conventions
+- The Kiro color theme (purple primary, orange accent, dark backgrounds) is applied consistently
+- Accessibility is a priority throughout implementation (WCAG 2.1 AA compliance)
+- Performance targets: landing page loads within 3 seconds, animations run at 60fps
+- Responsive design supports mobile (< 640px), tablet (640px-1024px), and desktop (> 1024px)
