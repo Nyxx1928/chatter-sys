@@ -40,7 +40,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("https://chatter-sys.vercel.app/")
+                .setAllowedOrigins(
+                        "http://localhost:3000",
+                        "https://chatter-sys.vercel.app")
                 .withSockJS();
     }
 
