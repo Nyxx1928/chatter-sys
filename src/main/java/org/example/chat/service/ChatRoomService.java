@@ -12,6 +12,7 @@ import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -176,10 +177,17 @@ public class ChatRoomService {
         membership.setRole(role != null ? role : MemberRole.MEMBER);
 
         // Persist membership
-        RoomMembership savedMembership = roomMembershipRepository.save(membership);
-        logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
-
-        return savedMembership;
+        try {
+            RoomMembership savedMembership = roomMembershipRepository.saveAndFlush(membership);
+            logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
+            return savedMembership;
+        } catch (DataIntegrityViolationException ex) {
+            // Unique constraint may be hit under concurrent join requests
+            RoomMembership existing = roomMembershipRepository.findByUserAndChatRoom(user, room)
+                    .orElseThrow(() -> ex);
+            logger.debug("Membership already exists for user {} in room {}, returning existing", userId, roomId);
+            return existing;
+        }
     }
 
     /**

@@ -10,14 +10,22 @@ import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
+import org.example.chat.service.ChatRoomService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +52,9 @@ class ChatRoomIT extends BaseIntegrationTest {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private ChatRoomService chatRoomService;
 
     private User testUser;
     private String authToken;
@@ -240,5 +251,57 @@ class ChatRoomIT extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value("Integration Test Room"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void addMember_ConcurrentCalls_DoesNotCreateDuplicate() throws Exception {
+        ChatRoom room = new ChatRoom();
+        room.setName("Concurrent Room");
+        room.setCreatedAt(LocalDateTime.now());
+        ChatRoom savedRoom = chatRoomRepository.save(room);
+
+        User user = new User();
+        user.setUsername("concurrentuser");
+        user.setEmail("concurrent@example.com");
+        user.setPasswordHash(passwordEncoder.encode("password123"));
+        user.setDisplayName("Concurrent User");
+        user.setCreatedAt(LocalDateTime.now());
+        user.setOnline(false);
+        User savedUser = userRepository.save(user);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch startLatch = new CountDownLatch(1);
+
+        try {
+            Future<?> first = executor.submit(() -> {
+                awaitLatch(startLatch);
+                chatRoomService.addMember(savedRoom.getId(), savedUser.getId(), null);
+            });
+            Future<?> second = executor.submit(() -> {
+                awaitLatch(startLatch);
+                chatRoomService.addMember(savedRoom.getId(), savedUser.getId(), null);
+            });
+
+            startLatch.countDown();
+
+            first.get(5, TimeUnit.SECONDS);
+            second.get(5, TimeUnit.SECONDS);
+
+            List<RoomMembership> memberships = roomMembershipRepository.findByChatRoom(savedRoom);
+            assertEquals(1, memberships.size());
+            assertEquals(savedUser.getId(), memberships.get(0).getUser().getId());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    private void awaitLatch(CountDownLatch latch) {
+        try {
+            latch.await(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for latch", ex);
+        }
     }
 }
