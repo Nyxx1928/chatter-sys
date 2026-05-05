@@ -3,6 +3,7 @@ package org.example.chat;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ public class ChatApplication {
     }
 
     @Bean
+    @ConditionalOnBean(DataSource.class)
     public CommandLineRunner startupDiagnostics(DataSource dataSource) {
         return args -> {
             logger.info("=== Running custom startup diagnostics ===");
