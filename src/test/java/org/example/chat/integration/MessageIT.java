@@ -108,11 +108,11 @@ class MessageIT extends BaseIntegrationTest {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].content").value("First message"))
-                .andExpect(jsonPath("$[1].content").value("Second message"))
-                .andExpect(jsonPath("$[2].content").value("Third message"))
-                .andExpect(jsonPath("$[*].senderUsername", everyItem(is("messageuser"))));
+                .andExpect(jsonPath("$.content", hasSize(3)))
+                .andExpect(jsonPath("$.content[0].content").value("First message"))
+                .andExpect(jsonPath("$.content[1].content").value("Second message"))
+                .andExpect(jsonPath("$.content[2].content").value("Third message"))
+                .andExpect(jsonPath("$.content[*].senderUsername", everyItem(is("messageuser"))));
     }
 
     @Test
@@ -120,7 +120,7 @@ class MessageIT extends BaseIntegrationTest {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test
@@ -141,7 +141,7 @@ class MessageIT extends BaseIntegrationTest {
                 .header("Authorization", "Bearer " + authToken)
                 .param("size", "5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(5)));
+                .andExpect(jsonPath("$.content", hasSize(5)));
     }
 
     @Test
@@ -162,7 +162,7 @@ class MessageIT extends BaseIntegrationTest {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + otherToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
 
         assertTrue(roomMembershipRepository.findByUserAndChatRoom(otherUser, testRoom).isPresent());
     }
@@ -221,11 +221,11 @@ class MessageIT extends BaseIntegrationTest {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].senderUsername").value("messageuser"))
-                .andExpect(jsonPath("$[0].content").value("Message from user 1"))
-                .andExpect(jsonPath("$[1].senderUsername").value("user2"))
-                .andExpect(jsonPath("$[1].content").value("Message from user 2"));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].senderUsername").value("messageuser"))
+                .andExpect(jsonPath("$.content[0].content").value("Message from user 1"))
+                .andExpect(jsonPath("$.content[1].senderUsername").value("user2"))
+                .andExpect(jsonPath("$.content[1].content").value("Message from user 2"));
     }
 
     @Test
@@ -259,9 +259,9 @@ class MessageIT extends BaseIntegrationTest {
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].messageType").value("TEXT"))
-                .andExpect(jsonPath("$[1].messageType").value("JOIN"))
-                .andExpect(jsonPath("$[2].messageType").value("LEAVE"));
+                .andExpect(jsonPath("$.content", hasSize(3)))
+                .andExpect(jsonPath("$.content[0].messageType").value("TEXT"))
+                .andExpect(jsonPath("$.content[1].messageType").value("JOIN"))
+                .andExpect(jsonPath("$.content[2].messageType").value("LEAVE"));
     }
 }

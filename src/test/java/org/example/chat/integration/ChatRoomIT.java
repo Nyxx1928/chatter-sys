@@ -11,6 +11,7 @@ import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
 import org.example.chat.service.ChatRoomService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,14 @@ class ChatRoomIT extends BaseIntegrationTest {
 
         // Generate auth token
         authToken = jwtUtil.generateToken(testUser.getUsername());
+    }
+
+    @AfterEach
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void tearDown() {
+        roomMembershipRepository.deleteAll();
+        chatRoomRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
