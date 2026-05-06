@@ -14,8 +14,8 @@ spring:
     password: ${DB_PASSWORD:chatpass}
     driver-class-name: org.postgresql.Driver
     hikari:
-      minimum-idle: 5
-      maximum-pool-size: 20
+      minimum-idle: 2
+      maximum-pool-size: 5
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
@@ -114,15 +114,18 @@ spring:
     activate:
       on-profile: prod
   
-  # Database Configuration for Production (Render)
+  # Database Configuration for Production (Neon via Render)
   datasource:
-    # JDBC_DATABASE_URL is set by start.sh from DATABASE_URL
-    # Falls back to DATABASE_URL if already in JDBC format
-    # Finally falls back to localhost for local development
-    url: ${JDBC_DATABASE_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/chatdb}}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
+    # JDBC_DATABASE_URL is built by start.sh from DATABASE_URL (set in Render dashboard)
+    # Neon connection string includes credentials and sslmode=require in the URL
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/chatdb}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 5
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 600000
   
   jpa:
     show-sql: false
