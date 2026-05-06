@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 
 export interface SplashScreenProps {
@@ -97,7 +98,10 @@ export function SplashScreen({
       } ${className}`.trim()}
     >
       <div className="w-full max-w-md px-6 text-center">
-        <p className="text-sm uppercase tracking-[0.3em] text-kiro-slate-500">Kiro Chat</p>
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <Image src="/logo1.png" alt="Chatter logo" width={40} height={40} className="rounded-xl brightness-0 invert" />
+          <p className="text-xl font-bold text-kiro-slate-100">Chatter</p>
+        </div>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">Connecting bright teams</h1>
         <p className="mt-4 text-sm text-kiro-slate-500">Initializing workspace</p>
 
@@ -112,7 +116,7 @@ export function SplashScreen({
           aria-busy={!isComplete}
         >
           <div
-            className="h-3 rounded-full bg-gradient-to-r from-kiro-purple-500 via-kiro-purple-400 to-kiro-orange-500 transition-[width] duration-150"
+            className="h-3 rounded-full bg-gradient-to-r from-kiro-purple-700 via-kiro-purple-500 to-kiro-purple-400 transition-[width] duration-150"
             style={{ width: `${progress}%` }}
           />
         </div>
