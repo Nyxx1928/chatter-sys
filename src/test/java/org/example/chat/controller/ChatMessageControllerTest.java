@@ -156,7 +156,7 @@ class ChatMessageControllerTest {
     }
 
     @Test
-    void leaveRoom_ValidUser_RemovesFromRoomAndBroadcasts() {
+    void leaveRoom_ValidUser_BroadcastsAndPreservesMembership() {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
@@ -167,7 +167,7 @@ class ChatMessageControllerTest {
 
         // Assert
         verify(userRepository).findByUsername("testuser");
-        verify(chatRoomService).removeMember(1L, 1L);
+        verify(chatRoomService, never()).removeMember(anyLong(), anyLong());
 
         ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
@@ -249,8 +249,7 @@ class ChatMessageControllerTest {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        doThrow(new IllegalArgumentException("User is not a member"))
-                .when(chatRoomService).removeMember(1L, 1L);
+        when(chatRoomService.getRoomById(1L)).thenThrow(new IllegalArgumentException("Room not found"));
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {

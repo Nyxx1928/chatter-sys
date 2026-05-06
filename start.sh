@@ -66,4 +66,4 @@ echo "🔧 Active profile: ${SPRING_PROFILES_ACTIVE:-default}"
 
 # Start the application
 echo "🎯 Starting Spring Boot application..."
-exec java -jar /app/app.jar
+exec java -jar /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}

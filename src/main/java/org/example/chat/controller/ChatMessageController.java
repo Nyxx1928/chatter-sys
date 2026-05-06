@@ -115,9 +115,10 @@ public class ChatMessageController {
     /**
      * Handles room leave requests from clients.
      * 
-     * Removes the user from the room membership and broadcasts a LEAVE system
-     * message
-     * to all remaining room subscribers.
+     * Broadcasts a LEAVE system message to all remaining room subscribers.
+     * Note: membership is intentionally preserved so users can re-enter the room
+     * without needing to re-join. Navigation away from a room should not
+     * permanently remove membership.
      * 
      * @param roomId    the ID of the chat room to leave
      * @param principal the authenticated user principal
@@ -130,10 +131,7 @@ public class ChatMessageController {
         User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
 
-        // Remove user from room
-        chatRoomService.removeMember(roomId, user.getId());
-
-        // Create and broadcast LEAVE system message
+        // Create and broadcast LEAVE system message (membership is preserved)
         Message leaveMessage = new Message();
         leaveMessage.setSender(user);
         leaveMessage.setChatRoom(chatRoomService.getRoomById(roomId));
@@ -145,7 +143,7 @@ public class ChatMessageController {
         String destination = "/topic/room/" + roomId;
         messagingTemplate.convertAndSend(destination, MessageResponse.from(leaveMessage));
 
-        logger.info("User: {} successfully left room: {}", user.getUsername(), roomId);
+        logger.info("User: {} left room: {} (membership preserved)", user.getUsername(), roomId);
     }
 
     /**

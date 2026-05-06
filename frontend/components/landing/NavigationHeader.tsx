@@ -1,9 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-
-import { Button } from '@/components/ui/Button';
 
 interface MenuItem {
   label: string;
@@ -11,10 +10,9 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { label: 'Home', id: 'home' },
+  { label: 'Features', id: 'features' },
   { label: 'About', id: 'about' },
   { label: 'How It Works', id: 'how-it-works' },
-  { label: 'Pricing', id: 'pricing' },
   { label: 'Contact', id: 'contact' },
 ];
 
@@ -24,85 +22,66 @@ export interface NavigationHeaderProps {
 
 export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState(MENU_ITEMS[0]?.id ?? 'home');
-  
-  // Refs for focus management
+  const [activeSection, setActiveSection] = useState(MENU_ITEMS[0]?.id ?? 'features');
+
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
-  const lastFocusableRef = useRef<HTMLAnchorElement>(null);
 
   const handleMenuToggle = () => setIsMenuOpen((prev) => !prev);
 
   const handleMenuClose = useCallback(() => {
     setIsMenuOpen(false);
-    // Return focus to hamburger button when menu closes
     menuButtonRef.current?.focus();
   }, []);
 
-  const handleItemClick = useCallback((id: string) => {
-    const target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    handleMenuClose();
-  }, [handleMenuClose]);
+  const handleItemClick = useCallback(
+    (id: string) => {
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      handleMenuClose();
+    },
+    [handleMenuClose]
+  );
 
-  // Handle Escape key to close mobile menu
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isMenuOpen) {
         handleMenuClose();
       }
     };
-
     if (isMenuOpen) {
       document.addEventListener('keydown', handleKeyDown);
     }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isMenuOpen, handleMenuClose]);
 
-  // Focus trap for mobile menu
   useEffect(() => {
     if (!isMenuOpen) return;
-
-    // Focus the first focusable element when menu opens
-    const timer = setTimeout(() => {
-      firstFocusableRef.current?.focus();
-    }, 100);
-
+    const timer = setTimeout(() => firstFocusableRef.current?.focus(), 100);
     const handleTabKey = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
-
-      const focusableElements = mobileMenuRef.current?.querySelectorAll(
+      const focusableElements = mobileMenuRef.current?.querySelectorAll<HTMLElement>(
         'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
-
       if (!focusableElements || focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
       if (event.shiftKey) {
-        // Shift + Tab: if on first element, move to last
         if (document.activeElement === firstElement) {
           event.preventDefault();
-          lastElement.focus();
+          lastElement?.focus();
         }
       } else {
-        // Tab: if on last element, move to first
         if (document.activeElement === lastElement) {
           event.preventDefault();
-          firstElement.focus();
+          firstElement?.focus();
         }
       }
     };
-
     document.addEventListener('keydown', handleTabKey);
-
     return () => {
       clearTimeout(timer);
       document.removeEventListener('keydown', handleTabKey);
@@ -112,51 +91,53 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
   useEffect(() => {
     const handleScroll = () => {
       const offset = 140;
-      let currentSection = MENU_ITEMS[0]?.id ?? 'home';
-
+      let currentSection = MENU_ITEMS[0]?.id ?? 'features';
       MENU_ITEMS.forEach(({ id }) => {
         const section = document.getElementById(id);
-        if (!section) {
-          return;
-        }
-
+        if (!section) return;
         const { top } = section.getBoundingClientRect();
-        if (top <= offset) {
-          currentSection = id;
-        }
+        if (top <= offset) currentSection = id;
       });
-
       setActiveSection(currentSection);
     };
-
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b border-kiro-ink-900/60 bg-kiro-ink-950/90 backdrop-blur ${className}`.trim()}
+      className={`sticky top-0 z-40 w-full border-b border-white/5 bg-[#0a0a0f]/90 backdrop-blur-md ${className}`.trim()}
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-kiro-purple-600" />
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-kiro-slate-500">Kiro</p>
-            <p className="text-lg font-semibold text-kiro-slate-100">Chat Studio</p>
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-kiro-purple-600">
+            <Image
+              src="/logo1.png"
+              alt="Chatter logo"
+              width={22}
+              height={22}
+              className="brightness-0 invert"
+            />
           </div>
+          <span className="text-lg font-bold text-white">Chatter</span>
         </div>
 
-        {/* Desktop navigation - visible on lg (1024px+) and above */}
-        <nav className="hidden items-center gap-6 text-sm text-kiro-slate-200 lg:flex" aria-label="Main navigation">
+        {/* Desktop nav */}
+        <nav
+          className="hidden items-center gap-1 lg:flex"
+          aria-label="Main navigation"
+        >
           {MENU_ITEMS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => handleItemClick(item.id)}
-              className={`min-h-[44px] min-w-[44px] px-2 transition-all duration-100 hover:text-kiro-purple-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-kiro-ink-950 ${
-                activeSection === item.id ? 'text-kiro-purple-400' : ''
+              className={`rounded-lg px-4 py-2 text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f] ${
+                activeSection === item.id
+                  ? 'text-white'
+                  : 'text-white/60 hover:text-white'
               }`}
             >
               {item.label}
@@ -164,71 +145,80 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
-          <Link 
-            href="/auth/register"
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-kiro-ink-950 rounded-lg"
+        {/* Desktop CTA buttons */}
+        <div className="hidden items-center gap-3 lg:flex">
+          <Link
+            href="/auth/login"
+            className="rounded-lg border border-kiro-purple-500/60 px-5 py-2 text-sm font-medium text-white transition-colors hover:border-kiro-purple-400 hover:bg-kiro-purple-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
           >
-            <Button variant="secondary" size="sm">
-              Sign Up
-            </Button>
+            Log In
+          </Link>
+          <Link
+            href="/auth/register"
+            className="rounded-lg bg-kiro-purple-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-kiro-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
+          >
+            Sign Up Free
           </Link>
         </div>
 
-        {/* Mobile/tablet hamburger menu - visible below lg (1024px) */}
+        {/* Mobile hamburger */}
         <button
           ref={menuButtonRef}
           type="button"
           onClick={handleMenuToggle}
-          className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-kiro-ink-900/70 text-kiro-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-kiro-ink-950 lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 lg:hidden"
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
         >
           <span className="sr-only">Toggle menu</span>
-          <div className="flex flex-col gap-1">
-            <span className="h-0.5 w-5 rounded-full bg-kiro-slate-100" />
-            <span className="h-0.5 w-5 rounded-full bg-kiro-slate-100" />
-            <span className="h-0.5 w-5 rounded-full bg-kiro-slate-100" />
+          <div className="flex flex-col gap-1.5">
+            <span className="h-0.5 w-5 rounded-full bg-white" />
+            <span className="h-0.5 w-5 rounded-full bg-white" />
+            <span className="h-0.5 w-5 rounded-full bg-white" />
           </div>
         </button>
       </div>
 
-      {isMenuOpen ? (
-        <div 
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div
           ref={mobileMenuRef}
-          className="border-t border-kiro-ink-900/70 bg-kiro-ink-950 px-4 py-4 lg:hidden"
+          className="border-t border-white/5 bg-[#0a0a0f] px-6 py-4 lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation menu"
         >
-          <div className="animate-slide-down space-y-2 text-sm text-kiro-slate-200">
+          <div className="animate-slide-down space-y-1">
             {MENU_ITEMS.map((item, index) => (
               <button
                 key={item.id}
                 ref={index === 0 ? firstFocusableRef : null}
                 type="button"
                 onClick={() => handleItemClick(item.id)}
-                className={`block w-full min-h-[44px] rounded-lg px-4 py-3 text-left transition-all duration-100 hover:bg-kiro-ink-900/60 hover:text-kiro-purple-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset ${
-                  activeSection === item.id ? 'text-kiro-purple-400' : ''
+                className={`block w-full rounded-lg px-4 py-3 text-left text-sm transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset ${
+                  activeSection === item.id ? 'text-white' : 'text-white/60 hover:text-white'
                 }`}
               >
                 {item.label}
               </button>
             ))}
-            <div className="pt-2">
-              <Link 
-                ref={lastFocusableRef}
-                href="/auth/register" 
-                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset rounded-lg"
+            <div className="flex flex-col gap-2 pt-3">
+              <Link
+                href="/auth/login"
+                className="block rounded-lg border border-kiro-purple-500/60 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-kiro-purple-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
               >
-                <Button variant="secondary" size="sm" fullWidth>
-                  Sign Up
-                </Button>
+                Log In
+              </Link>
+              <Link
+                href="/auth/register"
+                className="block rounded-lg bg-kiro-purple-600 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-kiro-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
+              >
+                Sign Up Free
               </Link>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </header>
   );
 }

@@ -6,7 +6,8 @@ import {
   HeroSection,
   NavigationHeader,
   SplashScreen,
-  UserAvatarDisplay,
+  FeaturesSection,
+  FooterSection,
 } from '@/components/landing';
 import { useAuthStore } from '@/lib/store/authStore';
 
@@ -26,7 +27,6 @@ export default function Home() {
   // Handle splash completion with fade transition
   const handleSplashComplete = () => {
     setShowSplash(false);
-    // Small delay to allow fade-out before showing landing
     setTimeout(() => setShowLanding(true), 50);
   };
 
@@ -36,11 +36,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-kiro-ink-950 text-kiro-slate-100">
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
       {/* Splash Screen */}
-      {showSplash && (
-        <SplashScreen onComplete={handleSplashComplete} />
-      )}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
       {/* Landing Page Content */}
       {!showSplash && (
@@ -51,73 +49,89 @@ export default function Home() {
         >
           <NavigationHeader />
 
-          <main className="relative min-h-[calc(100vh-80px)]">
+          <main>
             {/* Hero Section */}
             <HeroSection />
 
-      {/* User Avatar Display - decorative network visualization */}
-      <div className="absolute inset-0 top-32 pointer-events-none lg:pointer-events-auto">
-        <UserAvatarDisplay className="h-full w-full opacity-30 sm:opacity-40 lg:opacity-60" />
-      </div>
+            {/* Features Section */}
+            <FeaturesSection />
+
+            {/* Additional sections */}
+            <div className="bg-[#0a0a0f]">
+              <section
+                id="about"
+                className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-20"
+              >
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-white/5 bg-[#111118] p-8">
+                    <h2 className="text-2xl font-semibold text-white">
+                      About Chatter
+                    </h2>
+                    <p className="mt-4 text-sm leading-relaxed text-white/60">
+                      A chat layer that stays aligned with how your team plans,
+                      ships, and celebrates.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/5 bg-[#111118] p-8">
+                    <h2 className="text-2xl font-semibold text-white">
+                      What you get
+                    </h2>
+                    <p className="mt-4 text-sm leading-relaxed text-white/60">
+                      Structured rooms, focused threads, and a presence signal
+                      that keeps context crisp.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              <section
+                id="how-it-works"
+                className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-20"
+              >
+                <div className="rounded-2xl border border-white/5 bg-[#111118] p-8">
+                  <h2 className="text-2xl font-semibold text-white">
+                    How it works
+                  </h2>
+                  <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                    <div className="rounded-xl bg-[#0a0a0f] p-5">
+                      <p className="text-sm text-white/40">Step 01</p>
+                      <p className="mt-2 font-medium text-white">
+                        Create a room
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-[#0a0a0f] p-5">
+                      <p className="text-sm text-white/40">Step 02</p>
+                      <p className="mt-2 font-medium text-white">
+                        Sync the team
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-[#0a0a0f] p-5">
+                      <p className="text-sm text-white/40">Step 03</p>
+                      <p className="mt-2 font-medium text-white">
+                        Ship faster
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section
+                id="contact"
+                className="mx-auto w-full max-w-6xl px-6 py-16 pb-20 sm:py-20"
+              >
+                <div className="rounded-2xl border border-white/5 bg-[#111118] p-8">
+                  <h2 className="text-2xl font-semibold text-white">Contact</h2>
+                  <p className="mt-4 text-sm leading-relaxed text-white/60">
+                    Reach out at hello@chatterchat.io for launch support and
+                    partnerships.
+                  </p>
+                </div>
+              </section>
+            </div>
           </main>
 
-          {/* Additional sections for navigation scroll targets */}
-          <div className="relative z-10 bg-kiro-ink-950">
-            <section id="about" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-2xl border border-kiro-ink-900/70 bg-kiro-ink-900/60 p-6">
-                  <h2 className="text-2xl font-semibold">About Kiro</h2>
-                  <p className="mt-3 text-sm text-kiro-slate-200">
-                    A chat layer that stays aligned with how your team plans, ships, and celebrates.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-kiro-ink-900/70 bg-kiro-ink-900/60 p-6">
-                  <h2 className="text-2xl font-semibold">What you get</h2>
-                  <p className="mt-3 text-sm text-kiro-slate-200">
-                    Structured rooms, focused threads, and a presence signal that keeps context crisp.
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section id="how-it-works" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-              <div className="rounded-2xl border border-kiro-ink-900/70 bg-kiro-ink-900/60 p-6">
-                <h2 className="text-2xl font-semibold">How it works</h2>
-                <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-xl bg-kiro-ink-950/60 p-4">
-                    <p className="text-sm text-kiro-slate-500">Step 01</p>
-                    <p className="mt-2 font-medium">Create a room</p>
-                  </div>
-                  <div className="rounded-xl bg-kiro-ink-950/60 p-4">
-                    <p className="text-sm text-kiro-slate-500">Step 02</p>
-                    <p className="mt-2 font-medium">Sync the team</p>
-                  </div>
-                  <div className="rounded-xl bg-kiro-ink-950/60 p-4">
-                    <p className="text-sm text-kiro-slate-500">Step 03</p>
-                    <p className="mt-2 font-medium">Ship faster</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="pricing" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-              <div className="rounded-2xl border border-kiro-ink-900/70 bg-kiro-ink-900/60 p-6">
-                <h2 className="text-2xl font-semibold">Pricing</h2>
-                <p className="mt-3 text-sm text-kiro-slate-200">
-                  Launch-tier access is free during beta. Invite your team and lock in early access.
-                </p>
-              </div>
-            </section>
-
-            <section id="contact" className="mx-auto w-full max-w-6xl px-4 py-16 pb-20 sm:px-6">
-              <div className="rounded-2xl border border-kiro-ink-900/70 bg-kiro-ink-900/60 p-6">
-                <h2 className="text-2xl font-semibold">Contact</h2>
-                <p className="mt-3 text-sm text-kiro-slate-200">
-                  Reach out at hello@kirochat.io for launch support and partnerships.
-                </p>
-              </div>
-            </section>
-          </div>
+          {/* Footer */}
+          <FooterSection />
         </div>
       )}
     </div>

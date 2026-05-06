@@ -14,3 +14,9 @@ export type { HeroSectionProps } from './HeroSection';
 
 export { UserAvatarDisplay } from './UserAvatarDisplay';
 export type { UserAvatarDisplayProps } from './UserAvatarDisplay';
+
+export { FeaturesSection } from './FeaturesSection';
+export type { FeaturesSectionProps } from './FeaturesSection';
+
+export { FooterSection } from './FooterSection';
+export type { FooterSectionProps } from './FooterSection';

@@ -35,19 +35,19 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
     return (
       <li
         key={user.id}
-        className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors"
+        className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 rounded-lg mx-2 transition-colors"
       >
         {/* Presence indicator */}
         <div className="relative shrink-0">
           {/* Avatar placeholder */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-medium text-sm">
             {user.displayName.charAt(0).toUpperCase()}
           </div>
           
           {/* Online status badge */}
           <div
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-              user.online ? 'bg-green-500' : 'bg-gray-400'
+            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#16162a] ${
+              user.online ? 'bg-green-500' : 'bg-kiro-slate-500'
             }`}
             role="status"
             aria-label={user.online ? 'Online' : 'Offline'}
@@ -56,21 +56,21 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
 
         {/* User info */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-medium text-kiro-slate-100 truncate">
             {user.displayName}
             {isCurrentUser && (
-              <span className="ml-2 text-xs text-gray-500 font-normal">(You)</span>
+              <span className="ml-2 text-xs text-kiro-slate-500 font-normal">(You)</span>
             )}
           </p>
-          <p className="text-xs text-gray-500 truncate">@{user.username}</p>
+          <p className="text-xs text-kiro-slate-500 truncate">@{user.username}</p>
         </div>
 
         {/* Online/Offline badge */}
         <div
           className={`shrink-0 px-2 py-1 rounded-full text-xs font-medium ${
             user.online
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-600'
+              ? 'bg-green-900/40 text-green-400'
+              : 'bg-kiro-ink-950/60 text-kiro-slate-500'
           }`}
         >
           {user.online ? 'Online' : 'Offline'}
@@ -83,10 +83,10 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
   if (users.length === 0) {
     return (
       <div
-        className={`flex items-center justify-center h-full p-4 ${className}`}
+        className={`flex items-center justify-center h-full p-4 bg-[#16162a] ${className}`}
         role="status"
       >
-        <p className="text-gray-500 text-center text-sm">
+        <p className="text-kiro-slate-500 text-center text-sm">
           No users in this room
         </p>
       </div>
@@ -94,26 +94,26 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
   }
 
   return (
-    <div className={`flex flex-col h-full ${className}`}>
+    <div className={`flex flex-col h-full bg-[#16162a] ${className}`}>
       {/* Header */}
-      <div className="px-3 py-2 border-b border-gray-200">
-        <h3 className="text-sm font-semibold text-gray-900">
-          Members ({users.length})
+      <div className="px-4 py-3 border-b border-white/5">
+        <h3 className="text-sm font-semibold text-kiro-slate-100">
+          Members <span className="text-kiro-slate-500 font-normal">({users.length})</span>
         </h3>
-        <p className="text-xs text-gray-500 mt-0.5">
+        <p className="text-xs text-kiro-slate-500 mt-0.5">
           {onlineUsers.length} online
         </p>
       </div>
 
       {/* User list */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto py-2">
         {/* Online users section */}
         {onlineUsers.length > 0 && (
-          <div className="py-2">
-            <h4 className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <div className="mb-2">
+            <h4 className="px-4 py-1.5 text-xs font-semibold text-kiro-slate-500 uppercase tracking-wider">
               Online — {onlineUsers.length}
             </h4>
-            <ul className="mt-1 space-y-1" role="list" aria-label="Online users">
+            <ul className="space-y-0.5" role="list" aria-label="Online users">
               {onlineUsers.map(renderUser)}
             </ul>
           </div>
@@ -121,11 +121,11 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
 
         {/* Offline users section */}
         {offlineUsers.length > 0 && (
-          <div className="py-2">
-            <h4 className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <div>
+            <h4 className="px-4 py-1.5 text-xs font-semibold text-kiro-slate-500 uppercase tracking-wider">
               Offline — {offlineUsers.length}
             </h4>
-            <ul className="mt-1 space-y-1" role="list" aria-label="Offline users">
+            <ul className="space-y-0.5" role="list" aria-label="Offline users">
               {offlineUsers.map(renderUser)}
             </ul>
           </div>

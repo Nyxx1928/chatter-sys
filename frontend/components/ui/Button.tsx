@@ -37,10 +37,10 @@ export function Button({
   
   // Color variants with proper contrast ratios (WCAG AA)
   const variantStyles = {
-    primary: 'bg-kiro-purple-500 text-white hover:bg-kiro-purple-600 focus:ring-kiro-purple-400 active:bg-kiro-purple-700',
-    secondary: 'bg-kiro-orange-500 text-white hover:bg-kiro-orange-600 focus:ring-kiro-orange-500 active:bg-kiro-orange-600',
+    primary: 'bg-kiro-purple-600 text-white hover:bg-kiro-purple-700 focus:ring-kiro-purple-400 active:bg-kiro-purple-700',
+    secondary: 'bg-transparent text-kiro-purple-400 border border-kiro-purple-500 hover:bg-kiro-purple-600 hover:text-white hover:border-kiro-purple-600 focus:ring-kiro-purple-400 active:bg-kiro-purple-700',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800',
-    ghost: 'bg-transparent text-kiro-slate-500 hover:bg-kiro-slate-100 focus:ring-kiro-slate-200 active:bg-kiro-slate-200',
+    ghost: 'bg-transparent text-kiro-slate-400 hover:bg-kiro-ink-900/60 hover:text-kiro-slate-100 focus:ring-kiro-purple-400 active:bg-kiro-ink-900',
   };
   
   // Width styles
