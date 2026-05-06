@@ -2,6 +2,7 @@
 
 # Render Startup Script
 # Converts DATABASE_URL from postgresql:// to jdbc:postgresql://
+# Supports Neon (sslmode=require is preserved from the URL)
 
 echo "🚀 Starting Chat Application..."
 
@@ -9,7 +10,6 @@ echo "🚀 Starting Chat Application..."
 if [ -n "$DATABASE_URL" ]; then
     echo "✅ DATABASE_URL found, converting format..."
 
-    # Convert Render-style URL to JDBC: move credentials into query params.
     if [[ $DATABASE_URL == postgresql://* || $DATABASE_URL == postgres://* ]]; then
         raw_url="${DATABASE_URL#postgresql://}"
         raw_url="${raw_url#postgres://}"
@@ -39,6 +39,7 @@ if [ -n "$DATABASE_URL" ]; then
         if [ -n "$db_pass" ]; then
             jdbc_query="${jdbc_query:+${jdbc_query}&}password=${db_pass}"
         fi
+        # Preserve any existing query params (e.g. sslmode=require from Neon)
         if [ -n "$db_params" ]; then
             jdbc_query="${jdbc_query:+${jdbc_query}&}${db_params}"
         fi
