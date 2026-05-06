@@ -61,15 +61,15 @@ export function Modal({ open, title, onClose, children, footer }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-lg rounded-2xl bg-white shadow-xl"
+        className="w-full max-w-lg rounded-2xl bg-kiro-ink-900 shadow-xl border border-kiro-ink-900/80"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        <div className="flex items-start justify-between gap-4 border-b border-kiro-ink-900/80 px-6 py-4">
+          <h2 className="text-lg font-semibold text-kiro-slate-100">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg p-2 text-kiro-slate-500 hover:bg-kiro-ink-950/60 hover:text-kiro-slate-100 focus:outline-none focus:ring-2 focus:ring-kiro-purple-400"
             aria-label="Close dialog"
           >
             <svg
@@ -85,7 +85,7 @@ export function Modal({ open, title, onClose, children, footer }: ModalProps) {
           </button>
         </div>
         <div className="px-6 py-4">{children}</div>
-        {footer && <div className="border-t border-gray-200 px-6 py-4">{footer}</div>}
+        {footer && <div className="border-t border-kiro-ink-900/80 px-6 py-4">{footer}</div>}
       </div>
     </div>
   );
