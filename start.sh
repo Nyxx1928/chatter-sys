@@ -56,7 +56,9 @@ if [ -n "$DATABASE_URL" ]; then
 
     echo "📊 Database host: $(echo $DATABASE_URL | sed 's/.*@\([^/]*\).*/\1/')"
 else
-    echo "⚠️  DATABASE_URL not set, using default configuration"
+    echo "❌ ERROR: DATABASE_URL is not set. Add it in the Render dashboard environment variables."
+echo "   Expected format: postgresql://user:pass@host/dbname?sslmode=require"
+exit 1
 fi
 
 # Print active profile
