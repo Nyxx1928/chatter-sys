@@ -102,12 +102,13 @@ export function LoginForm() {
         fullWidth
         disabled={isLoading}
         aria-label="Password"
+        showPasswordToggle
       />
 
       {errors.general && (
         <div
           role="alert"
-          className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg"
+          className="p-3 text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg"
         >
           {errors.general}
         </div>
