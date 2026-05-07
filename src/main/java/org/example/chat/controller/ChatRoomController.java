@@ -178,15 +178,28 @@ public class ChatRoomController {
 
     /**
      * Retrieves all members of a specific chat room.
+     * Only existing members of the room can view the member list.
      *
      * @param id the ID of the chat room
+     * @param userDetails the authenticated user making the request
      * @return ResponseEntity with list of UserResponse
      */
     @GetMapping("/{id}/members")
-    public ResponseEntity<List<UserResponse>> getRoomMembers(@PathVariable Long id) {
+    public ResponseEntity<List<UserResponse>> getRoomMembers(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
         logger.debug("Retrieving members for chat room ID: {}", id);
 
         try {
+            User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
+            ChatRoom chatRoom = chatRoomService.getRoomById(id);
+
+            // Enforce membership — only members can see who else is in the room
+            roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
+                    .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
+
             List<User> members = chatRoomService.getRoomMembers(id);
             List<UserResponse> response = members.stream()
                     .map(UserResponse::from)
