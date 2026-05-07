@@ -65,7 +65,7 @@ export function RoomSelector({
       <li key={room.id} className="relative">
         <button
           onClick={() => onRoomSelect(room)}
-          className={`w-full text-left px-3 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
+          className={`w-full min-h-[44px] text-left px-3 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
             isActive
               ? 'bg-kiro-purple-600/20 border border-kiro-purple-600/40'
               : 'hover:bg-white/5 border border-transparent'
@@ -83,7 +83,7 @@ export function RoomSelector({
 
           {/* Room info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-baseline justify-between gap-2 mb-0.5">
+            <div className="flex items-baseline justify-between gap-2 mb-0.5 min-w-0">
               <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-kiro-purple-300' : 'text-kiro-slate-100'}`}>
                 {room.name}
               </h3>
