@@ -15,10 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,9 +32,6 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final RoomMembershipRepository roomMembershipRepository;
     private final UserRepository userRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
             RoomMembershipRepository roomMembershipRepository,
@@ -112,13 +105,24 @@ public class ChatRoomService {
     }
 
     /**
-     * Returns all available chat rooms.
+     * Returns all available chat rooms (unfiltered).
      *
      * @return list of all ChatRoom entities
      */
     public List<ChatRoom> listRooms() {
         logger.debug("Retrieving all chat rooms");
         return chatRoomRepository.findAll();
+    }
+
+    /**
+     * Returns only the rooms that the given user is a member of.
+     *
+     * @param user the user whose rooms to retrieve
+     * @return list of ChatRoom entities the user has joined
+     */
+    public List<ChatRoom> listRoomsForUser(User user) {
+        logger.debug("Retrieving rooms for user: {}", user.getUsername());
+        return chatRoomRepository.findByMembersContaining(user);
     }
 
     /**
@@ -148,14 +152,14 @@ public class ChatRoomService {
 
     /**
      * Adds a user as a member to a chat room with the specified role.
+     * Idempotent — returns the existing membership if the user is already a member.
      *
      * @param roomId the ID of the chat room
      * @param userId the ID of the user to add
      * @param role   the role to assign to the user (defaults to MEMBER if null)
-     * @return the created RoomMembership entity
-     * @throws IllegalArgumentException if room or user not found, or if user is
-     *                                  already a member
+     * @return the created or existing RoomMembership entity
      */
+    @Transactional
     public RoomMembership addMember(Long roomId, Long userId, MemberRole role) {
         logger.info("Adding user ID: {} to chat room ID: {} with role: {}", userId, roomId, role);
 
@@ -167,39 +171,18 @@ public class ChatRoomService {
                     return new IllegalArgumentException("User not found");
                 });
 
-        // Return existing membership when user is already a member
-        RoomMembership existingMembership = roomMembershipRepository.findByUserAndChatRoom(user, room)
-                .orElse(null);
-        if (existingMembership != null) {
-            logger.debug("User {} is already a member of room {}, returning existing membership", userId, roomId);
-            return existingMembership;
-        }
-
-        // Create membership
-        RoomMembership membership = new RoomMembership();
-        membership.setUser(user);
-        membership.setChatRoom(room);
-        membership.setJoinedAt(LocalDateTime.now());
-        membership.setRole(role != null ? role : MemberRole.MEMBER);
-
-        // Persist membership
-        try {
-            RoomMembership savedMembership = saveMembership(membership);
-            logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
-            return savedMembership;
-        } catch (DataIntegrityViolationException ex) {
-            // Unique constraint may be hit under concurrent join requests
-            entityManager.clear();
-            RoomMembership existing = roomMembershipRepository.findByUserAndChatRoom(user, room)
-                    .orElseThrow(() -> ex);
-            logger.debug("Membership already exists for user {} in room {}, returning existing", userId, roomId);
-            return existing;
-        }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = DataIntegrityViolationException.class)
-    private RoomMembership saveMembership(RoomMembership membership) {
-        return roomMembershipRepository.saveAndFlush(membership);
+        // Return existing membership when user is already a member (idempotent)
+        return roomMembershipRepository.findByUserAndChatRoom(user, room)
+                .orElseGet(() -> {
+                    RoomMembership membership = new RoomMembership();
+                    membership.setUser(user);
+                    membership.setChatRoom(room);
+                    membership.setJoinedAt(LocalDateTime.now());
+                    membership.setRole(role != null ? role : MemberRole.MEMBER);
+                    RoomMembership saved = roomMembershipRepository.save(membership);
+                    logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
+                    return saved;
+                });
     }
 
     /**
