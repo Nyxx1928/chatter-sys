@@ -12,9 +12,21 @@ export const createRoom = async (
     body: JSON.stringify(request)
   });
 
+/** Returns only rooms the authenticated user is a member of. */
 export const listRooms = async (token: string): Promise<ChatRoom[]> =>
   apiCall<ChatRoom[]>('/api/rooms', {
     method: 'GET',
+    token
+  });
+
+/** Invite a user to a room (inviter must be a member). */
+export const inviteToRoom = async (
+  token: string,
+  roomId: number,
+  inviteeId: number
+): Promise<void> =>
+  apiCall<void>(`/api/rooms/${roomId}/invite?inviteeId=${inviteeId}`, {
+    method: 'POST',
     token
   });
 
