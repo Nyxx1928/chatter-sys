@@ -130,32 +130,13 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    // Both navs share aria-label="Main navigation".
-    // The mobile one has class "md:hidden" and the desktop one has class "hidden md:flex".
-    // At 375 px the desktop nav should be invisible (CSS display:none via Tailwind).
-    const navs = page.locator('nav[aria-label="Main navigation"]');
+    // Desktop nav has aria-label="Main navigation" (hidden md:flex)
+    // Mobile nav has aria-label="Mobile navigation" (md:hidden)
+    const desktopNav = page.locator('nav[aria-label="Main navigation"]');
+    const mobileNav  = page.locator('nav[aria-label="Mobile navigation"]');
 
-    // There are two navs — find the one that is actually visible
-    const navCount = await navs.count();
-    expect(navCount).toBeGreaterThanOrEqual(1);
-
-    // At mobile width the bottom tab bar (md:hidden) should be visible
-    // and the desktop sidebar (hidden md:flex) should not be visible.
-    let mobileNavVisible = false;
-    let desktopNavVisible = false;
-    for (let i = 0; i < navCount; i++) {
-      const nav = navs.nth(i);
-      const isVisible = await nav.isVisible();
-      const classes = await nav.getAttribute('class') ?? '';
-      if (classes.includes('md:hidden')) {
-        mobileNavVisible = isVisible;
-      } else if (classes.includes('hidden md:flex')) {
-        desktopNavVisible = isVisible;
-      }
-    }
-
-    expect(mobileNavVisible).toBe(true);
-    expect(desktopNavVisible).toBe(false);
+    await expect(desktopNav).toBeHidden({ timeout: 10_000 });
+    await expect(mobileNav).toBeVisible({ timeout: 10_000 });
   });
 
   test('desktop (1280px): desktop sidebar is visible, bottom tab bar is hidden', async ({ page }) => {
@@ -163,25 +144,11 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    const navs = page.locator('nav[aria-label="Main navigation"]');
-    const navCount = await navs.count();
-    expect(navCount).toBeGreaterThanOrEqual(1);
+    const desktopNav = page.locator('nav[aria-label="Main navigation"]');
+    const mobileNav  = page.locator('nav[aria-label="Mobile navigation"]');
 
-    let mobileNavVisible = false;
-    let desktopNavVisible = false;
-    for (let i = 0; i < navCount; i++) {
-      const nav = navs.nth(i);
-      const isVisible = await nav.isVisible();
-      const classes = await nav.getAttribute('class') ?? '';
-      if (classes.includes('md:hidden')) {
-        mobileNavVisible = isVisible;
-      } else if (classes.includes('hidden md:flex')) {
-        desktopNavVisible = isVisible;
-      }
-    }
-
-    expect(desktopNavVisible).toBe(true);
-    expect(mobileNavVisible).toBe(false);
+    await expect(desktopNav).toBeVisible({ timeout: 10_000 });
+    await expect(mobileNav).toBeHidden({ timeout: 10_000 });
   });
 
   test('mobile: clicking Channels tab navigates to /chat/channels', async ({ page }) => {
@@ -192,7 +159,7 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     // Wait for the page to settle
     await page.waitForLoadState('networkidle');
 
-    const channelsTab = page.locator('nav[aria-label="Main navigation"]').filter({ hasText: 'Channels' }).locator('a[href="/chat/channels"]').first();
+    const channelsTab = page.locator('nav[aria-label="Mobile navigation"]').filter({ hasText: 'Channels' }).locator('a[href="/chat/channels"]').first();
     await channelsTab.click();
     await expect(page).toHaveURL(/\/chat\/channels/, { timeout: 10_000 });
   });
@@ -204,7 +171,7 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const contactsTab = page.locator('nav[aria-label="Main navigation"]').filter({ hasText: 'Contacts' }).locator('a[href="/chat/contacts"]').first();
+    const contactsTab = page.locator('nav[aria-label="Mobile navigation"]').filter({ hasText: 'Contacts' }).locator('a[href="/chat/contacts"]').first();
     await contactsTab.click();
     await expect(page).toHaveURL(/\/chat\/contacts/, { timeout: 10_000 });
   });
@@ -216,7 +183,7 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
 
     await page.waitForLoadState('networkidle');
 
-    const profileTab = page.locator('nav[aria-label="Main navigation"]').filter({ hasText: 'Profile' }).locator('a[href="/chat/profile"]').first();
+    const profileTab = page.locator('nav[aria-label="Mobile navigation"]').filter({ hasText: 'Profile' }).locator('a[href="/chat/profile"]').first();
     await profileTab.click();
     await expect(page).toHaveURL(/\/chat\/profile/, { timeout: 10_000 });
   });
@@ -229,7 +196,7 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await page.waitForLoadState('networkidle');
 
     // The Channels link in the bottom tab bar should have aria-current="page"
-    const activeTab = page.locator('nav[aria-label="Main navigation"] a[aria-current="page"]').first();
+    const activeTab = page.locator('nav[aria-label="Mobile navigation"] a[aria-current="page"]').first();
     await expect(activeTab).toBeVisible({ timeout: 10_000 });
     const href = await activeTab.getAttribute('href');
     expect(href).toBe('/chat/channels');
@@ -448,3 +415,5 @@ test.describe('Task 10.8 — MessageInput icon visibility on mobile', () => {
     await expect(page.locator('[aria-label="Send message"]')).toBeVisible({ timeout: 10_000 });
   });
 });
+
+

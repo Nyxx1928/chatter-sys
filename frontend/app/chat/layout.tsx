@@ -141,7 +141,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* ── Mobile bottom tab bar (hidden on md+) ── */}
         <nav
           className="md:hidden flex items-center justify-around bg-[#0e0e1a] border-t border-white/5 shrink-0 safe-area-bottom"
-          aria-label="Main navigation"
+          aria-label="Mobile navigation"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <MobileTab href="/chat" label="Chats" active={isChatsActive}>

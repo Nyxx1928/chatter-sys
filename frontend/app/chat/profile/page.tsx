@@ -19,8 +19,12 @@ export default function ProfilePage() {
   if (!user) return null;
 
   const handleLogOut = () => {
-    logout();
+    // Navigate first, then clear auth state.
+    // If logout() runs first it sets isAuthenticated=false, which triggers
+    // ChatLayout's auth guard to redirect to /auth/login before router.push('/')
+    // can complete — causing the test (and real users) to land on /auth/login.
     router.push('/');
+    logout();
   };
 
   const initial = user.displayName?.charAt(0).toUpperCase() ?? '?';
