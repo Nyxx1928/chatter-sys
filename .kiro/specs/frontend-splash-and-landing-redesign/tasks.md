@@ -240,7 +240,7 @@ The redesign introduces a splash screen with progress indicator and a modern lan
     - Add hover effect to avatars (scale transform)
     - Ensure all hover effects trigger within 100ms
     - _Requirements: 10.3, 10.4_
-  - [~] 10.2 Optimize animation performance
+  - [ ] 10.2 Optimize animation performance
     - Use CSS transforms for animations (GPU-accelerated)
     - Avoid animating layout properties (width, height)
     - Use will-change sparingly for critical animations
@@ -258,13 +258,13 @@ The redesign introduces a splash screen with progress indicator and a modern lan
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 12. Performance optimization and testing
-  - [~] 12.1 Optimize bundle size and loading
+  - [ ] 12.1 Optimize bundle size and loading
     - Configure Tailwind to purge unused styles in production
     - Verify Next.js optimizes images and bundles JavaScript
     - Check bundle size and identify any large dependencies
     - Implement code splitting if needed
     - _Requirements: 7.5_
-  - [~] 12.2 Optimize image loading
+  - [ ] 12.2 Optimize image loading
     - Use Next.js Image component for avatar images
     - Implement lazy loading for below-the-fold images
     - Add placeholder blur for loading states
@@ -301,14 +301,14 @@ The redesign introduces a splash screen with progress indicator and a modern lan
     - Test navigation flow (menu clicks, scroll to sections)
     - Test responsive behavior at all breakpoints
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 8.1, 8.2, 8.3_
-  - [~] 13.4 Manual testing and bug fixes
+  - [ ] 13.4 Manual testing and bug fixes
     - Test on real mobile devices (iOS and Android)
     - Test on different browsers (Chrome, Firefox, Safari, Edge)
     - Test with different screen sizes and orientations
     - Test with slow network conditions
     - Fix any bugs or issues found
     - _Requirements: All_
-  - [~] 13.5 Code review and refinement
+  - [ ] 13.5 Code review and refinement
     - Review all code for consistency and best practices
     - Ensure TypeScript types are properly defined
     - Ensure components follow React best practices

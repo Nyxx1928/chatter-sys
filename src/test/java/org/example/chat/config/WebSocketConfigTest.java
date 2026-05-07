@@ -32,7 +32,8 @@ class WebSocketConfigTest {
         
         // Assert
         verify(registry).addEndpoint("/ws");
-        verify(registration).setAllowedOrigins("http://localhost:3000", "https://chatter-sys.vercel.app");
+        // When no cors.allowed-origins env var is set, only localhost:3000 is included
+        verify(registration).setAllowedOrigins("http://localhost:3000");
         verify(registration).withSockJS();
     }
 
