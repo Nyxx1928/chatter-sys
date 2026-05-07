@@ -110,7 +110,7 @@ public class ChatMessageController {
         // Create and broadcast JOIN system message
         Message joinMessage = new Message();
         joinMessage.setSender(user);
-        joinMessage.setChatRoom(chatRoomService.getRoomById(roomId));
+        joinMessage.setChatRoom(chatRoom);
         joinMessage.setContent(user.getDisplayName() + " joined the room");
         joinMessage.setTimestamp(LocalDateTime.now());
         joinMessage.setMessageType(MessageType.JOIN);

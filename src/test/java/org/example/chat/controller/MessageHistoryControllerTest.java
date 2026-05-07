@@ -11,7 +11,6 @@ import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
-import org.example.chat.service.ChatRoomService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,9 +38,6 @@ class MessageHistoryControllerTest {
 
     @Mock
     private ChatMessageService chatMessageService;
-
-    @Mock
-    private ChatRoomService chatRoomService;
 
     @Mock
     private ChatRoomRepository chatRoomRepository;
@@ -169,32 +165,22 @@ class MessageHistoryControllerTest {
     }
 
     @Test
-    void getMessageHistory_UserNotMember_AddsMembershipAndReturnsMessages() {
-        // Arrange
-        Page<Message> messagePage = new PageImpl<>(List.of(testMessage), pageable, 1);
-
+    void getMessageHistory_UserNotMember_ThrowsUnauthorizedException() {
+        // Arrange — non-member access is now rejected (no auto-join)
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
                 .thenReturn(Optional.empty());
-        when(chatRoomService.addMember(1L, 1L, null)).thenReturn(testMembership);
-        when(chatMessageService.getMessageHistory(1L, pageable)).thenReturn(messagePage);
 
-        // Act
-        ResponseEntity<Page<MessageResponse>> response = controller.getMessageHistory(1L, pageable, userDetails);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getTotalElements());
-        assertEquals(1, response.getBody().getContent().size());
+        // Act & Assert
+        assertThrows(org.example.chat.exception.UnauthorizedException.class, () -> {
+            controller.getMessageHistory(1L, pageable, userDetails);
+        });
 
         verify(userRepository).findByUsername("testuser");
         verify(chatRoomRepository).findById(1L);
         verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
-        verify(chatRoomService).addMember(1L, 1L, null);
-        verify(chatMessageService).getMessageHistory(1L, pageable);
+        verify(chatMessageService, never()).getMessageHistory(any(), any());
     }
 
     @Test

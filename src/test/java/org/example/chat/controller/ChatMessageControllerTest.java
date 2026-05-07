@@ -4,8 +4,11 @@ import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.MessageType;
+import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.ErrorResponse;
+import org.example.chat.exception.UnauthorizedException;
+import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
 import org.example.chat.service.ChatRoomService;
@@ -37,6 +40,9 @@ class ChatMessageControllerTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RoomMembershipRepository roomMembershipRepository;
 
     @Mock
     private SimpMessagingTemplate messagingTemplate;
@@ -116,16 +122,25 @@ class ChatMessageControllerTest {
     @Test
     void joinRoom_ValidUser_AddsToRoomAndBroadcasts() {
         // Arrange
+        RoomMembership membership = new RoomMembership();
+        membership.setUser(testUser);
+        membership.setChatRoom(testRoom);
+
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.of(membership));
 
         // Act
         controller.joinRoom(1L, principal);
 
         // Assert
         verify(userRepository).findByUsername("testuser");
-        verify(chatRoomService).addMember(1L, 1L, null);
+        verify(chatRoomService).getRoomById(1L);
+        verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
+        // addMember is no longer called — joinRoom only broadcasts for existing members
+        verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any());
 
         ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
@@ -229,12 +244,29 @@ class ChatMessageControllerTest {
     }
 
     @Test
+    void joinRoom_UserNotMember_ThrowsUnauthorizedException() {
+        // Arrange
+        when(principal.getName()).thenReturn("testuser");
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UnauthorizedException.class, () -> {
+            controller.joinRoom(1L, principal);
+        });
+
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+    }
+
+    @Test
     void joinRoom_ServiceThrowsException_PropagatesException() {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        doThrow(new IllegalArgumentException("User is already a member"))
-                .when(chatRoomService).addMember(1L, 1L, null);
+        when(chatRoomService.getRoomById(1L))
+                .thenThrow(new IllegalArgumentException("Room not found"));
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
