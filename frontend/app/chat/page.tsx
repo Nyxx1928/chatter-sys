@@ -79,38 +79,9 @@ export default function ChatRoomsPage() {
     }
   }, [token, fetchRooms]);
 
-  // Load available rooms on mount
-  useEffect(() => {
-    if (!token) return;
-    let isActive = true;
-    const loadInitialRooms = async () => {
-      try {
-        const roomsList = await fetchRooms();
-        if (!isActive) return;
-        setRooms(roomsList);
-      } catch (err) {
-        if (isActive) {
-          console.error('Failed to load rooms:', err);
-          setError('Failed to load chat rooms. Please try again.');
-        }
-      } finally {
-        if (isActive) setLoading(false);
-      }
-    };
-    void loadInitialRooms();
-    return () => { isActive = false; };
-  }, [token, fetchRooms]);
-
-  // Auto-select a room from the URL search param ?room={id}
-  useEffect(() => {
-    if (!preselectedRoomId || rooms.length === 0) return;
-    const room = rooms.find((r) => r.id === Number(preselectedRoomId));
-    if (room && room.id !== selectedRoom?.id) void handleRoomSelect(room);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preselectedRoomId, rooms]);
-
-  // Load room data when a room is selected
-  const handleRoomSelect = useCallback(async (room: ChatRoom) => {
+  // Load room data when a room is selected — declared before the loading effect
+  // so it can be referenced inside the async callback without hoisting issues
+  const handleRoomSelect = async (room: ChatRoom) => {
     if (!token) return;
 
     // Leave previous room
@@ -142,7 +113,39 @@ export default function ChatRoomsPage() {
     if (connected && user) {
       sendMessage(`/app/room.join/${room.id}`, {});
     }
-  }, [token, selectedRoom, connected, user, sendMessage]);
+  };
+
+  // Load available rooms on mount; auto-select a preselected room if provided via ?room=
+  useEffect(() => {
+    if (!token) return;
+    let isActive = true;
+    const loadInitialRooms = async () => {
+      try {
+        const roomsList = await fetchRooms();
+        if (!isActive) return;
+        setRooms(roomsList);
+        // Auto-select from URL param — done here to avoid calling setState-setting
+        // functions inside a separate effect (react-hooks/set-state-in-effect)
+        if (preselectedRoomId) {
+          const preselected = roomsList.find((r) => r.id === Number(preselectedRoomId));
+          if (preselected) void handleRoomSelect(preselected);
+        }
+      } catch (err) {
+        if (isActive) {
+          console.error('Failed to load rooms:', err);
+          setError('Failed to load chat rooms. Please try again.');
+        }
+      } finally {
+        if (isActive) setLoading(false);
+      }
+    };
+    void loadInitialRooms();
+    return () => { isActive = false; };
+    // handleRoomSelect is intentionally excluded: it changes on every render due to
+    // selectedRoom dep, but we only want the auto-select to fire once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, fetchRooms, preselectedRoomId]);
+
 
   // Leave room on unmount
   useEffect(() => {
