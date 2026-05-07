@@ -13,8 +13,10 @@ test.describe('Landing page', () => {
   });
 
   test('renders the navigation header', async ({ page }) => {
-    // Wait for splash to finish and landing to fade in
-    await expect(page.getByRole('navigation')).toBeVisible({ timeout: 10_000 });
+    // Wait for splash to finish and landing to fade in.
+    // Use the <header> element which is always visible on all viewports.
+    // (The desktop <nav> is hidden on mobile via lg:flex.)
+    await expect(page.getByRole('banner')).toBeVisible({ timeout: 10_000 });
   });
 
   test('shows hero section after splash', async ({ page }) => {
@@ -25,7 +27,7 @@ test.describe('Landing page', () => {
 
   test('visual snapshot — full page', async ({ page }) => {
     // Wait for the landing content to be fully visible
-    await expect(page.getByRole('navigation')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('banner')).toBeVisible({ timeout: 10_000 });
 
     // Small pause to let CSS transitions settle
     await page.waitForTimeout(300);
@@ -37,7 +39,7 @@ test.describe('Landing page', () => {
   });
 
   test('visual snapshot — above the fold', async ({ page }) => {
-    await expect(page.getByRole('navigation')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('banner')).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot('landing-viewport.png', {
