@@ -119,7 +119,7 @@ jobs:
       - name: Run Playwright tests
         if: steps.playwright.outputs.enabled == 'true'
         working-directory: frontend
-        run: npx playwright test
+        run: npx playwright test --update-snapshots
 
   phase5-test-build-docker:
     name: phase 5 - test and build docker

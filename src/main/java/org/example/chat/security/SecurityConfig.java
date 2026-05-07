@@ -1,6 +1,7 @@
 package org.example.chat.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,6 +32,16 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    /**
+     * Extra origins injected from the CORS_ALLOWED_ORIGINS environment variable.
+     * Comma-separated list, e.g.:
+     *   https://chatter-sys.vercel.app,https://abc123.ngrok-free.app
+     *
+     * Defaults to empty string (no extra origins) when the variable is not set.
+     */
+    @Value("${cors.allowed-origins:}")
+    private String corsAllowedOriginsEnv;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -88,12 +100,7 @@ public class SecurityConfig {
 
     /**
      * Custom authentication entry point that returns 401 Unauthorized instead of
-     * 403 Forbidden
-     * when authentication is required but not provided.
-     * 
-     * This ensures proper HTTP semantics:
-     * - 401 Unauthorized: Authentication is required but not provided
-     * - 403 Forbidden: Authentication is provided but insufficient permissions
+     * 403 Forbidden when authentication is required but not provided.
      *
      * @return the custom AuthenticationEntryPoint
      */
@@ -107,6 +114,25 @@ public class SecurityConfig {
     }
 
     /**
+     * Builds the list of allowed CORS origins.
+     *
+     * Always includes localhost:3000 for local development.
+     * Additional origins are read from the CORS_ALLOWED_ORIGINS env var so that
+     * production (Vercel) and temporary testing URLs (ngrok) can be added without
+     * changing code.
+     */
+    List<String> buildAllowedOrigins() {
+        List<String> origins = new ArrayList<>(List.of("http://localhost:3000"));
+        if (corsAllowedOriginsEnv != null && !corsAllowedOriginsEnv.isBlank()) {
+            Arrays.stream(corsAllowedOriginsEnv.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .forEach(origins::add);
+        }
+        return origins;
+    }
+
+    /**
      * Configures CORS to allow requests from the frontend origin.
      * Allows all HTTP methods and headers for simplicity in this learning project.
      *
@@ -116,10 +142,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow frontend origin
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "https://chatter-sys.vercel.app"));
+        configuration.setAllowedOrigins(buildAllowedOrigins());
 
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
