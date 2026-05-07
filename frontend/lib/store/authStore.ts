@@ -75,7 +75,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isChecking: true });
 
     try {
-      const user = await getCurrentUser(token);
+      // Race the session check against a 8-second timeout.
+      // On Render's free tier the backend can take 30-60s to cold-start;
+      // without this the splash screen stalls indefinitely on first load.
+      const user = await Promise.race([
+        getCurrentUser(token),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Session validation timed out')), 8000)
+        ),
+      ]);
       setStoredUser(user);
 
       set({

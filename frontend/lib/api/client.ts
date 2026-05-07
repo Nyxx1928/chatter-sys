@@ -83,7 +83,9 @@ export const apiCall = async <T>(
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const url = `${API_BASE_URL}${path}`;
+    console.debug(`[API] ${options.method ?? 'GET'} ${url}`);
+    const response = await fetch(url, {
       ...rest,
       headers: requestHeaders
     });
@@ -105,6 +107,8 @@ export const apiCall = async <T>(
       throw error;
     }
 
+    // Log the raw error so it's visible in the browser console / remote debugger
+    console.error(`[API] Network error for ${API_BASE_URL}${path}:`, error);
     throw new NetworkError('Network error while contacting the API.');
   }
 };
