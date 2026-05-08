@@ -367,8 +367,8 @@ test.describe('Task 10.6 — Profile page logout', () => {
 
     await logOutBtn.click();
 
-    // Should redirect to the root page
-    await expect(page).toHaveURL('/', { timeout: 10_000 });
+    // Should redirect to the login page (auth guard redirects unauthenticated users)
+    await expect(page).toHaveURL('/auth/login', { timeout: 10_000 });
   });
 });
 
