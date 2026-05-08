@@ -1,21 +1,21 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ChatRoom, Message, User } from '@/types/domain';
-import { FriendsPanel } from '@/components/chat/FriendsPanel';
 import { RoomCreateModal } from '@/components/chat/RoomCreateModal';
 import { RoomSelector } from '@/components/chat/RoomSelector';
 import { MessageList } from '@/components/chat/MessageList';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { UserList } from '@/components/chat/UserList';
 import { Button, Input, Modal } from '@/components/ui';
-import { createRoom, deleteRoom, listRooms, getRoomDetails, getRoomMembers } from '@/lib/api/rooms';
+import { createRoom, deleteRoom, listRooms, inviteToRoom, getRoomDetails, getRoomMembers } from '@/lib/api/rooms';
+import { searchUsers } from '@/lib/api/users';
 import { getMessageHistory } from '@/lib/api/messages';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useConnectionStore } from '@/lib/store/connectionStore';
 import { usePresenceStore } from '@/lib/store/presenceStore';
 import { useStompSubscription } from '@/lib/stomp/hooks';
-import { useUiStore } from '@/lib/store/uiStore';
 
 /**
  * Unified chat page with room list, messages, and members.
@@ -27,7 +27,8 @@ export default function ChatRoomsPage() {
   const { token, user } = useAuthStore();
   const { connected, sendMessage } = useConnectionStore();
   const { updatePresence } = usePresenceStore();
-  const { showFriendsPanel, toggleFriendsPanel } = useUiStore();
+  const searchParams = useSearchParams();
+  const preselectedRoomId = searchParams.get('room');
   
   // Room list state
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
@@ -41,6 +42,15 @@ export default function ChatRoomsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [latestMessages, setLatestMessages] = useState<Record<number, Message>>({});
+
+  // Invite member state
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteRoomTarget, setInviteRoomTarget] = useState<ChatRoom | null>(null);
+  const [inviteSearchQuery, setInviteSearchQuery] = useState('');
+  const [inviteSearchResults, setInviteSearchResults] = useState<import('@/types/domain').UserSearchResult[]>([]);
+  const [inviteSearchLoading, setInviteSearchLoading] = useState(false);
+  const [invitingUserId, setInvitingUserId] = useState<number | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<Record<number, boolean>>({});
   
   // Selected room state
   const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
@@ -69,30 +79,9 @@ export default function ChatRoomsPage() {
     }
   }, [token, fetchRooms]);
 
-  // Load available rooms on mount
-  useEffect(() => {
-    if (!token) return;
-    let isActive = true;
-    const loadInitialRooms = async () => {
-      try {
-        const roomsList = await fetchRooms();
-        if (!isActive) return;
-        setRooms(roomsList);
-      } catch (err) {
-        if (isActive) {
-          console.error('Failed to load rooms:', err);
-          setError('Failed to load chat rooms. Please try again.');
-        }
-      } finally {
-        if (isActive) setLoading(false);
-      }
-    };
-    void loadInitialRooms();
-    return () => { isActive = false; };
-  }, [token, fetchRooms]);
-
-  // Load room data when a room is selected
-  const handleRoomSelect = useCallback(async (room: ChatRoom) => {
+  // Load room data when a room is selected — declared before the loading effect
+  // so it can be referenced inside the async callback without hoisting issues
+  const handleRoomSelect = async (room: ChatRoom) => {
     if (!token) return;
 
     // Leave previous room
@@ -124,7 +113,39 @@ export default function ChatRoomsPage() {
     if (connected && user) {
       sendMessage(`/app/room.join/${room.id}`, {});
     }
-  }, [token, selectedRoom, connected, user, sendMessage]);
+  };
+
+  // Load available rooms on mount; auto-select a preselected room if provided via ?room=
+  useEffect(() => {
+    if (!token) return;
+    let isActive = true;
+    const loadInitialRooms = async () => {
+      try {
+        const roomsList = await fetchRooms();
+        if (!isActive) return;
+        setRooms(roomsList);
+        // Auto-select from URL param — done here to avoid calling setState-setting
+        // functions inside a separate effect (react-hooks/set-state-in-effect)
+        if (preselectedRoomId) {
+          const preselected = roomsList.find((r) => r.id === Number(preselectedRoomId));
+          if (preselected) void handleRoomSelect(preselected);
+        }
+      } catch (err) {
+        if (isActive) {
+          console.error('Failed to load rooms:', err);
+          setError('Failed to load chat rooms. Please try again.');
+        }
+      } finally {
+        if (isActive) setLoading(false);
+      }
+    };
+    void loadInitialRooms();
+    return () => { isActive = false; };
+    // handleRoomSelect is intentionally excluded: it changes on every render due to
+    // selectedRoom dep, but we only want the auto-select to fire once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, fetchRooms, preselectedRoomId]);
+
 
   // Leave room on unmount
   useEffect(() => {
@@ -185,6 +206,52 @@ export default function ChatRoomsPage() {
       chatRoomId: selectedRoom.id,
       timestamp: new Date().toISOString(),
     });
+  };
+
+  const handleOpenInvite = (room: ChatRoom) => {
+    setInviteRoomTarget(room);
+    setInviteSearchQuery('');
+    setInviteSearchResults([]);
+    setInviteSuccess({});
+    setShowInviteModal(true);
+  };
+
+  const handleInviteSearch = useCallback(async (query: string) => {
+    setInviteSearchQuery(query);
+    if (!token || query.trim().length < 2) {
+      setInviteSearchResults([]);
+      return;
+    }
+    setInviteSearchLoading(true);
+    try {
+      const results = await searchUsers(token, query.trim());
+      // Filter out users already in the room
+      const memberIds = new Set(members.map((m) => m.id));
+      setInviteSearchResults(results.filter((r) => !memberIds.has(r.user.id)));
+    } catch (err) {
+      console.error('User search failed:', err);
+    } finally {
+      setInviteSearchLoading(false);
+    }
+  }, [token, members]);
+
+  const handleInviteUser = async (inviteeId: number) => {
+    if (!token || !inviteRoomTarget) return;
+    setInvitingUserId(inviteeId);
+    try {
+      await inviteToRoom(token, inviteRoomTarget.id, inviteeId);
+      setInviteSuccess((prev) => ({ ...prev, [inviteeId]: true }));
+      // Refresh member list if we're currently in that room
+      if (selectedRoom?.id === inviteRoomTarget.id) {
+        const updated = await getRoomMembers(token, inviteRoomTarget.id);
+        setMembers(updated);
+      }
+    } catch (err) {
+      const apiErr = err as { status?: number; details?: unknown; message?: string };
+      console.error('Failed to invite user — status:', apiErr.status, 'details:', apiErr.details, 'message:', apiErr.message);
+    } finally {
+      setInvitingUserId(null);
+    }
   };
 
   const filteredRooms = rooms.filter((room) => {
@@ -292,8 +359,8 @@ export default function ChatRoomsPage() {
       <section
         className={`
           flex flex-col bg-[#16162a] border-r border-white/5
-          ${mobileShowChat ? 'hidden lg:flex' : 'flex w-full'}
-          lg:w-80 xl:w-72 lg:shrink-0
+          ${mobileShowChat ? 'hidden md:flex' : 'flex w-full'}
+          md:w-80 xl:w-72 md:shrink-0
         `}
       >
         {/* Panel header */}
@@ -349,7 +416,7 @@ export default function ChatRoomsPage() {
           <div
             className={`
               flex-1 flex flex-col min-w-0 bg-[#13131f]
-              ${mobileShowChat ? 'flex' : 'hidden lg:flex'}
+              ${mobileShowChat ? 'flex' : 'hidden md:flex'}
             `}
           >
             {/* Room header */}
@@ -358,7 +425,7 @@ export default function ChatRoomsPage() {
                 {/* Back button — mobile only */}
                 <button
                   onClick={() => setSelectedRoom(null)}
-                  className="lg:hidden shrink-0 p-1.5 -ml-1 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                  className="md:hidden shrink-0 p-1.5 -ml-1 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
                   aria-label="Back to rooms"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -392,6 +459,18 @@ export default function ChatRoomsPage() {
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                  </svg>
+                </button>
+
+                {/* Invite member */}
+                <button
+                  onClick={() => handleOpenInvite(selectedRoom)}
+                  className="p-2 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                  aria-label="Invite member"
+                  title="Invite member"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                   </svg>
                 </button>
 
@@ -434,13 +513,6 @@ export default function ChatRoomsPage() {
             <UserList users={members} currentUserId={user?.id} />
           </aside>
 
-          {/* ── Friends panel (desktop, toggled by People icon) ── */}
-          {showFriendsPanel && (
-            <aside className="hidden lg:flex flex-col w-72 shrink-0 bg-[#16162a] border-l border-white/5 px-4 py-5 overflow-y-auto">
-              <FriendsPanel />
-            </aside>
-          )}
-
           {/* ── Members / Friends drawer (mobile overlay) ── */}
           {showMembersOnMobile && (
             <div className="xl:hidden fixed inset-0 bg-black/70 z-50" onClick={() => setShowMembersOnMobile(false)}>
@@ -465,7 +537,7 @@ export default function ChatRoomsPage() {
       ) : (
         <>
           {/* ── Select-a-room placeholder (desktop only) ── */}
-          <div className="hidden lg:flex flex-1 items-center justify-center bg-[#13131f]">
+          <div className="hidden md:flex flex-1 items-center justify-center bg-[#13131f]">
             <div className="text-center px-6">
               <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-kiro-slate-500">
@@ -476,38 +548,70 @@ export default function ChatRoomsPage() {
               <p className="text-kiro-slate-500 text-sm">Choose a room from the list to start chatting</p>
             </div>
           </div>
-
-          {/* ── Friends panel (desktop, toggled by People icon) ── */}
-          {showFriendsPanel && (
-            <aside className="hidden lg:flex flex-col w-72 shrink-0 bg-[#16162a] border-l border-white/5 px-4 py-5 overflow-y-auto">
-              <FriendsPanel />
-            </aside>
-          )}
         </>
       )}
 
-      {/* ── Friends panel mobile overlay (Contacts tab) ── */}
-      {showFriendsPanel && (
-        <div className="md:hidden fixed inset-0 bg-black/70 z-50" onClick={toggleFriendsPanel}>
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-[#16162a] shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-4 border-b border-white/5">
-              <h3 className="text-base font-semibold text-kiro-slate-100">Contacts</h3>
-              <button
-                onClick={toggleFriendsPanel}
-                className="p-1.5 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
-                aria-label="Close contacts"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-              </button>
+      {/* ── Invite Member modal ── */}
+      <Modal
+        open={showInviteModal}
+        title={`Invite to ${inviteRoomTarget?.name ?? 'room'}`}
+        onClose={() => setShowInviteModal(false)}
+        footer={
+          <Button variant="secondary" onClick={() => setShowInviteModal(false)}>
+            Close
+          </Button>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            label="Search users"
+            placeholder="Type username or email…"
+            value={inviteSearchQuery}
+            onChange={(e) => handleInviteSearch(e.target.value)}
+            fullWidth
+          />
+
+          {inviteSearchLoading ? (
+            <div className="flex items-center justify-center py-6" role="status" aria-live="polite">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-kiro-purple-400" aria-hidden="true" />
             </div>
-            <div className="flex-1 overflow-y-auto px-4 py-4">
-              <FriendsPanel />
-            </div>
-          </div>
+          ) : inviteSearchQuery.trim().length < 2 ? (
+            <p className="text-sm text-kiro-slate-400 text-center py-4">
+              Type at least 2 characters to search
+            </p>
+          ) : inviteSearchResults.length === 0 ? (
+            <p className="text-sm text-kiro-slate-400 text-center py-4">
+              No users found
+            </p>
+          ) : (
+            <ul className="divide-y divide-white/5 -mx-4 max-h-64 overflow-y-auto">
+              {inviteSearchResults.map((result) => (
+                <li key={result.user.id} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-kiro-slate-100 truncate">{result.user.username}</p>
+                    {result.user.displayName && (
+                      <p className="text-xs text-kiro-slate-400 truncate">{result.user.displayName}</p>
+                    )}
+                  </div>
+                  {inviteSuccess[result.user.id] ? (
+                    <span className="text-xs text-green-400 font-medium">Invited ✓</span>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleInviteUser(result.user.id)}
+                      disabled={invitingUserId === result.user.id}
+                      aria-label={`Invite ${result.user.username}`}
+                    >
+                      {invitingUserId === result.user.id ? 'Inviting…' : 'Invite'}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      )}
+      </Modal>
 
       <RoomCreateModal
         key={showCreateModal ? 'room-create-open' : 'room-create-closed'}

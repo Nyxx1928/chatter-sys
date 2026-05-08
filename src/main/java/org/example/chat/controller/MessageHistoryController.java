@@ -3,14 +3,13 @@ package org.example.chat.controller;
 import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
-import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
+import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
-import org.example.chat.service.ChatRoomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -31,18 +30,15 @@ public class MessageHistoryController {
         private static final Logger logger = LoggerFactory.getLogger(MessageHistoryController.class);
 
         private final ChatMessageService chatMessageService;
-        private final ChatRoomService chatRoomService;
         private final ChatRoomRepository chatRoomRepository;
         private final RoomMembershipRepository roomMembershipRepository;
         private final UserRepository userRepository;
 
         public MessageHistoryController(ChatMessageService chatMessageService,
-                        ChatRoomService chatRoomService,
                         ChatRoomRepository chatRoomRepository,
                         RoomMembershipRepository roomMembershipRepository,
                         UserRepository userRepository) {
                 this.chatMessageService = chatMessageService;
-                this.chatRoomService = chatRoomService;
                 this.chatRoomRepository = chatRoomRepository;
                 this.roomMembershipRepository = roomMembershipRepository;
                 this.userRepository = userRepository;
@@ -82,10 +78,15 @@ public class MessageHistoryController {
                                                 return new RoomNotFoundException(roomId);
                                         });
 
-                        // Ensure the user is a member of the room (auto-join if needed)
-                        RoomMembership membership = roomMembershipRepository
+                        // Validate that the user is a member of the room — no auto-join
+                        roomMembershipRepository
                                         .findByUserAndChatRoom(currentUser, chatRoom)
-                                        .orElseGet(() -> chatRoomService.addMember(roomId, currentUser.getId(), null));
+                                        .orElseThrow(() -> {
+                                                logger.warn("Unauthorized message history access: user {} is not a member of room {}",
+                                                                currentUser.getId(), roomId);
+                                                return new UnauthorizedException(
+                                                                "You are not a member of this room");
+                                        });
 
                         logger.debug("Membership validated for user ID: {} in room ID: {}",
                                         currentUser.getId(), roomId);

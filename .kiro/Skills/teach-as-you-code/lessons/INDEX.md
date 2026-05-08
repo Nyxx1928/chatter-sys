@@ -72,3 +72,4 @@ Template: `TEMPLATE.md`
 | 2026-05-05 | Hero Section Component                                                                     | splash-landing-redesign/001-hero-section-component.md      |
 | 2026-05-05 | Accessibility ARIA Labels                                                                 | splash-landing-redesign/002-accessibility-aria-labels.md   |
 | 2026-05-05 | Hover Effects for Interactive Elements                                                    | splash-landing-redesign/005-hover-effects.md               |
+| 2026-05-07 | RBAC — Room Visibility by Membership                                                      | 001-rbac-room-visibility.md                                |

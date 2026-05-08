@@ -20,7 +20,12 @@ export const createStompClient = ({
   onWebSocketError,
   debug = false
 }: StompClientOptions): Client => {
-  const brokerUrl = process.env.NEXT_PUBLIC_WS_URL ?? DEFAULT_WS_URL;
+  let brokerUrl = process.env.NEXT_PUBLIC_WS_URL ?? DEFAULT_WS_URL;
+
+  // Upgrade to HTTPS when the page is served over HTTPS to avoid mixed-content errors.
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    brokerUrl = brokerUrl.replace(/^http:\/\//i, 'https://');
+  }
   const connectHeaders: StompHeaders = {};
 
   if (token) {

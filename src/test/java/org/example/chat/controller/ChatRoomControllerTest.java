@@ -142,7 +142,8 @@ class ChatRoomControllerTest {
         room2.setCreatedBy(testUser);
 
         List<ChatRoom> rooms = Arrays.asList(testRoom, room2);
-        when(chatRoomService.listRooms()).thenReturn(rooms);
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(chatRoomService.listRoomsForUser(testUser)).thenReturn(rooms);
 
         mockMvc.perform(get("/api/rooms"))
             .andExpect(status().isOk())
@@ -196,7 +197,15 @@ class ChatRoomControllerTest {
         member2.setCreatedAt(LocalDateTime.now());
         member2.setOnline(false);
 
+        RoomMembership membership = new RoomMembership();
+        membership.setUser(testUser);
+        membership.setChatRoom(testRoom);
+
         List<User> members = Arrays.asList(testUser, member2);
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.of(membership));
         when(chatRoomService.getRoomMembers(1L)).thenReturn(members);
 
         mockMvc.perform(get("/api/rooms/1/members"))
@@ -209,11 +218,24 @@ class ChatRoomControllerTest {
     @Test
     @WithMockUser(username = "testuser")
     void getRoomMembers_NonExistingRoom_ThrowsException() throws Exception {
-        when(chatRoomService.getRoomMembers(999L))
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(chatRoomService.getRoomById(999L))
             .thenThrow(new RoomNotFoundException(999L));
 
         mockMvc.perform(get("/api/rooms/999/members"))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void getRoomMembers_NotMember_ReturnsForbidden() throws Exception {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/rooms/1/members"))
+            .andExpect(status().isForbidden());
     }
 
     @Test

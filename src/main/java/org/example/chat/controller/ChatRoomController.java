@@ -6,6 +6,7 @@ import org.example.chat.dto.CreateRoomRequest;
 import org.example.chat.dto.UserResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.User;
+import org.example.chat.entity.MemberRole;
 import org.example.chat.exception.RoomNotFoundException;
 import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.RoomMembershipRepository;
@@ -83,21 +84,58 @@ public class ChatRoomController {
     }
 
     /**
-     * Retrieves all available chat rooms.
+     * Retrieves only the chat rooms the authenticated user is a member of.
      *
+     * @param userDetails the authenticated user
      * @return ResponseEntity with list of ChatRoomResponse
      */
     @GetMapping
-    public ResponseEntity<List<ChatRoomResponse>> listRooms() {
-        logger.debug("Retrieving all chat rooms");
+    public ResponseEntity<List<ChatRoomResponse>> listRooms(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        logger.debug("Retrieving rooms for user: {}", userDetails.getUsername());
 
-        List<ChatRoom> rooms = chatRoomService.listRooms();
+        User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
+        List<ChatRoom> rooms = chatRoomService.listRoomsForUser(currentUser);
         List<ChatRoomResponse> response = rooms.stream()
                 .map(ChatRoomResponse::from)
                 .collect(Collectors.toList());
 
-        logger.debug("Retrieved {} chat rooms", response.size());
+        logger.debug("Retrieved {} rooms for user: {}", response.size(), userDetails.getUsername());
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Invites a user to join a room. Only existing members can invite.
+     *
+     * @param id          the ID of the room
+     * @param inviteeId   the ID of the user to invite
+     * @param userDetails the authenticated user (inviter)
+     * @return ResponseEntity with the created membership
+     */
+    @PostMapping("/{id}/invite")
+    public ResponseEntity<Void> inviteToRoom(
+            @PathVariable Long id,
+            @RequestParam Long inviteeId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Invite request: room ID {} inviting user ID {} by user: {}",
+                id, inviteeId, userDetails.getUsername());
+
+        User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
+        // Verify the inviter is a member of the room
+        ChatRoom chatRoom = chatRoomService.getRoomById(id);
+        roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
+                .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
+
+        // Add the invitee as a MEMBER
+        chatRoomService.addMember(id, inviteeId, MemberRole.MEMBER);
+
+        logger.info("User ID {} successfully invited to room ID {} by user: {}",
+                inviteeId, id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -122,9 +160,9 @@ public class ChatRoomController {
             // Get the chat room
             ChatRoom chatRoom = chatRoomService.getRoomById(id);
 
-            // Ensure the user is a member of the room (auto-join if needed)
+            // Enforce membership — user must have explicitly joined
             roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
-                    .orElseGet(() -> chatRoomService.addMember(chatRoom.getId(), currentUser.getId(), null));
+                    .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
 
             ChatRoomResponse response = ChatRoomResponse.from(chatRoom);
             logger.debug("Retrieved chat room: {}", chatRoom.getName());
@@ -140,15 +178,28 @@ public class ChatRoomController {
 
     /**
      * Retrieves all members of a specific chat room.
+     * Only existing members of the room can view the member list.
      *
      * @param id the ID of the chat room
+     * @param userDetails the authenticated user making the request
      * @return ResponseEntity with list of UserResponse
      */
     @GetMapping("/{id}/members")
-    public ResponseEntity<List<UserResponse>> getRoomMembers(@PathVariable Long id) {
+    public ResponseEntity<List<UserResponse>> getRoomMembers(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
         logger.debug("Retrieving members for chat room ID: {}", id);
 
         try {
+            User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
+            ChatRoom chatRoom = chatRoomService.getRoomById(id);
+
+            // Enforce membership — only members can see who else is in the room
+            roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
+                    .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
+
             List<User> members = chatRoomService.getRoomMembers(id);
             List<UserResponse> response = members.stream()
                     .map(UserResponse::from)

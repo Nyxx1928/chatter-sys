@@ -1,10 +1,13 @@
 package org.example.chat.controller;
 
 import org.example.chat.dto.MessageResponse;
+import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.MessageType;
 import org.example.chat.entity.User;
 import org.example.chat.exception.ErrorResponse;
+import org.example.chat.exception.UnauthorizedException;
+import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
 import org.example.chat.service.ChatRoomService;
@@ -39,15 +42,18 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
+    private final RoomMembershipRepository roomMembershipRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     public ChatMessageController(ChatMessageService chatMessageService,
             ChatRoomService chatRoomService,
             UserRepository userRepository,
+            RoomMembershipRepository roomMembershipRepository,
             SimpMessagingTemplate messagingTemplate) {
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
         this.userRepository = userRepository;
+        this.roomMembershipRepository = roomMembershipRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
@@ -94,13 +100,17 @@ public class ChatMessageController {
         User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
 
-        // Add user to room (service handles membership creation)
-        chatRoomService.addMember(roomId, user.getId(), null);
+        // Verify the user is already a member — joining via STOMP is only for
+        // re-announcing presence, not for gaining access to a room
+        ChatRoom chatRoom = chatRoomService.getRoomById(roomId);
+        roomMembershipRepository.findByUserAndChatRoom(user, chatRoom)
+                .orElseThrow(() -> new UnauthorizedException(
+                        "You are not a member of this room"));
 
         // Create and broadcast JOIN system message
         Message joinMessage = new Message();
         joinMessage.setSender(user);
-        joinMessage.setChatRoom(chatRoomService.getRoomById(roomId));
+        joinMessage.setChatRoom(chatRoom);
         joinMessage.setContent(user.getDisplayName() + " joined the room");
         joinMessage.setTimestamp(LocalDateTime.now());
         joinMessage.setMessageType(MessageType.JOIN);

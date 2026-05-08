@@ -22,7 +22,11 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
   const prevMessageCountRef = useRef(messages.length);
 
   useEffect(() => {
-    if (messages.length > prevMessageCountRef.current) {
+    const container = containerRef.current;
+    if (!container) return;
+    const isNearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    if (messages.length > prevMessageCountRef.current && isNearBottom) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
     prevMessageCountRef.current = messages.length;
@@ -106,7 +110,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
             <Avatar name={message.senderDisplayName ?? '?'} />
           )}
 
-          <div className={`flex flex-col gap-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
+          <div className={`flex flex-col gap-1 max-w-[85%] md:max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
             {/* Sender name — nudged right to align with the bubble, not the avatar */}
             <span
               className={`text-xs font-semibold text-kiro-slate-300 ${!isOwn ? 'pl-1' : 'pr-1'}`}
@@ -122,7 +126,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
                   : 'bg-[#1e1e30] text-kiro-slate-100 rounded-bl-sm'
               }`}
             >
-              <p className="whitespace-pre-wrap">{message.content}</p>
+              <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{message.content}</p>
             </div>
           </div>
         </div>

@@ -83,7 +83,7 @@ class ChatRoomServiceTest {
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
         when(roomMembershipRepository.findByUserAndChatRoom(any(User.class), any(ChatRoom.class)))
                 .thenReturn(Optional.empty());
-        when(roomMembershipRepository.saveAndFlush(any(RoomMembership.class))).thenReturn(testMembership);
+        when(roomMembershipRepository.save(any(RoomMembership.class))).thenReturn(testMembership);
 
         // Act
         ChatRoom result = chatRoomService.createRoom(roomName, description, creatorId);
@@ -91,7 +91,7 @@ class ChatRoomServiceTest {
         // Assert
         assertNotNull(result);
         verify(chatRoomRepository).save(any(ChatRoom.class));
-        verify(roomMembershipRepository).saveAndFlush(any(RoomMembership.class));
+        verify(roomMembershipRepository).save(any(RoomMembership.class));
     }
 
     @Test
@@ -255,14 +255,14 @@ class ChatRoomServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(newUser));
         when(roomMembershipRepository.findByUserAndChatRoom(newUser, testRoom))
                 .thenReturn(Optional.empty());
-        when(roomMembershipRepository.saveAndFlush(any(RoomMembership.class))).thenReturn(testMembership);
+        when(roomMembershipRepository.save(any(RoomMembership.class))).thenReturn(testMembership);
 
         // Act
         RoomMembership result = chatRoomService.addMember(roomId, userId, MemberRole.MEMBER);
 
         // Assert
         assertNotNull(result);
-        verify(roomMembershipRepository).saveAndFlush(any(RoomMembership.class));
+        verify(roomMembershipRepository).save(any(RoomMembership.class));
     }
 
     @Test
@@ -277,7 +277,7 @@ class ChatRoomServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(newUser));
         when(roomMembershipRepository.findByUserAndChatRoom(newUser, testRoom))
                 .thenReturn(Optional.empty());
-        when(roomMembershipRepository.saveAndFlush(any(RoomMembership.class))).thenAnswer(invocation -> {
+        when(roomMembershipRepository.save(any(RoomMembership.class))).thenAnswer(invocation -> {
             RoomMembership membership = invocation.getArgument(0);
             assertEquals(MemberRole.MEMBER, membership.getRole());
             return membership;
@@ -287,7 +287,7 @@ class ChatRoomServiceTest {
         chatRoomService.addMember(roomId, userId, null);
 
         // Assert
-        verify(roomMembershipRepository).saveAndFlush(any(RoomMembership.class));
+        verify(roomMembershipRepository).save(any(RoomMembership.class));
     }
 
     @Test
