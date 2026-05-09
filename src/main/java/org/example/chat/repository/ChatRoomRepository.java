@@ -1,6 +1,7 @@
 package org.example.chat.repository;
 
 import org.example.chat.entity.ChatRoom;
+import org.example.chat.entity.RoomType;
 import org.example.chat.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     List<ChatRoom> findByMembersContaining(@Param("user") User user);
     
     Optional<ChatRoom> findByName(String name);
+
+    Optional<ChatRoom> findByNameAndRoomType(String name, RoomType roomType);
 }
