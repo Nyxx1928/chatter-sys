@@ -1,6 +1,9 @@
 package org.example.chat.service;
 
 import org.example.chat.entity.User;
+import org.example.chat.repository.ChatRoomRepository;
+import org.example.chat.repository.FriendRequestRepository;
+import org.example.chat.repository.FriendshipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
 import org.slf4j.Logger;
@@ -24,11 +27,20 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final ChatRoomRepository chatRoomRepository;
+    private final FriendshipRepository friendshipRepository;
+    private final FriendRequestRepository friendRequestRepository;
 
-    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,
+                                 ChatRoomRepository chatRoomRepository,
+                                 FriendshipRepository friendshipRepository,
+                                 FriendRequestRepository friendRequestRepository) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.chatRoomRepository = chatRoomRepository;
+        this.friendshipRepository = friendshipRepository;
+        this.friendRequestRepository = friendRequestRepository;
     }
 
     /**
@@ -171,6 +183,45 @@ public class AuthenticationService {
         logger.info("Successfully updated profile for user: {}", username);
 
         return updatedUser;
+    }
+
+    /**
+     * Permanently deletes the authenticated user's account.
+     *
+     * Deletion order:
+     * 1. Null-out created_by_id on any GROUP rooms the user created (rooms stay, owner reference removed).
+     * 2. Delete all friend requests involving the user.
+     * 3. Delete all friendships involving the user.
+     * 4. Delete the user — cascades remove their messages and room memberships automatically.
+     *
+     * @param username the username of the account to delete
+     * @throws IllegalArgumentException if the user is not found
+     */
+    @Transactional
+    public void deleteUser(String username) {
+        logger.info("Deleting account for user: {}", username);
+
+        User user = getUserByUsername(username);
+
+        // 1. Null out created_by on GROUP rooms so they are not orphaned
+        chatRoomRepository.findAll().stream()
+                .filter(r -> r.getCreatedBy() != null && r.getCreatedBy().getId().equals(user.getId()))
+                .forEach(r -> {
+                    r.setCreatedBy(null);
+                    chatRoomRepository.save(r);
+                });
+
+        // 2. Delete friend requests (sent or received)
+        friendRequestRepository.deleteAll(
+                friendRequestRepository.findByRequesterOrRecipient(user, user));
+
+        // 3. Delete friendships
+        friendshipRepository.deleteAll(
+                friendshipRepository.findByUserAOrUserB(user, user));
+
+        // 4. Delete user (cascades: messages, room_memberships)
+        userRepository.delete(user);
+        logger.info("Account deleted for user: {}", username);
     }
 
     /**

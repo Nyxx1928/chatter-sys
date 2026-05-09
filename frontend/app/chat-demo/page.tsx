@@ -104,21 +104,24 @@ export default function ChatDemoPage() {
       name: 'General',
       description: 'General discussion for everyone',
       createdAt: demoTimestamp(ONE_DAY * 30),
-      createdBy: users[0]
+      createdBy: users[0],
+      roomType: 'GROUP'
     },
     {
       id: 2,
       name: 'Random',
       description: 'Random thoughts and off-topic conversations',
       createdAt: demoTimestamp(ONE_DAY * 20),
-      createdBy: users[1]
+      createdBy: users[1],
+      roomType: 'GROUP'
     },
     {
       id: 3,
       name: 'Tech Talk',
       description: 'Discuss technology, programming, and development',
       createdAt: demoTimestamp(ONE_DAY * 10),
-      createdBy: users[0]
+      createdBy: users[0],
+      roomType: 'GROUP'
     }
   ];
 

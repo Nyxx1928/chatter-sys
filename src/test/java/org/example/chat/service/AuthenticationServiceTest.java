@@ -1,6 +1,9 @@
 package org.example.chat.service;
 
 import org.example.chat.entity.User;
+import org.example.chat.repository.ChatRoomRepository;
+import org.example.chat.repository.FriendRequestRepository;
+import org.example.chat.repository.FriendshipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,13 +33,24 @@ class AuthenticationServiceTest {
     @Mock
     private JwtUtil jwtUtil;
 
+    @Mock
+    private ChatRoomRepository chatRoomRepository;
+
+    @Mock
+    private FriendshipRepository friendshipRepository;
+
+    @Mock
+    private FriendRequestRepository friendRequestRepository;
+
     private AuthenticationService authenticationService;
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        authenticationService = new AuthenticationService(userRepository, jwtUtil, passwordEncoder);
+        authenticationService = new AuthenticationService(
+                userRepository, jwtUtil, passwordEncoder,
+                chatRoomRepository, friendshipRepository, friendRequestRepository);
     }
 
     @Test

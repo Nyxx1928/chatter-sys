@@ -3,14 +3,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ChatRoom, Message, User } from '@/types/domain';
-import { RoomCreateModal } from '@/components/chat/RoomCreateModal';
 import { RoomSelector } from '@/components/chat/RoomSelector';
 import { MessageList } from '@/components/chat/MessageList';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { UserList } from '@/components/chat/UserList';
 import { Button, Input, Modal } from '@/components/ui';
-import { createRoom, deleteRoom, listRooms, inviteToRoom, getRoomDetails, getRoomMembers } from '@/lib/api/rooms';
-import { searchUsers } from '@/lib/api/users';
+import { deleteRoom, listRooms, getRoomDetails, getRoomMembers } from '@/lib/api/rooms';
 import { getMessageHistory } from '@/lib/api/messages';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useConnectionStore } from '@/lib/store/connectionStore';
@@ -18,9 +16,9 @@ import { usePresenceStore } from '@/lib/store/presenceStore';
 import { useStompSubscription } from '@/lib/stomp/hooks';
 
 /**
- * Unified chat page with room list, messages, and members.
- * Displays available chat rooms and shows messages inline when a room is selected.
- * 
+ * Direct Messages page — shows only DIRECT rooms for the current user.
+ * Group/channel rooms are listed on the Channels page (/chat/channels).
+ *
  * Requirements: 5.1, 14.2, 15.1, 15.2, 15.3, 15.4
  */
 export default function ChatRoomsPage() {
@@ -35,22 +33,10 @@ export default function ChatRoomsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ChatRoom | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [latestMessages, setLatestMessages] = useState<Record<number, Message>>({});
-
-  // Invite member state
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteRoomTarget, setInviteRoomTarget] = useState<ChatRoom | null>(null);
-  const [inviteSearchQuery, setInviteSearchQuery] = useState('');
-  const [inviteSearchResults, setInviteSearchResults] = useState<import('@/types/domain').UserSearchResult[]>([]);
-  const [inviteSearchLoading, setInviteSearchLoading] = useState(false);
-  const [invitingUserId, setInvitingUserId] = useState<number | null>(null);
-  const [inviteSuccess, setInviteSuccess] = useState<Record<number, boolean>>({});
   
   // Selected room state
   const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
@@ -61,8 +47,37 @@ export default function ChatRoomsPage() {
 
   const fetchRooms = useCallback(async () => {
     if (!token) return [] as ChatRoom[];
-    return listRooms(token);
-  }, [token]);
+    const roomsList = await listRooms(token);
+
+    // Enrich DIRECT rooms with otherParticipant so the sidebar shows the
+    // friend's display name immediately (not the raw dm__x__y internal name).
+    const enriched = await Promise.all(
+      roomsList.map(async (room) => {
+        if (room.roomType !== 'DIRECT' || !user) return room;
+        try {
+          const members = await getRoomMembers(token, room.id);
+          const other = members.find((m) => m.id !== user.id);
+          if (other) {
+            return {
+              ...room,
+              otherParticipant: {
+                id: other.id,
+                username: other.username,
+                displayName: other.displayName,
+                lastSeen: other.lastSeen,
+                online: other.online,
+              },
+            } as ChatRoom;
+          }
+        } catch {
+          // If members fetch fails, fall back to raw room — non-fatal
+        }
+        return room;
+      })
+    );
+
+    return enriched;
+  }, [token, user]);
 
   const loadRooms = useCallback(async () => {
     if (!token) return;
@@ -101,7 +116,26 @@ export default function ChatRoomsPage() {
         getMessageHistory(token, room.id, { page: 0, size: 50 }),
         getRoomMembers(token, room.id),
       ]);
-      setSelectedRoom(roomDetails);
+
+      // Derive otherParticipant for DM rooms (client-side only)
+      let resolvedRoom = roomDetails;
+      if (roomDetails.roomType === 'DIRECT' && user) {
+        const other = roomMembers.find((m) => m.id !== user.id);
+        if (other) {
+          resolvedRoom = {
+            ...roomDetails,
+            otherParticipant: {
+              id: other.id,
+              username: other.username,
+              displayName: other.displayName,
+              lastSeen: other.lastSeen,
+              online: other.online,
+            },
+          };
+        }
+      }
+
+      setSelectedRoom(resolvedRoom);
       setMessages(messageHistory?.content ?? []);
       setMembers(roomMembers);
     } catch (err) {
@@ -208,78 +242,15 @@ export default function ChatRoomsPage() {
     });
   };
 
-  const handleOpenInvite = (room: ChatRoom) => {
-    setInviteRoomTarget(room);
-    setInviteSearchQuery('');
-    setInviteSearchResults([]);
-    setInviteSuccess({});
-    setShowInviteModal(true);
-  };
-
-  const handleInviteSearch = useCallback(async (query: string) => {
-    setInviteSearchQuery(query);
-    if (!token || query.trim().length < 2) {
-      setInviteSearchResults([]);
-      return;
-    }
-    setInviteSearchLoading(true);
-    try {
-      const results = await searchUsers(token, query.trim());
-      // Filter out users already in the room
-      const memberIds = new Set(members.map((m) => m.id));
-      setInviteSearchResults(results.filter((r) => !memberIds.has(r.user.id)));
-    } catch (err) {
-      console.error('User search failed:', err);
-    } finally {
-      setInviteSearchLoading(false);
-    }
-  }, [token, members]);
-
-  const handleInviteUser = async (inviteeId: number) => {
-    if (!token || !inviteRoomTarget) return;
-    setInvitingUserId(inviteeId);
-    try {
-      await inviteToRoom(token, inviteRoomTarget.id, inviteeId);
-      setInviteSuccess((prev) => ({ ...prev, [inviteeId]: true }));
-      // Refresh member list if we're currently in that room
-      if (selectedRoom?.id === inviteRoomTarget.id) {
-        const updated = await getRoomMembers(token, inviteRoomTarget.id);
-        setMembers(updated);
-      }
-    } catch (err) {
-      const apiErr = err as { status?: number; details?: unknown; message?: string };
-      console.error('Failed to invite user — status:', apiErr.status, 'details:', apiErr.details, 'message:', apiErr.message);
-    } finally {
-      setInvitingUserId(null);
-    }
-  };
-
+  // Chat page shows only DM (DIRECT) rooms; group rooms live on the Channels page
   const filteredRooms = rooms.filter((room) => {
+    if (room.roomType !== 'DIRECT') return false;
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
-    return (
-      room.name.toLowerCase().includes(query) ||
-      (room.description ?? '').toLowerCase().includes(query)
-    );
+    // Match against the friend's display name (or username) rather than the raw dm__ name
+    const label = room.otherParticipant?.displayName ?? room.otherParticipant?.username ?? room.name;
+    return label.toLowerCase().includes(query);
   });
-
-  const handleCreateRoom = async (name: string, description: string) => {
-    if (!token) return;
-    try {
-      setIsCreating(true);
-      setCreateError(null);
-      const newRoom = await createRoom(token, { name, description: description || undefined });
-      await loadRooms();
-      setShowCreateModal(false);
-      // Auto-select the newly created room
-      void handleRoomSelect(newRoom);
-    } catch (err) {
-      console.error('Failed to create room:', err);
-      setCreateError('Failed to create room. Please try again.');
-    } finally {
-      setIsCreating(false);
-    }
-  };
 
   const handleDeleteRoom = async () => {
     if (!token || !deleteTarget) return;
@@ -366,25 +337,15 @@ export default function ChatRoomsPage() {
         {/* Panel header */}
         <header className="px-4 py-4 border-b border-white/5">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold text-kiro-slate-100">Chats</h2>
-            <div className="flex items-center gap-1">
-              <Button
-                onClick={() => { setCreateError(null); setShowCreateModal(true); }}
-                variant="primary"
-                size="sm"
-                aria-label="Create new room"
-              >
-                +
-              </Button>
-              <Button onClick={loadRooms} variant="ghost" size="sm" aria-label="Refresh rooms">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
-              </Button>
-            </div>
+            <h2 className="text-base font-semibold text-kiro-slate-100">Direct Messages</h2>
+            <Button onClick={loadRooms} variant="ghost" size="sm" aria-label="Refresh direct messages">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </Button>
           </div>
           <Input
-            label="Search rooms"
+            label="Search direct messages"
             placeholder="Search…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -399,9 +360,9 @@ export default function ChatRoomsPage() {
             latestMessages={latestMessages}
             onRoomSelect={handleRoomSelect}
             onRoomDelete={(room) => { setDeleteError(null); setDeleteTarget(room); }}
-            canDeleteRoom={(room) => room.createdBy?.id === user?.id}
-            emptyStateTitle={searchQuery.trim() ? 'No rooms match your search' : undefined}
-            emptyStateDescription={searchQuery.trim() ? 'Try a different keyword or clear the filter.' : undefined}
+            canDeleteRoom={(room) => room.roomType !== 'DIRECT' && room.createdBy?.id === user?.id}
+            emptyStateTitle={searchQuery.trim() ? 'No direct messages match your search' : 'No direct messages yet'}
+            emptyStateDescription={searchQuery.trim() ? 'Try a different keyword or clear the filter.' : 'Add friends in the Contacts tab to start a conversation.'}
             className="h-full"
           />
         </main>
@@ -435,13 +396,21 @@ export default function ChatRoomsPage() {
 
                 {/* Room avatar */}
                 <div className="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm relative">
-                  {selectedRoom.name.charAt(0).toUpperCase()}
+                  {selectedRoom.roomType === 'DIRECT' ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                  ) : (
+                    selectedRoom.name.charAt(0).toUpperCase()
+                  )}
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-[#16162a]" aria-hidden="true" />
                 </div>
 
                 <div className="min-w-0">
                   <h2 className="text-sm font-semibold text-kiro-slate-100 truncate leading-tight">
-                    {selectedRoom.name}
+                    {selectedRoom.roomType === 'DIRECT'
+                      ? (selectedRoom.otherParticipant?.displayName ?? selectedRoom.name)
+                      : selectedRoom.name}
                   </h2>
                   <p className="text-xs text-green-400 leading-tight">
                     {onlineCount > 0 ? `${onlineCount} online` : 'No one online'}
@@ -461,31 +430,6 @@ export default function ChatRoomsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                   </svg>
                 </button>
-
-                {/* Invite member */}
-                <button
-                  onClick={() => handleOpenInvite(selectedRoom)}
-                  className="p-2 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
-                  aria-label="Invite member"
-                  title="Invite member"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                  </svg>
-                </button>
-
-                {/* Delete room (owner only) */}
-                {user?.id === selectedRoom.createdBy?.id && (
-                  <button
-                    onClick={() => { setDeleteError(null); setDeleteTarget(selectedRoom); }}
-                    className="p-2 text-kiro-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                    aria-label="Delete room"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                    </svg>
-                  </button>
-                )}
               </div>
             </div>
 
@@ -503,7 +447,7 @@ export default function ChatRoomsPage() {
               <MessageInput
                 onSend={handleSendMessage}
                 disabled={!connected || roomLoading}
-                placeholder={connected ? `Message #${selectedRoom.name}…` : 'Connecting…'}
+                placeholder={connected ? `Message ${selectedRoom.otherParticipant?.displayName ?? selectedRoom.name}…` : 'Connecting…'}
               />
             </div>
           </div>
@@ -544,84 +488,14 @@ export default function ChatRoomsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                 </svg>
               </div>
-              <p className="text-kiro-slate-300 font-semibold text-lg mb-1">Select a room</p>
-              <p className="text-kiro-slate-500 text-sm">Choose a room from the list to start chatting</p>
+              <p className="text-kiro-slate-300 font-semibold text-lg mb-1">Select a conversation</p>
+              <p className="text-kiro-slate-500 text-sm">Choose a direct message from the list to start chatting</p>
             </div>
           </div>
         </>
       )}
 
-      {/* ── Invite Member modal ── */}
-      <Modal
-        open={showInviteModal}
-        title={`Invite to ${inviteRoomTarget?.name ?? 'room'}`}
-        onClose={() => setShowInviteModal(false)}
-        footer={
-          <Button variant="secondary" onClick={() => setShowInviteModal(false)}>
-            Close
-          </Button>
-        }
-      >
-        <div className="space-y-4">
-          <Input
-            label="Search users"
-            placeholder="Type username or email…"
-            value={inviteSearchQuery}
-            onChange={(e) => handleInviteSearch(e.target.value)}
-            fullWidth
-          />
-
-          {inviteSearchLoading ? (
-            <div className="flex items-center justify-center py-6" role="status" aria-live="polite">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-kiro-purple-400" aria-hidden="true" />
-            </div>
-          ) : inviteSearchQuery.trim().length < 2 ? (
-            <p className="text-sm text-kiro-slate-400 text-center py-4">
-              Type at least 2 characters to search
-            </p>
-          ) : inviteSearchResults.length === 0 ? (
-            <p className="text-sm text-kiro-slate-400 text-center py-4">
-              No users found
-            </p>
-          ) : (
-            <ul className="divide-y divide-white/5 -mx-4 max-h-64 overflow-y-auto">
-              {inviteSearchResults.map((result) => (
-                <li key={result.user.id} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-kiro-slate-100 truncate">{result.user.username}</p>
-                    {result.user.displayName && (
-                      <p className="text-xs text-kiro-slate-400 truncate">{result.user.displayName}</p>
-                    )}
-                  </div>
-                  {inviteSuccess[result.user.id] ? (
-                    <span className="text-xs text-green-400 font-medium">Invited ✓</span>
-                  ) : (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => handleInviteUser(result.user.id)}
-                      disabled={invitingUserId === result.user.id}
-                      aria-label={`Invite ${result.user.username}`}
-                    >
-                      {invitingUserId === result.user.id ? 'Inviting…' : 'Invite'}
-                    </Button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </Modal>
-
-      <RoomCreateModal
-        key={showCreateModal ? 'room-create-open' : 'room-create-closed'}
-        open={showCreateModal}
-        isSubmitting={isCreating}
-        errorMessage={createError}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateRoom}
-      />
-
+      {/* ── Delete room confirmation modal ── */}
       <Modal
         open={Boolean(deleteTarget)}
         title="Delete room"

@@ -73,6 +73,22 @@ public class UserController {
     }
 
     /**
+     * Permanently deletes the current authenticated user's account.
+     * All messages, memberships, friendships, and friend requests are removed.
+     * GROUP rooms the user created remain but lose their creator reference.
+     *
+     * @return 204 No Content on success
+     */
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteAccount() {
+        String username = getCurrentUsername();
+        logger.info("Delete account request for: {}", username);
+
+        authenticationService.deleteUser(username);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Retrieves the username of the current authenticated user from the security context.
      *
      * @return the username of the authenticated user

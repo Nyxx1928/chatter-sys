@@ -5,6 +5,7 @@ import org.example.chat.dto.ChatRoomResponse;
 import org.example.chat.dto.CreateRoomRequest;
 import org.example.chat.dto.UserResponse;
 import org.example.chat.entity.ChatRoom;
+import org.example.chat.entity.RoomType;
 import org.example.chat.entity.User;
 import org.example.chat.entity.MemberRole;
 import org.example.chat.exception.RoomNotFoundException;
@@ -129,6 +130,11 @@ public class ChatRoomController {
         ChatRoom chatRoom = chatRoomService.getRoomById(id);
         roomMembershipRepository.findByUserAndChatRoom(currentUser, chatRoom)
                 .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
+
+        // Guard: DM rooms cannot be invited to
+        if (chatRoom.getRoomType() == RoomType.DIRECT) {
+            throw new UnauthorizedException("Cannot invite users to a direct message room");
+        }
 
         // Add the invitee as a MEMBER
         chatRoomService.addMember(id, inviteeId, MemberRole.MEMBER);

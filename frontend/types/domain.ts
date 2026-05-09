@@ -60,6 +60,13 @@ export enum RelationshipStatus {
 }
 
 /**
+ * Room type enumeration.
+ * GROUP rooms are standard multi-user rooms.
+ * DIRECT rooms are private one-on-one DM rooms.
+ */
+export type RoomType = 'GROUP' | 'DIRECT';
+
+/**
  * ChatRoom interface matching the backend ChatRoom entity.
  * Represents a chat room where users can send messages.
  */
@@ -69,6 +76,9 @@ export interface ChatRoom {
   description: string | null;
   createdAt: string; // ISO 8601 date string
   createdBy: User;
+  roomType: RoomType;
+  /** Client-side only — derived from the members list after room selection. Never stored on the server. */
+  otherParticipant?: PublicUser;
 }
 
 /**
@@ -122,6 +132,7 @@ export interface FriendRequestList {
 export interface Friendship {
   friend: PublicUser;
   createdAt: string; // ISO 8601 date string
+  dmRoomId: number;
 }
 
 /**

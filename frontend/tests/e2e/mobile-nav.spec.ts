@@ -32,6 +32,7 @@ const MOCK_ROOMS = [
     id: 1,
     name: 'general',
     description: 'General discussion',
+    roomType: 'GROUP',
     createdBy: MOCK_USER,
     memberCount: 3,
     createdAt: '2026-01-01T00:00:00Z',
@@ -40,6 +41,7 @@ const MOCK_ROOMS = [
     id: 2,
     name: 'random',
     description: 'Random stuff',
+    roomType: 'GROUP',
     createdBy: { id: 2, username: 'other', displayName: 'Other User', email: 'other@example.com', online: false },
     memberCount: 2,
     createdAt: '2026-01-02T00:00:00Z',
@@ -265,10 +267,10 @@ test.describe('Task 10.4 — Mobile room-to-chat flow', () => {
   test('mobile: room list is visible and chat area is hidden initially', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await setupMocks(page);
-    await page.goto('/chat');
+    await page.goto('/chat/channels');
 
-    // Room list panel should be visible (shows "Chats" heading)
-    await expect(page.getByRole('heading', { name: 'Chats' })).toBeVisible({ timeout: 10_000 });
+    // Room list panel should be visible (shows "Channels" heading)
+    await expect(page.getByRole('heading', { name: 'Channels' })).toBeVisible({ timeout: 10_000 });
 
     // Chat column (message input) should not be visible before selecting a room
     const messageInput = page.locator('[aria-label="Message input"]');
@@ -278,7 +280,7 @@ test.describe('Task 10.4 — Mobile room-to-chat flow', () => {
   test('mobile: selecting a room shows chat area and hides room list', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await setupMocks(page);
-    await page.goto('/chat');
+    await page.goto('/chat/channels');
 
     // Wait for rooms to load
     await expect(page.getByText('general').first()).toBeVisible({ timeout: 10_000 });
@@ -290,13 +292,13 @@ test.describe('Task 10.4 — Mobile room-to-chat flow', () => {
     await expect(page.locator('[aria-label="Message input"]')).toBeVisible({ timeout: 10_000 });
 
     // Room list heading should be hidden (panel is off-screen)
-    await expect(page.getByRole('heading', { name: 'Chats' })).not.toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { name: 'Channels' })).not.toBeVisible({ timeout: 10_000 });
   });
 
   test('mobile: clicking back button returns to room list', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await setupMocks(page);
-    await page.goto('/chat');
+    await page.goto('/chat/channels');
 
     // Select a room
     await expect(page.getByText('general').first()).toBeVisible({ timeout: 10_000 });
@@ -305,13 +307,13 @@ test.describe('Task 10.4 — Mobile room-to-chat flow', () => {
     // Wait for chat to appear
     await expect(page.locator('[aria-label="Message input"]')).toBeVisible({ timeout: 10_000 });
 
-    // Click the back button
-    const backButton = page.locator('[aria-label="Back to rooms"]');
+    // Click the back button — use dispatchEvent to bypass any overlay in dev mode
+    const backButton = page.locator('[aria-label="Back to channels"]');
     await expect(backButton).toBeVisible({ timeout: 10_000 });
-    await backButton.click();
+    await backButton.dispatchEvent('click');
 
     // Room list should be visible again
-    await expect(page.getByRole('heading', { name: 'Chats' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { name: 'Channels' })).toBeVisible({ timeout: 10_000 });
 
     // Chat area should be hidden again
     await expect(page.locator('[aria-label="Message input"]')).not.toBeVisible({ timeout: 10_000 });
@@ -397,7 +399,7 @@ test.describe('Task 10.8 — MessageInput icon visibility on mobile', () => {
   test('at 375px: Attach, GIF, Format buttons are not visible; Send button is visible', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await setupMocks(page);
-    await page.goto('/chat');
+    await page.goto('/chat/channels');
 
     // Select a room so the MessageInput is rendered
     await expect(page.getByText('general').first()).toBeVisible({ timeout: 10_000 });

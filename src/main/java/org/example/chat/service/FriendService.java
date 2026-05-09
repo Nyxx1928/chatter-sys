@@ -32,13 +32,16 @@ public class FriendService {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final FriendshipRepository friendshipRepository;
+    private final DirectMessageService directMessageService;
 
     public FriendService(UserRepository userRepository,
             FriendRequestRepository friendRequestRepository,
-            FriendshipRepository friendshipRepository) {
+            FriendshipRepository friendshipRepository,
+            DirectMessageService directMessageService) {
         this.userRepository = userRepository;
         this.friendRequestRepository = friendRequestRepository;
         this.friendshipRepository = friendshipRepository;
+        this.directMessageService = directMessageService;
     }
 
     public List<UserSearchResultResponse> searchUsers(String query, String currentUsername) {
@@ -147,7 +150,10 @@ public class FriendService {
                 ? friendship.getUserB()
                 : friendship.getUserA();
 
-        return new FriendshipResponse(PublicUserResponse.from(friend), friendship.getCreatedAt());
+        // Auto-create the DM room for this friendship
+        var dmRoom = directMessageService.getOrCreateDmRoom(currentUser, requester);
+
+        return new FriendshipResponse(PublicUserResponse.from(friend), friendship.getCreatedAt(), dmRoom.getId());
     }
 
     @Transactional
@@ -174,6 +180,38 @@ public class FriendService {
                     return PublicUserResponse.from(friend);
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Removes a friendship between the current user and the specified friend.
+     * Also deletes the shared DM room (and all its messages) if one exists.
+     *
+     * @param currentUsername the username of the user initiating the removal
+     * @param friendId        the ID of the friend to remove
+     * @throws UserNotFoundException if the friend user is not found
+     * @throws ConflictException     if the two users are not friends
+     */
+    @Transactional
+    public void removeFriend(String currentUsername, Long friendId) {
+        User currentUser = getUserByUsername(currentUsername);
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new UserNotFoundException(friendId));
+
+        Friendship friendship = friendshipRepository.findBetweenUsers(currentUser, friend)
+                .orElseThrow(() -> new ConflictException("You are not friends with this user"));
+
+        // Delete the DM room between the two users (if it exists)
+        directMessageService.findDmRoomBetween(currentUser, friend)
+                .ifPresent(dmRoom -> {
+                    logger.info("Deleting DM room '{}' as part of unfriend between {} and {}",
+                            dmRoom.getName(), currentUser.getUsername(), friend.getUsername());
+                    // DirectMessageService uses ChatRoomRepository — delete via it
+                    // so cascades (messages, memberships) fire correctly
+                    directMessageService.deleteDmRoom(dmRoom);
+                });
+
+        friendshipRepository.delete(friendship);
+        logger.info("Removed friendship between {} and {}", currentUser.getUsername(), friend.getUsername());
     }
 
     private Friendship createFriendship(User userA, User userB) {

@@ -10,6 +10,7 @@ import org.example.chat.exception.UserNotFoundException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
+import org.example.chat.service.RateLimiterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,9 @@ class ChatRoomServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RateLimiterService rateLimiterService;
 
     @InjectMocks
     private ChatRoomService chatRoomService;

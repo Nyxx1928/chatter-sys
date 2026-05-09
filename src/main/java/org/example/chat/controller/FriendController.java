@@ -82,4 +82,14 @@ public class FriendController {
         List<PublicUserResponse> friends = friendService.listFriends(userDetails.getUsername());
         return ResponseEntity.ok(friends);
     }
+
+    @DeleteMapping("/{friendId}")
+    public ResponseEntity<Void> removeFriend(
+            @PathVariable Long friendId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Remove friend request: user {} removing friend {}", userDetails.getUsername(), friendId);
+
+        friendService.removeFriend(userDetails.getUsername(), friendId);
+        return ResponseEntity.noContent().build();
+    }
 }

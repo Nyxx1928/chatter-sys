@@ -22,6 +22,10 @@ public class ChatRoom {
     
     @Column(unique = true, nullable = false, length = 100)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "room_type", nullable = false, length = 20)
+    private RoomType roomType = RoomType.GROUP;
     
     @Column(length = 500)
     private String description;
