@@ -73,3 +73,6 @@ Template: `TEMPLATE.md`
 | 2026-05-05 | Accessibility ARIA Labels                                                                 | splash-landing-redesign/002-accessibility-aria-labels.md   |
 | 2026-05-05 | Hover Effects for Interactive Elements                                                    | splash-landing-redesign/005-hover-effects.md               |
 | 2026-05-07 | RBAC — Room Visibility by Membership                                                      | 001-rbac-room-visibility.md                                |
+| 2026-05-09 | Adding RoomType Enum and DirectMessageService (Tasks 1–5)                                 | backend/001-roomtype-enum-and-dm-service.md                |
+| 2026-05-09 | DM Access Control Guards, DTO Update, and Frontend DM Rendering (Tasks 6–12)              | backend/002-dm-access-control-and-dto.md                   |
+| 2026-05-09 | DM Tests — Frontend Unit Tests and Backend Integration Tests (Tasks 14–16)                | backend/003-dm-tests-frontend-unit-backend-integration.md  |
