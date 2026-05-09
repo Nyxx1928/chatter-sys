@@ -207,7 +207,8 @@ class FriendControllerTest {
         // Arrange
         FriendshipResponse response = new FriendshipResponse(
             friendUser,
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            42L
         );
         
         when(friendService.acceptFriendRequest(eq("testuser"), eq(1L)))

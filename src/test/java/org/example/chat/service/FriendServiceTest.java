@@ -4,6 +4,8 @@ import org.example.chat.dto.*;
 import org.example.chat.entity.FriendRequest;
 import org.example.chat.entity.FriendRequestStatus;
 import org.example.chat.entity.Friendship;
+import org.example.chat.entity.ChatRoom;
+import org.example.chat.entity.RoomType;
 import org.example.chat.entity.User;
 import org.example.chat.exception.ConflictException;
 import org.example.chat.exception.FriendRequestNotFoundException;
@@ -42,6 +44,9 @@ class FriendServiceTest {
     @Mock
     private FriendshipRepository friendshipRepository;
 
+    @Mock
+    private DirectMessageService directMessageService;
+
     private FriendService friendService;
 
     private User testUser;
@@ -50,7 +55,7 @@ class FriendServiceTest {
 
     @BeforeEach
     void setUp() {
-        friendService = new FriendService(userRepository, friendRequestRepository, friendshipRepository);
+        friendService = new FriendService(userRepository, friendRequestRepository, friendshipRepository, directMessageService);
 
         testUser = new User();
         testUser.setId(1L);
@@ -315,6 +320,13 @@ class FriendServiceTest {
         when(friendshipRepository.findBetweenUsers(testUser, friendUser)).thenReturn(Optional.empty());
         when(friendshipRepository.save(any(Friendship.class))).thenReturn(friendship);
 
+        ChatRoom dmRoom = new ChatRoom();
+        dmRoom.setId(10L);
+        dmRoom.setName("dm__1__2");
+        dmRoom.setRoomType(RoomType.DIRECT);
+        dmRoom.setCreatedAt(LocalDateTime.now());
+        when(directMessageService.getOrCreateDmRoom(any(User.class), any(User.class))).thenReturn(dmRoom);
+
         // Act
         FriendshipResponse result = friendService.acceptFriendRequest("testuser", 1L);
 
@@ -322,6 +334,7 @@ class FriendServiceTest {
         assertNotNull(result);
         assertEquals("frienduser", result.getFriend().getUsername());
         assertNotNull(result.getCreatedAt());
+        assertEquals(10L, result.getDmRoomId());
 
         verify(userRepository).findByUsername("testuser");
         verify(friendRequestRepository).findByIdAndRecipient(1L, testUser);
@@ -366,6 +379,13 @@ class FriendServiceTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(friendRequestRepository.findByIdAndRecipient(1L, testUser)).thenReturn(Optional.of(request));
         when(friendshipRepository.findBetweenUsers(testUser, friendUser)).thenReturn(Optional.of(existingFriendship));
+
+        ChatRoom dmRoom = new ChatRoom();
+        dmRoom.setId(10L);
+        dmRoom.setName("dm__1__2");
+        dmRoom.setRoomType(RoomType.DIRECT);
+        dmRoom.setCreatedAt(LocalDateTime.now());
+        when(directMessageService.getOrCreateDmRoom(any(User.class), any(User.class))).thenReturn(dmRoom);
 
         // Act
         FriendshipResponse result = friendService.acceptFriendRequest("testuser", 1L);
