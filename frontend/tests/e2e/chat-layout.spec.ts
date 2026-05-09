@@ -18,6 +18,7 @@ const MOCK_ROOMS = [
     id: 1,
     name: 'general',
     description: 'General discussion',
+    roomType: 'GROUP',
     createdBy: { id: 1, username: 'testuser', displayName: 'Test User', email: 'test@example.com', online: true },
     memberCount: 3,
     createdAt: '2026-01-01T00:00:00Z',
@@ -26,6 +27,7 @@ const MOCK_ROOMS = [
     id: 2,
     name: 'random',
     description: 'Random stuff',
+    roomType: 'GROUP',
     createdBy: { id: 2, username: 'other', displayName: 'Other User', email: 'other@example.com', online: false },
     memberCount: 2,
     createdAt: '2026-01-02T00:00:00Z',
@@ -125,11 +127,11 @@ test.describe('Chat layout — authenticated', () => {
     await page.route('**/ws**', (route) => route.abort());
     await page.route('**/stomp**', (route) => route.abort());
 
-    await page.goto('/chat');
+    await page.goto('/chat/channels');
   });
 
   test('shows the room list sidebar', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Chats' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { name: 'Channels' })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText('general').first()).toBeVisible();
     await expect(page.getByText('random').first()).toBeVisible();
   });
@@ -152,7 +154,7 @@ test.describe('Chat layout — authenticated', () => {
   });
 
   test('visual snapshot — room list (no room selected)', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Chats' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { name: 'Channels' })).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot('chat-room-list.png', {
