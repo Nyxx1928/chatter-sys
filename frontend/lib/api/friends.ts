@@ -48,3 +48,9 @@ export const listFriends = async (token: string): Promise<PublicUser[]> =>
     method: 'GET',
     token
   });
+
+export const removeFriend = async (token: string, friendId: number): Promise<void> =>
+  apiCall<void>(`/api/friends/${friendId}`, {
+    method: 'DELETE',
+    token
+  });

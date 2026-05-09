@@ -13,3 +13,9 @@ export const searchUsers = async (
     token
   });
 };
+
+export const deleteAccount = async (token: string): Promise<void> =>
+  apiCall<void>('/api/users/me', {
+    method: 'DELETE',
+    token
+  });
