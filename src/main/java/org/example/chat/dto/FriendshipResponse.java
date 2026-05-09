@@ -16,4 +16,6 @@ public class FriendshipResponse {
 
     private PublicUserResponse friend;
     private LocalDateTime createdAt;
+    /** ID of the DM room automatically created when the friendship was accepted. */
+    private Long dmRoomId;
 }
