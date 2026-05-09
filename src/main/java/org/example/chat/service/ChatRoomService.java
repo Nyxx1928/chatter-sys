@@ -102,6 +102,7 @@ public class ChatRoomService {
      * @return the ChatRoom entity
      * @throws RoomNotFoundException if room is not found
      */
+    @Transactional(readOnly = true)
     public ChatRoom getRoomById(Long roomId) {
         logger.debug("Retrieving chat room by ID: {}", roomId);
         return chatRoomRepository.findById(roomId)
@@ -116,6 +117,7 @@ public class ChatRoomService {
      *
      * @return list of all ChatRoom entities
      */
+    @Transactional(readOnly = true)
     public List<ChatRoom> listRooms() {
         logger.debug("Retrieving all chat rooms");
         return chatRoomRepository.findAll();
@@ -127,6 +129,7 @@ public class ChatRoomService {
      * @param user the user whose rooms to retrieve
      * @return list of ChatRoom entities the user has joined
      */
+    @Transactional(readOnly = true)
     public List<ChatRoom> listRoomsForUser(User user) {
         logger.debug("Retrieving rooms for user: {}", user.getUsername());
         return chatRoomRepository.findByMembersContaining(user);
@@ -139,6 +142,7 @@ public class ChatRoomService {
      * @return list of User entities who are members of the room
      * @throws IllegalArgumentException if room is not found
      */
+    @Transactional(readOnly = true)
     public List<User> getRoomMembers(Long roomId) {
         logger.debug("Retrieving members for chat room ID: {}", roomId);
 
