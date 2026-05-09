@@ -3,6 +3,7 @@ package org.example.chat.service;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
+import org.example.chat.entity.RoomType;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
 import org.example.chat.exception.UnauthorizedException;
@@ -32,13 +33,16 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final RoomMembershipRepository roomMembershipRepository;
     private final UserRepository userRepository;
+    private final RateLimiterService rateLimiterService;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
             RoomMembershipRepository roomMembershipRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            RateLimiterService rateLimiterService) {
         this.chatRoomRepository = chatRoomRepository;
         this.roomMembershipRepository = roomMembershipRepository;
         this.userRepository = userRepository;
+        this.rateLimiterService = rateLimiterService;
     }
 
     /**
@@ -54,6 +58,9 @@ public class ChatRoomService {
     @Transactional
     public ChatRoom createRoom(String name, String description, Long creatorId) {
         logger.info("Attempting to create chat room: {} by user ID: {}", name, creatorId);
+
+        // Rate-limit room creation per user
+        rateLimiterService.checkRoomCreation(creatorId);
 
         // Validate input
         validateRoomName(name);
@@ -153,6 +160,7 @@ public class ChatRoomService {
     /**
      * Adds a user as a member to a chat room with the specified role.
      * Idempotent — returns the existing membership if the user is already a member.
+     * Throws UnauthorizedException if the room is a DIRECT room.
      *
      * @param roomId the ID of the chat room
      * @param userId the ID of the user to add
@@ -165,6 +173,11 @@ public class ChatRoomService {
 
         // Find room and user
         ChatRoom room = getRoomById(roomId);
+
+        // Guard: DM rooms cannot have members added manually
+        if (room.getRoomType() == RoomType.DIRECT) {
+            throw new UnauthorizedException("Cannot invite users to a direct message room");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     logger.warn("Add member failed: user not found: {}", userId);
@@ -218,6 +231,7 @@ public class ChatRoomService {
 
     /**
      * Deletes a chat room if the user has OWNER or MODERATOR role.
+     * Throws UnauthorizedException if the room is a DIRECT room.
      *
      * @param roomId the ID of the chat room
      * @param userId the ID of the user attempting deletion
@@ -227,6 +241,11 @@ public class ChatRoomService {
         logger.info("Deleting chat room ID: {} by user ID: {}", roomId, userId);
 
         ChatRoom room = getRoomById(roomId);
+
+        // Guard: DM rooms cannot be deleted
+        if (room.getRoomType() == RoomType.DIRECT) {
+            throw new UnauthorizedException("Cannot delete a direct message room");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
