@@ -7,6 +7,7 @@ import {
   declineFriendRequest,
   listFriendRequests,
   listFriends,
+  removeFriend,
   sendFriendRequest
 } from '@/lib/api/friends';
 import { searchUsers } from '@/lib/api/users';
@@ -29,7 +30,13 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 /**
  * Friends panel with search, pending requests, and online indicators.
  */
-export function FriendsPanel() {
+export function FriendsPanel({
+  onDmRoomCreated,
+  onOpenDm,
+}: {
+  onDmRoomCreated?: (dmRoomId: number) => void;
+  onOpenDm?: (friendId: number) => void;
+} = {}) {
   const { token } = useAuthStore();
   const { presenceMap, batchUpdatePresence } = usePresenceStore();
   const [friends, setFriends] = useState<PublicUser[]>([]);
@@ -200,8 +207,11 @@ export function FriendsPanel() {
     }
 
     try {
-      await acceptFriendRequest(token, requestId);
+      const friendship = await acceptFriendRequest(token, requestId);
       await refreshPanel();
+      if (onDmRoomCreated && friendship.dmRoomId) {
+        onDmRoomCreated(friendship.dmRoomId);
+      }
     } catch (err) {
       setError(getErrorMessage(err, 'Unable to accept request.'));
     }
@@ -217,6 +227,17 @@ export function FriendsPanel() {
       await refreshPanel();
     } catch (err) {
       setError(getErrorMessage(err, 'Unable to decline request.'));
+    }
+  };
+
+  const handleRemoveFriend = async (friendId: number, displayName: string) => {
+    if (!token) return;
+    if (!window.confirm(`Remove ${displayName} from your friends?`)) return;
+    try {
+      await removeFriend(token, friendId);
+      await refreshPanel();
+    } catch (err) {
+      setError(getErrorMessage(err, 'Unable to remove friend.'));
     }
   };
 
@@ -281,22 +302,49 @@ export function FriendsPanel() {
                   <p className="text-xs text-kiro-slate-500">@{friend.username}</p>
                 </div>
               </div>
-              <span
-                className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-medium ${
-                  friend.online
-                    ? 'bg-green-900/40 text-green-400'
-                    : 'bg-kiro-ink-900/60 text-kiro-slate-500'
-                }`}
-                aria-label={friend.online ? `${friend.displayName} is online` : `${friend.displayName} is offline`}
-              >
+              <div className="flex items-center gap-2">
                 <span
-                  className={`h-2 w-2 rounded-full ${
-                    friend.online ? 'bg-green-500' : 'bg-kiro-slate-500'
+                  className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-medium ${
+                    friend.online
+                      ? 'bg-green-900/40 text-green-400'
+                      : 'bg-kiro-ink-900/60 text-kiro-slate-500'
                   }`}
-                  aria-hidden="true"
-                />
-                {friend.online ? 'Online' : 'Offline'}
-              </span>
+                  aria-label={friend.online ? `${friend.displayName} is online` : `${friend.displayName} is offline`}
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      friend.online ? 'bg-green-500' : 'bg-kiro-slate-500'
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {friend.online ? 'Online' : 'Offline'}
+                </span>
+                {onOpenDm && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onOpenDm(friend.id)}
+                    aria-label={`Message ${friend.displayName}`}
+                    title="Open direct message"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                    </svg>
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleRemoveFriend(friend.id, friend.displayName)}
+                  aria-label={`Remove ${friend.displayName} from friends`}
+                  title="Remove friend"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                  </svg>
+                </Button>
+              </div>
             </li>
           ))}
         </ul>

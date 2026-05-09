@@ -58,8 +58,12 @@ export function RoomSelector({
   // Render a single room item
   const renderRoom = (room: ChatRoom) => {
     const isActive = room.id === currentRoomId;
-    const showDelete = Boolean(onRoomDelete && (canDeleteRoom ? canDeleteRoom(room) : false));
+    const isDirect = room.roomType === 'DIRECT';
+    const showDelete = Boolean(onRoomDelete && !isDirect && (canDeleteRoom ? canDeleteRoom(room) : false));
     const latest = latestMessages[room.id];
+    const roomLabel = isDirect
+      ? (room.otherParticipant?.displayName ?? room.name)
+      : room.name;
 
     return (
       <li key={room.id} className="relative">
@@ -71,10 +75,18 @@ export function RoomSelector({
               : 'hover:bg-white/5 border border-transparent'
           }`}
           aria-current={isActive ? 'page' : undefined}
+          aria-label={isDirect ? `Direct message with ${room.otherParticipant?.displayName ?? room.name}` : undefined}
         >
           {/* Room avatar */}
           <div className="shrink-0 w-11 h-11 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm relative">
-            {room.name.charAt(0).toUpperCase()}
+            {isDirect ? (
+              /* Person icon for DM rooms */
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+              </svg>
+            ) : (
+              room.name.charAt(0).toUpperCase()
+            )}
             {/* Online indicator if there's activity */}
             {latest && (
               <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-[#16162a]" aria-hidden="true" />
@@ -85,7 +97,7 @@ export function RoomSelector({
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2 mb-0.5 min-w-0">
               <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-kiro-purple-300' : 'text-kiro-slate-100'}`}>
-                {room.name}
+                {roomLabel}
               </h3>
               {latest && (
                 <time className="text-xs text-kiro-slate-500 shrink-0">
