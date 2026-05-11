@@ -6,6 +6,7 @@ import org.example.chat.repository.FriendRequestRepository;
 import org.example.chat.repository.FriendshipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
+import org.example.chat.service.EmailVerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +43,9 @@ class AuthenticationServiceTest {
     @Mock
     private FriendRequestRepository friendRequestRepository;
 
+    @Mock
+    private EmailVerificationService emailVerificationService;
+
     private AuthenticationService authenticationService;
     private PasswordEncoder passwordEncoder;
 
@@ -50,7 +54,8 @@ class AuthenticationServiceTest {
         passwordEncoder = new BCryptPasswordEncoder();
         authenticationService = new AuthenticationService(
                 userRepository, jwtUtil, passwordEncoder,
-                chatRoomRepository, friendshipRepository, friendRequestRepository);
+                chatRoomRepository, friendshipRepository, friendRequestRepository,
+                emailVerificationService);
     }
 
     @Test
@@ -80,7 +85,9 @@ class AuthenticationServiceTest {
         assertNotNull(result.getPasswordHash());
         assertNotEquals(password, result.getPasswordHash()); // Password should be hashed
         assertFalse(result.getOnline());
+        assertFalse(result.getEmailVerified());
         assertNotNull(result.getCreatedAt());
+        verify(emailVerificationService).createAndSendToken(result);
 
         verify(userRepository).existsByUsername(username);
         verify(userRepository).existsByEmail(email);
@@ -197,9 +204,11 @@ class AuthenticationServiceTest {
         user.setId(1L);
         user.setUsername(username);
         user.setPasswordHash(hashedPassword);
+        user.setEmailVerified(true);
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(jwtUtil.generateToken(username)).thenReturn(expectedToken);
+        when(emailVerificationService.isEmailVerified(user)).thenReturn(true);
 
         // Act
         String result = authenticationService.authenticateUser(username, password);
@@ -208,6 +217,32 @@ class AuthenticationServiceTest {
         assertEquals(expectedToken, result);
         verify(userRepository).findByUsername(username);
         verify(jwtUtil).generateToken(username);
+    }
+
+    @Test
+    void authenticateUser_EmailNotVerified_ThrowsException() {
+        // Arrange
+        String username = "testuser";
+        String password = "password123";
+        String hashedPassword = passwordEncoder.encode(password);
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername(username);
+        user.setPasswordHash(hashedPassword);
+        user.setEmailVerified(false);
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> authenticationService.authenticateUser(username, password)
+        );
+
+        assertEquals("Please verify your email before logging in", exception.getMessage());
+        verify(userRepository).findByUsername(username);
+        verify(jwtUtil, never()).generateToken(anyString());
     }
 
     @Test

@@ -23,6 +23,7 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime lastSeen;
     private Boolean online;
+    private Boolean emailVerified;
     
     /**
      * Creates a UserResponse from a User entity.
@@ -38,7 +39,8 @@ public class UserResponse {
             user.getDisplayName(),
             user.getCreatedAt(),
             user.getLastSeen(),
-            user.getOnline()
+            user.getOnline(),
+            user.getEmailVerified()
         );
     }
 }

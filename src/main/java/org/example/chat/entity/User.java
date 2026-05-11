@@ -46,6 +46,9 @@ public class User {
     
     @Column(nullable = false)
     private Boolean online = false;
+
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
     
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     @ToString.Exclude

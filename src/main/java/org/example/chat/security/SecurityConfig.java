@@ -72,8 +72,9 @@ public class SecurityConfig {
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Permit authentication endpoints
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        // Permit authentication and verification endpoints
+                        .requestMatchers("/api/auth/register", "/api/auth/login",
+                                "/api/auth/verify-email", "/api/auth/resend-verification").permitAll()
 
                         // Permit health checks (Render)
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
