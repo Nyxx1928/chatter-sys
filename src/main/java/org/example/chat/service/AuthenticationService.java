@@ -30,17 +30,20 @@ public class AuthenticationService {
     private final ChatRoomRepository chatRoomRepository;
     private final FriendshipRepository friendshipRepository;
     private final FriendRequestRepository friendRequestRepository;
+    private final EmailVerificationService emailVerificationService;
 
     public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,
                                  ChatRoomRepository chatRoomRepository,
                                  FriendshipRepository friendshipRepository,
-                                 FriendRequestRepository friendRequestRepository) {
+                                 FriendRequestRepository friendRequestRepository,
+                                 EmailVerificationService emailVerificationService) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
         this.chatRoomRepository = chatRoomRepository;
         this.friendshipRepository = friendshipRepository;
         this.friendRequestRepository = friendRequestRepository;
+        this.emailVerificationService = emailVerificationService;
     }
 
     /**
@@ -84,10 +87,14 @@ public class AuthenticationService {
         user.setDisplayName(displayName);
         user.setCreatedAt(LocalDateTime.now());
         user.setOnline(false);
+        user.setEmailVerified(false);
 
         // Persist user
         User savedUser = userRepository.save(user);
         logger.info("Successfully registered user: {}", username);
+
+        // Send verification email
+        emailVerificationService.createAndSendToken(savedUser);
 
         return savedUser;
     }
@@ -127,6 +134,12 @@ public class AuthenticationService {
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             logger.warn("Authentication failed: invalid password for user: {}", username);
             throw new IllegalArgumentException("Invalid username or password");
+        }
+
+        // Check email verification
+        if (!emailVerificationService.isEmailVerified(user)) {
+            logger.warn("Authentication failed: email not verified for user: {}", username);
+            throw new IllegalArgumentException("Please verify your email before logging in");
         }
 
         // Generate JWT token
@@ -171,7 +184,11 @@ public class AuthenticationService {
                 logger.warn("Profile update failed: email already exists: {}", email);
                 throw new IllegalArgumentException("Email already exists");
             }
-            user.setEmail(email);
+            if (!email.equals(user.getEmail())) {
+                user.setEmail(email);
+                user.setEmailVerified(false);
+                emailVerificationService.createAndSendToken(user);
+            }
         }
 
         // Update display name if provided
