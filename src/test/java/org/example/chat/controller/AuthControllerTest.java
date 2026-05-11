@@ -140,7 +140,9 @@ class AuthControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").value(token))
             .andExpect(jsonPath("$.user.username").value("testuser"))
-            .andExpect(jsonPath("$.user.email").value("test@example.com"));
+            .andExpect(jsonPath("$.user.email").value("test@example.com"))
+            .andExpect(jsonPath("$.csrfToken").exists())
+            .andExpect(jsonPath("$.csrfToken").isNotEmpty());
     }
 
     @Test
