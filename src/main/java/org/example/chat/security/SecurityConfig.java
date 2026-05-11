@@ -64,12 +64,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // NEW: Enable CSRF protection for state-changing requests
-                .csrf(csrf -> csrf
-                        // Exclude WebSocket endpoints (they use JWT)
-                        .ignoringRequestMatchers("/ws/**")
-                        // Exclude auth endpoints (they don't need CSRF for initial login)
-                        .ignoringRequestMatchers("/api/auth/**"))
+                // Disable CSRF — JWT tokens in Authorization header are immune to CSRF
+                .csrf(csrf -> csrf.disable())
 
                 // Configure CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
