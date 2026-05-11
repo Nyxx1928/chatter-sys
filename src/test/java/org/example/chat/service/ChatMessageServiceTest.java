@@ -5,15 +5,17 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.MessageRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
+import org.example.chat.util.HtmlSanitizer;
+import org.example.chat.util.SecurityAuditLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -49,7 +51,12 @@ class ChatMessageServiceTest {
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
-    @InjectMocks
+    @Mock
+    private HtmlSanitizer htmlSanitizer;
+
+    @Mock
+    private SecurityAuditLogger securityAuditLogger;
+
     private ChatMessageService chatMessageService;
 
     private User testUser;
@@ -59,6 +66,11 @@ class ChatMessageServiceTest {
 
     @BeforeEach
     void setUp() {
+        chatMessageService = new ChatMessageService(
+            messageRepository, chatRoomRepository, userRepository,
+            roomMembershipRepository, messagingTemplate, htmlSanitizer, securityAuditLogger
+        );
+
         // Create test user
         testUser = new User();
         testUser.setId(1L);
@@ -86,6 +98,10 @@ class ChatMessageServiceTest {
         testMessage.setChatRoom(testRoom);
         testMessage.setContent("Test message");
         testMessage.setTimestamp(LocalDateTime.now());
+
+        // Setup default mock behavior for sanitizer (lenient to avoid unnecessary stubbing errors)
+        lenient().when(htmlSanitizer.sanitize(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(htmlSanitizer.containsDangerousPatterns(anyString())).thenReturn(false);
     }
 
     @Test
@@ -184,7 +200,7 @@ class ChatMessageServiceTest {
                 .thenReturn(Optional.empty());
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
             chatMessageService.sendMessage(1L, 1L, "Test message");
         });
 
