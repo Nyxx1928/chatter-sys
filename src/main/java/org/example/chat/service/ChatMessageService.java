@@ -5,10 +5,13 @@ import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
+import org.example.chat.exception.UnauthorizedException;
 import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.MessageRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
+import org.example.chat.util.HtmlSanitizer;
+import org.example.chat.util.SecurityAuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -35,17 +38,23 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final RoomMembershipRepository roomMembershipRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final HtmlSanitizer htmlSanitizer;
+    private final SecurityAuditLogger securityAuditLogger;
 
     public ChatMessageService(MessageRepository messageRepository,
             ChatRoomRepository chatRoomRepository,
             UserRepository userRepository,
             RoomMembershipRepository roomMembershipRepository,
-            SimpMessagingTemplate messagingTemplate) {
+            SimpMessagingTemplate messagingTemplate,
+            HtmlSanitizer htmlSanitizer,
+            SecurityAuditLogger securityAuditLogger) {
         this.messageRepository = messageRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
         this.roomMembershipRepository = roomMembershipRepository;
         this.messagingTemplate = messagingTemplate;
+        this.htmlSanitizer = htmlSanitizer;
+        this.securityAuditLogger = securityAuditLogger;
     }
 
     /**
@@ -59,6 +68,7 @@ public class ChatMessageService {
      * @return the persisted Message entity
      * @throws IllegalArgumentException if validation fails or sender is not a
      *                                  member
+     * @throws UnauthorizedException if sender is not a member of the room
      */
     @Transactional
     public Message sendMessage(Long senderId, Long roomId, String content) {
@@ -81,14 +91,23 @@ public class ChatMessageService {
                     return new IllegalArgumentException("Chat room not found");
                 });
 
-        // Validate sender is a member of the chat room
+        // NEW: Validate sender is a member of the chat room (defense-in-depth)
         validateMembership(sender, chatRoom);
+
+        // NEW: Check for XSS attempts and log them
+        if (htmlSanitizer.containsDangerousPatterns(content)) {
+            securityAuditLogger.logXssAttempt(sender.getId(), roomId, content);
+            logger.warn("XSS attempt detected from user {}: {}", sender.getId(), content);
+        }
+
+        // NEW: Sanitize message content before persistence
+        String sanitizedContent = htmlSanitizer.sanitize(content);
 
         // Create and persist message
         Message message = new Message();
         message.setSender(sender);
         message.setChatRoom(chatRoom);
-        message.setContent(content);
+        message.setContent(sanitizedContent);
         message.setTimestamp(LocalDateTime.now());
 
         Message savedMessage = messageRepository.save(message);
@@ -146,13 +165,15 @@ public class ChatMessageService {
      *
      * @param user     the user to validate
      * @param chatRoom the chat room to check membership in
-     * @throws IllegalArgumentException if user is not a member
+     * @throws UnauthorizedException if user is not a member
      */
     private void validateMembership(User user, ChatRoom chatRoom) {
         RoomMembership membership = roomMembershipRepository.findByUserAndChatRoom(user, chatRoom)
                 .orElseThrow(() -> {
                     logger.warn("User ID: {} is not a member of room ID: {}", user.getId(), chatRoom.getId());
-                    return new IllegalArgumentException("User is not a member of this chat room");
+                    securityAuditLogger.logAuthorizationFailure(user.getId(), chatRoom.getId(),
+                        "User attempted to send message to room they are not a member of");
+                    return new UnauthorizedException("User is not a member of this chat room");
                 });
 
         logger.debug("Membership validated for user ID: {} in room ID: {}", user.getId(), chatRoom.getId());

@@ -53,7 +53,7 @@ public class SecurityConfig {
      * - Requires authentication for all other endpoints
      * - Adds JWT authentication filter
      * - Configures CORS
-     * - Disables CSRF (not needed for stateless JWT authentication)
+     * - Enables CSRF protection for REST endpoints (excludes WebSocket which uses JWT)
      * - Sets session management to stateless
      * - Configures custom authentication entry point to return 401 instead of 403
      *
@@ -64,8 +64,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Disable CSRF as we're using JWT tokens (stateless authentication)
-                .csrf(AbstractHttpConfigurer::disable)
+                // NEW: Enable CSRF protection for state-changing requests
+                .csrf(csrf -> csrf
+                        // Exclude WebSocket endpoints (they use JWT)
+                        .ignoringRequestMatchers("/ws/**")
+                        // Exclude auth endpoints (they don't need CSRF for initial login)
+                        .ignoringRequestMatchers("/api/auth/**"))
 
                 // Configure CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

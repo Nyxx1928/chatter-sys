@@ -18,6 +18,7 @@ import {
 type AuthState = {
   user: User | null;
   token: string | null;
+  csrfToken: string | null;
   isAuthenticated: boolean;
   isInitialized: boolean;
   isChecking: boolean;
@@ -32,6 +33,7 @@ const storedAuth = getStoredAuth();
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: storedAuth.user,
   token: storedAuth.token,
+  csrfToken: null,
   isAuthenticated: Boolean(storedAuth.token),
   isInitialized: false,
   isChecking: false,
@@ -43,6 +45,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({
       user: response.user,
       token: response.token,
+      csrfToken: response.csrfToken || null,
       isAuthenticated: true,
       isInitialized: true
     });
@@ -65,6 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         user: null,
         token: null,
+        csrfToken: null,
         isAuthenticated: false,
         isInitialized: true,
         isChecking: false
@@ -98,6 +102,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         user: null,
         token: null,
+        csrfToken: null,
         isAuthenticated: false,
         isInitialized: true,
         isChecking: false
@@ -110,6 +115,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({
       user: null,
       token: null,
+      csrfToken: null,
       isAuthenticated: false,
       isInitialized: true,
       isChecking: false

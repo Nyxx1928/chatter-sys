@@ -12,11 +12,11 @@ import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
 import org.example.chat.service.ChatRoomService;
+import org.example.chat.util.SecurityAuditLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -48,9 +48,11 @@ class ChatMessageControllerTest {
     private SimpMessagingTemplate messagingTemplate;
 
     @Mock
+    private SecurityAuditLogger securityAuditLogger;
+
+    @Mock
     private Principal principal;
 
-    @InjectMocks
     private ChatMessageController controller;
 
     private User testUser;
@@ -59,6 +61,11 @@ class ChatMessageControllerTest {
 
     @BeforeEach
     void setUp() {
+        controller = new ChatMessageController(
+            chatMessageService, chatRoomService, userRepository,
+            roomMembershipRepository, messagingTemplate, securityAuditLogger
+        );
+
         testUser = new User();
         testUser.setId(1L);
         testUser.setUsername("testuser");
@@ -89,6 +96,9 @@ class ChatMessageControllerTest {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.of(new RoomMembership())); // User is a member
         when(chatMessageService.sendMessage(eq(1L), eq(1L), anyString())).thenReturn(testMessage);
 
         Message inputMessage = new Message();
@@ -99,6 +109,8 @@ class ChatMessageControllerTest {
 
         // Assert
         verify(userRepository).findByUsername("testuser");
+        verify(chatRoomService).getRoomById(1L);
+        verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
         verify(chatMessageService).sendMessage(1L, 1L, "Hello, World!");
     }
 

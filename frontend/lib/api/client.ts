@@ -82,9 +82,20 @@ export const apiCall = async <T>(
     requestHeaders.set('Authorization', `Bearer ${token}`);
   }
 
+  // NEW: Add CSRF token for state-changing requests
+  const method = rest.method?.toUpperCase() || 'GET';
+  if (['POST', 'PUT', 'DELETE'].includes(method)) {
+    // Dynamically import to avoid circular dependency
+    const { useAuthStore } = await import('./../../lib/store/authStore');
+    const csrfToken = useAuthStore.getState().csrfToken;
+    if (csrfToken) {
+      requestHeaders.set('X-CSRF-TOKEN', csrfToken);
+    }
+  }
+
   try {
     const url = `${API_BASE_URL}${path}`;
-    console.debug(`[API] ${options.method ?? 'GET'} ${url}`);
+    console.debug(`[API] ${method} ${url}`);
     const response = await fetch(url, {
       ...rest,
       headers: requestHeaders

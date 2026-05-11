@@ -128,7 +128,7 @@
     - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
     - Confirm message content, ordering, and pagination parameters still work
 
-- [~] 5. Fix Category 3: NullPointerException in ChatRoomResponse
+- [ ] 5. Fix Category 3: NullPointerException in ChatRoomResponse
 
   - [x] 5.1 Add null check in ChatRoomResponse.from()
     - Add null check before calling `UserResponse.from()`
@@ -170,7 +170,7 @@
     - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
     - Confirm room retrieval for non-null createdBy still works
 
-- [~] 6. Fix Category 4: Resource Not Found Status Code (404 instead of 400)
+- [ ] 6. Fix Category 4: Resource Not Found Status Code (404 instead of 400)
 
   - [x] 6.1 Replace IllegalArgumentException with RoomNotFoundException
     - Replace `IllegalArgumentException` with `RoomNotFoundException` when room is not found
@@ -213,7 +213,7 @@
     - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
     - Confirm existing room retrieval still works correctly
 
-- [~] 7. Fix Category 5: Authorization Check Status Code (403 instead of 400/500)
+- [ ] 7. Fix Category 5: Authorization Check Status Code (403 instead of 400/500)
 
   - [x] 7.1 Replace IllegalArgumentException with UnauthorizedException for membership validation
     - Replace `IllegalArgumentException` with `UnauthorizedException` when membership validation fails

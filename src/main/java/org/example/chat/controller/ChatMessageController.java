@@ -11,6 +11,7 @@ import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
 import org.example.chat.service.ChatRoomService;
+import org.example.chat.util.SecurityAuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -44,17 +45,20 @@ public class ChatMessageController {
     private final UserRepository userRepository;
     private final RoomMembershipRepository roomMembershipRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final SecurityAuditLogger securityAuditLogger;
 
     public ChatMessageController(ChatMessageService chatMessageService,
             ChatRoomService chatRoomService,
             UserRepository userRepository,
             RoomMembershipRepository roomMembershipRepository,
-            SimpMessagingTemplate messagingTemplate) {
+            SimpMessagingTemplate messagingTemplate,
+            SecurityAuditLogger securityAuditLogger) {
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
         this.userRepository = userRepository;
         this.roomMembershipRepository = roomMembershipRepository;
         this.messagingTemplate = messagingTemplate;
+        this.securityAuditLogger = securityAuditLogger;
     }
 
     /**
@@ -76,6 +80,15 @@ public class ChatMessageController {
         // Extract authenticated user
         User sender = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
+
+        // NEW: Verify user is a member of the room BEFORE processing
+        ChatRoom chatRoom = chatRoomService.getRoomById(roomId);
+        if (roomMembershipRepository.findByUserAndChatRoom(sender, chatRoom).isEmpty()) {
+            logger.warn("Unauthorized message attempt: user {} to room {}", sender.getId(), roomId);
+            securityAuditLogger.logAuthorizationFailure(sender.getId(), roomId, 
+                "User attempted to send message to room they are not a member of");
+            throw new UnauthorizedException("User is not a member of this room");
+        }
 
         // Delegate to service to validate, persist, and broadcast
         chatMessageService.sendMessage(sender.getId(), roomId, message.getContent());
@@ -176,6 +189,30 @@ public class ChatMessageController {
                 exception.getMessage(),
                 LocalDateTime.now(),
                 500);
+
+        return errorResponse;
+    }
+
+    /**
+     * Exception handler specifically for authorization failures.
+     * 
+     * Catches UnauthorizedException and sends a 403 error response
+     * to the user's error queue.
+     * 
+     * @param exception the UnauthorizedException that occurred
+     * @param principal the authenticated user principal
+     * @return error response sent to user's error queue
+     */
+    @MessageExceptionHandler(UnauthorizedException.class)
+    @SendToUser("/queue/errors")
+    public ErrorResponse handleAuthorizationException(UnauthorizedException exception, Principal principal) {
+        logger.warn("Authorization error for user: {}: {}", 
+                principal != null ? principal.getName() : "unknown", exception.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                exception.getMessage(),
+                LocalDateTime.now(),
+                403);
 
         return errorResponse;
     }
