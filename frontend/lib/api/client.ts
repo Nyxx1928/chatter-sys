@@ -95,7 +95,6 @@ export const apiCall = async <T>(
 
   try {
     const url = `${API_BASE_URL}${path}`;
-    console.debug(`[API] ${method} ${url}`);
     const response = await fetch(url, {
       ...rest,
       headers: requestHeaders

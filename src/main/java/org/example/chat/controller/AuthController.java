@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 /**
  * REST controller for authentication operations.
  * Handles user registration and login.
@@ -77,10 +75,7 @@ public class AuthController {
 
             User user = authenticationService.getUserByUsername(request.getUsername());
             
-            // NEW: Generate CSRF token for the session
-            String csrfToken = generateCsrfToken();
-            
-            LoginResponse response = LoginResponse.from(token, user, csrfToken);
+            LoginResponse response = LoginResponse.from(token, user, null);
 
             logger.info("User logged in successfully: {}", request.getUsername());
 
@@ -89,14 +84,5 @@ public class AuthController {
             logger.warn("Login failed for username {}: {}", request.getUsername(), e.getMessage());
             throw e;
         }
-    }
-
-    /**
-     * Generates a cryptographically secure CSRF token.
-     *
-     * @return a random CSRF token
-     */
-    private String generateCsrfToken() {
-        return UUID.randomUUID().toString();
     }
 }
