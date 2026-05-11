@@ -28,6 +28,16 @@ spring:
     console:
       enabled: false
 
+  # Mail Configuration for Tests (disabled)
+  mail:
+    host: localhost
+    port: 2525
+    test-connection: false
+
+# Application base URL
+app:
+  base-url: http://localhost:8080
+
 # Server Configuration
 server:
   port: 0  # Random port for tests

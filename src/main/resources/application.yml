@@ -32,6 +32,27 @@ spring:
         use_sql_comments: true
     open-in-view: false
 
+  # Mail Configuration (SMTP for email verification)
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:false}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    test-connection: false
+
+# Application base URL for building verification links
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+
 # Server Configuration
 server:
   port: ${PORT:8080}  # Render sets PORT env variable
@@ -69,30 +90,6 @@ websocket:
   message-size-limit: 128000 # 128KB
   send-buffer-size-limit: 512000 # 512KB
   send-time-limit: 20000 # 20 seconds
-
-# Mail Configuration (SMTP for email verification)
-# Configure these environment variables for your email provider (SendGrid, Mailgun, Gmail, etc.)
-# For development with Gmail, use an App Password after enabling 2FA.
-spring:
-  mail:
-    host: ${MAIL_HOST:localhost}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: ${MAIL_SMTP_AUTH:false}
-          starttls:
-            enable: ${MAIL_SMTP_STARTTLS:false}
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-    test-connection: false
-
-# Application base URL for building verification links
-app:
-  base-url: ${APP_BASE_URL:http://localhost:8080}
 
 # CORS Configuration
 # Comma-separated list of allowed origins beyond localhost:3000.
