@@ -40,29 +40,7 @@ import static org.mockito.Mockito.*;
 @PropertyDefaults(tries = 100)
 class MembershipPersistencePropertyTest {
 
-    @Mock
-    private ChatMessageService chatMessageService;
-
-    @Mock
-    private ChatRoomService chatRoomService;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private RoomMembershipRepository roomMembershipRepository;
-
-    @Mock
-    private SimpMessagingTemplate messagingTemplate;
-
-    @Mock
-    private SecurityAuditLogger securityAuditLogger;
-
-    @Mock
-    private Principal principal;
-
-    @InjectMocks
-    private ChatMessageController controller;
+    // Mocks and controller are created per-property to ensure fresh state
 
     private User testUser;
     private ChatRoom testRoom;
@@ -71,7 +49,7 @@ class MembershipPersistencePropertyTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // prepare immutable test fixtures only
 
         testUser = new User();
         testUser.setId(1L);
@@ -123,11 +101,20 @@ class MembershipPersistencePropertyTest {
     @Label("Membership should persist after leave")
     void testMembershipPersistsAfterLeave(
             @ForAll @IntRange(min = 1, max = 10) int leaveRejoinCycles) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks for successful leave and rejoin
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -173,11 +160,20 @@ class MembershipPersistencePropertyTest {
     @Label("Users can send messages immediately after returning to room")
     void testSendAfterNavigation(
             @ForAll @IntRange(min = 1, max = 5) int navigationCycles) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -220,11 +216,20 @@ class MembershipPersistencePropertyTest {
     @Label("Rapid rejoin should succeed")
     void testRapidRejoin(
             @ForAll @IntRange(min = 1, max = 10) int rejoinAttempts) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -256,11 +261,20 @@ class MembershipPersistencePropertyTest {
     @Label("Membership persists across different action sequences")
     void testMembershipPersistsAcrossSequences(
             @ForAll @IntRange(min = 0, max = 3) int actionSequence) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -318,17 +332,27 @@ class MembershipPersistencePropertyTest {
     /**
      * Property test: Membership should be preserved even after multiple leaves.
      * 
-     * This test verifies that calling leave multiple times doesn't delete membership.
+     * This test verifies that calling leave multiple times doesn't delete
+     * membership.
      */
     @Property
     @Label("Membership should be preserved even after multiple leaves")
     void testMembershipPreservedAfterMultipleLeaves(
             @ForAll @IntRange(min = 1, max = 10) int leaveCount) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);

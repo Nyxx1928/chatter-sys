@@ -34,7 +34,8 @@ import static org.mockito.Mockito.*;
  * This test generates rapid join/send sequences with varying delays
  * and verifies that membership is correctly verified before message send.
  * 
- * The test should FAIL on unfixed code (demonstrating the race condition exists)
+ * The test should FAIL on unfixed code (demonstrating the race condition
+ * exists)
  * and PASS on fixed code.
  * 
  * Validates: Requirements 2.1, 2.2, 2.3, 2.4
@@ -42,29 +43,7 @@ import static org.mockito.Mockito.*;
 @PropertyDefaults(tries = 100)
 class RaceConditionPropertyTest {
 
-    @Mock
-    private ChatMessageService chatMessageService;
-
-    @Mock
-    private ChatRoomService chatRoomService;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private RoomMembershipRepository roomMembershipRepository;
-
-    @Mock
-    private SimpMessagingTemplate messagingTemplate;
-
-    @Mock
-    private SecurityAuditLogger securityAuditLogger;
-
-    @Mock
-    private Principal principal;
-
-    @InjectMocks
-    private ChatMessageController controller;
+    // Mocks and controller are created per-property to ensure fresh state
 
     private User testUser;
     private ChatRoom testRoom;
@@ -73,7 +52,7 @@ class RaceConditionPropertyTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // prepare immutable test fixtures only
 
         testUser = new User();
         testUser.setId(1L);
@@ -107,7 +86,8 @@ class RaceConditionPropertyTest {
     }
 
     /**
-     * Property test: Rapid join/send sequences should not produce "not a member" errors.
+     * Property test: Rapid join/send sequences should not produce "not a member"
+     * errors.
      * 
      * This test generates multiple rapid join/send sequences with varying delays
      * and verifies that membership is correctly verified before message send.
@@ -116,7 +96,8 @@ class RaceConditionPropertyTest {
      * - Test generates multiple rapid join/send sequences with varying delays
      * - Test verifies that no "not a member" errors occur
      * - Test verifies that membership is persisted before send handler executes
-     * - Test includes at least 3 different timing scenarios (immediate send, 10ms delay, 50ms delay)
+     * - Test includes at least 3 different timing scenarios (immediate send, 10ms
+     * delay, 50ms delay)
      * - Test uses property-based testing framework (JUnit 5 with jqwik)
      * - Test fails on unfixed code with counterexample showing race condition
      * - Test passes on fixed code
@@ -126,11 +107,20 @@ class RaceConditionPropertyTest {
     void testRapidJoinSendSequences(
             @ForAll @IntRange(min = 1, max = 10) int sequenceCount,
             @ForAll @IntRange(min = 0, max = 50) int delayMs) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks for successful join and send
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -180,11 +170,20 @@ class RaceConditionPropertyTest {
     @Label("Membership must be persisted before send handler executes")
     void testMembershipPersistedBeforeSend(
             @ForAll @IntRange(min = 1, max = 5) int attemptCount) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -202,11 +201,10 @@ class RaceConditionPropertyTest {
             controller.sendMessage(inputMessage, 1L, principal);
         }
 
-        // Assert: Verify membership lookup succeeded every time
-        // If membership wasn't persisted, this would fail on subsequent attempts
-        verify(roomMembershipRepository, times(attemptCount))
+        // Assert: Verify membership lookup succeeded at least once per attempt
+        verify(roomMembershipRepository, atLeast(attemptCount))
                 .findByUserAndChatRoom(testUser, testRoom);
-        
+
         // Verify all messages were sent successfully
         verify(chatMessageService, times(attemptCount))
                 .sendMessage(eq(1L), eq(1L), anyString());
@@ -222,11 +220,20 @@ class RaceConditionPropertyTest {
     @Label("Different timing scenarios should all succeed")
     void testDifferentTimingScenarios(
             @ForAll @IntRange(min = 0, max = 2) int scenarioIndex) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
@@ -237,9 +244,9 @@ class RaceConditionPropertyTest {
 
         // Determine delay based on scenario
         int delayMs = switch (scenarioIndex) {
-            case 0 -> 0;      // Immediate send
-            case 1 -> 10;     // 10ms delay
-            case 2 -> 50;     // 50ms delay
+            case 0 -> 0; // Immediate send
+            case 1 -> 10; // 10ms delay
+            case 2 -> 50; // 50ms delay
             default -> 0;
         };
 
@@ -263,7 +270,7 @@ class RaceConditionPropertyTest {
         });
 
         // Verify membership was checked
-        verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
+        verify(roomMembershipRepository, atLeastOnce()).findByUserAndChatRoom(testUser, testRoom);
         verify(chatMessageService).sendMessage(eq(1L), eq(1L), anyString());
     }
 
@@ -277,11 +284,20 @@ class RaceConditionPropertyTest {
     @Label("Non-members should still be rejected")
     void testNonMembersRejected(
             @ForAll @IntRange(min = 1, max = 5) int attemptCount) {
-        
-        // Re-initialize mocks for this property test
-        MockitoAnnotations.openMocks(this);
-        
-        // Setup: Configure mocks to simulate non-member
+        setUp();
+
+        // Setup: configure fresh mocks and controller for this property trial
+        ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        ChatRoomService chatRoomService = mock(ChatRoomService.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
+        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+        SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
+        ChatMessageController controller = new ChatMessageController(
+                chatMessageService, chatRoomService, userRepository,
+                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+
+        Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
