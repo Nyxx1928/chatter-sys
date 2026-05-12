@@ -23,7 +23,7 @@ type AuthState = {
   isInitialized: boolean;
   isChecking: boolean;
   login: (request: LoginRequest) => Promise<void>;
-  register: (request: RegisterRequest) => Promise<void>;
+  register: (request: RegisterRequest) => Promise<User>;
   validateSession: () => Promise<void>;
   logout: () => void;
 };
@@ -60,6 +60,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isAuthenticated: false,
       isInitialized: true
     });
+
+    return user;
   },
   validateSession: async () => {
     const { token } = get();
