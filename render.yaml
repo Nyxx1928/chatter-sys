@@ -22,6 +22,7 @@ services:
       # postgresql://user:pass@host/dbname?sslmode=require
 
       # Email configuration (for email verification via Resend)
+      # These vars must be set on the backend service (Render), not on the Vercel frontend.
       # Sign up at https://resend.com, get an API key from the dashboard
       - key: MAIL_HOST
         value: smtp.resend.com
@@ -31,11 +32,15 @@ services:
         value: resend
       - key: MAIL_PASSWORD
         value: re_<your-resend-api-key>
+      - key: MAIL_FROM
+        value: onboarding@resend.dev
       - key: MAIL_SMTP_AUTH
         value: "true"
       - key: MAIL_SMTP_STARTTLS
         value: "true"
       - key: APP_BASE_URL
         value: https://<your-render-app-name>.onrender.com
+      - key: FRONTEND_BASE_URL
+        value: https://chatter-sys.vercel.app
 
 # No databases section — using Neon (external) instead of Render Postgres
