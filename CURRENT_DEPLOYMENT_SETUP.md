@@ -52,7 +52,7 @@ Render build -> Docker image -> Web Service (:8080)
 | Variable | Source | Notes |
 |----------|--------|-------|
 | `SPRING_PROFILES_ACTIVE=prod` | `render.yaml` | Static |
-| `DATABASE_URL` | **Must be set manually** | Neon connection string; `render.yaml` has placeholder |
+| `DATABASE_URL` | **Must be set manually** | Neon connection string; do not set placeholder values in `render.yaml` |
 | `JWT_SECRET` | `render.yaml` (auto-generated) | |
 | `CORS_ALLOWED_ORIGINS` | `render.yaml` | Currently `https://chatter-sys.vercel.app` |
 | `PORT=8080` | `render.yaml` | Render maps external :443 to internal :8080 |
