@@ -188,6 +188,8 @@ class ChatMessageControllerTest {
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(chatRoomService.getRoomById(1L)).thenReturn(testRoom);
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.of(new RoomMembership())); // User is a member
 
         // Act
         controller.leaveRoom(1L, principal);

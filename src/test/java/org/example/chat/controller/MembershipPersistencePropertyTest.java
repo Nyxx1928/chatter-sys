@@ -247,7 +247,8 @@ class MembershipPersistencePropertyTest {
         }
 
         // Assert: Verify all rejoin attempts succeeded
-        verify(roomMembershipRepository, times(rejoinAttempts))
+        // Membership is checked on both leave and join (defense-in-depth)
+        verify(roomMembershipRepository, times(rejoinAttempts * 2))
                 .findByUserAndChatRoom(testUser, testRoom);
     }
 
@@ -370,6 +371,7 @@ class MembershipPersistencePropertyTest {
         });
 
         // Assert: Verify membership was checked after all leaves
-        verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
+        // leaveRoom checks membership on each leave; joinRoom checks once more
+        verify(roomMembershipRepository, times(leaveCount + 1)).findByUserAndChatRoom(testUser, testRoom);
     }
 }

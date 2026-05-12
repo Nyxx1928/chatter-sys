@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.example.chat.repository.ChatRoomRepository;
+import org.example.chat.repository.RoomMembershipRepository;
+import org.example.chat.repository.UserRepository;
+import org.example.chat.util.SecurityAuditLogger;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -39,13 +43,31 @@ class WebSocketAuthenticationInterceptorTest {
     private UserDetailsService userDetailsService;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ChatRoomRepository chatRoomRepository;
+
+    @Mock
+    private RoomMembershipRepository roomMembershipRepository;
+
+    @Mock
+    private SecurityAuditLogger securityAuditLogger;
+
+    @Mock
     private MessageChannel messageChannel;
 
     private WebSocketAuthenticationInterceptor interceptor;
 
     @BeforeEach
     void setUp() {
-        interceptor = new WebSocketAuthenticationInterceptor(jwtUtil, userDetailsService);
+        interceptor = new WebSocketAuthenticationInterceptor(
+                jwtUtil,
+                userDetailsService,
+                userRepository,
+                chatRoomRepository,
+                roomMembershipRepository,
+                securityAuditLogger);
     }
 
     @Test
