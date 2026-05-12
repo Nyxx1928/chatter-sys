@@ -9,6 +9,7 @@ import org.example.chat.entity.User;
 import org.example.chat.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,9 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
 
+    @Value("${app.verification.expose-link:false}")
+    private boolean exposeVerificationLink;
+
     public AuthController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
@@ -40,14 +44,17 @@ public class AuthController {
         logger.info("Registration request received for username: {}", request.getUsername());
 
         try {
-            User user = authenticationService.registerUser(
+            AuthenticationService.RegistrationResult result = authenticationService.registerUser(
                 request.getUsername(),
                 request.getEmail(),
                 request.getPassword(),
                 request.getDisplayName()
             );
 
-            UserResponse response = UserResponse.from(user);
+            String verificationUrl = (exposeVerificationLink || !result.verificationEmailSent())
+                    ? result.verificationUrl()
+                    : null;
+            UserResponse response = UserResponse.from(result.user(), verificationUrl, result.verificationEmailSent());
             logger.info("User registered successfully: {}", request.getUsername());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
