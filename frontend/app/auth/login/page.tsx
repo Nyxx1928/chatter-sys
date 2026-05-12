@@ -8,7 +8,15 @@ import Link from 'next/link';
  * 
  * Requirements: 1.1, 1.2, 15.1, 15.2
  */
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ registered?: string; emailSent?: string }>;
+}) {
+  const params = await searchParams;
+  const isRegistered = params?.registered === 'true';
+  const emailSent = params?.emailSent !== 'false';
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-kiro-ink-950">
       <div className="w-full max-w-md space-y-6">
@@ -26,6 +34,13 @@ export default function LoginPage() {
 
         {/* Login Form Card */}
         <div className="bg-kiro-ink-900 rounded-xl border border-kiro-ink-900/80 p-6 sm:p-8">
+          {isRegistered && (
+            <div className="mb-4 rounded-lg border border-emerald-900/60 bg-emerald-950/40 p-3 text-sm text-emerald-200">
+              {emailSent
+                ? 'Account created. Check your email for the verification link before logging in.'
+                : 'Account created. Email delivery could not be confirmed, so use the verification link prompt from signup or request another verification email.'}
+            </div>
+          )}
           <LoginForm />
         </div>
 
