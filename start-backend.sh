@@ -68,6 +68,16 @@ echo "Server will start on: http://localhost:8080"
 echo "Press Ctrl+C to stop the server"
 echo ""
 
+# Load environment variables from .env if present (for local dev)
+# This matches the repo's application.yml which reads MAIL_*, DB_*, JWT_SECRET, etc.
+if [ -f ".env" ]; then
+    echo "Loading environment from .env..."
+    set -a
+    # shellcheck disable=SC1091
+    source ".env"
+    set +a
+fi
+
 # Check if Maven wrapper exists
 if [ -f "./mvnw" ]; then
     echo "Using Maven wrapper..."

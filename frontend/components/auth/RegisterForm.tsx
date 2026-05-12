@@ -35,6 +35,19 @@ export function RegisterForm() {
   
   const [isLoading, setIsLoading] = useState(false);
 
+  const promptToOpenVerificationLink = (
+    verificationUrl: string,
+    verificationEmailSent?: boolean
+  ) => {
+    const promptMessage = verificationEmailSent === false
+      ? 'Your account was created, but email delivery could not be confirmed. Open the verification link now?'
+      : 'Your account was created. Open the verification link now in a new tab?';
+
+    if (window.confirm(promptMessage)) {
+      window.open(verificationUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
@@ -105,15 +118,19 @@ export function RegisterForm() {
     setIsLoading(true);
 
     try {
-      await register({
+      const user = await register({
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
         displayName: formData.displayName.trim(),
       });
+
+      if (user.verificationUrl) {
+        promptToOpenVerificationLink(user.verificationUrl, user.verificationEmailSent);
+      }
       
       // Redirect to login page on successful registration
-      router.push('/auth/login?registered=true');
+      router.push(`/auth/login?registered=true&emailSent=${user.verificationEmailSent !== false}`);
     } catch (error) {
       console.error('Registration failed:', error);
       

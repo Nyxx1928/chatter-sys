@@ -56,8 +56,9 @@ Render build -> Docker image -> Web Service (:8080)
 | `JWT_SECRET` | `render.yaml` (auto-generated) | |
 | `CORS_ALLOWED_ORIGINS` | `render.yaml` | Currently `https://chatter-sys.vercel.app` |
 | `PORT=8080` | `render.yaml` | Render maps external :443 to internal :8080 |
-| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS` | `render.yaml` | Resend SMTP — values are placeholders |
-| `APP_BASE_URL` | `render.yaml` | Placeholder — must be set to actual Render URL |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS` | `render.yaml` | Resend SMTP — set these on Render, not Vercel |
+| `APP_BASE_URL` | `render.yaml` | Must be the actual backend Render URL used to build verification links |
+| `FRONTEND_BASE_URL` | `render.yaml` | The Vercel frontend URL used for friendly verification success/failure redirects |
 
 ## Health Check
 
@@ -85,7 +86,7 @@ Render build -> Docker image -> Web Service (:8080)
 ## Deployment Steps
 
 1. Set `DATABASE_URL` in Render dashboard (Environment tab)
-2. Set actual `MAIL_PASSWORD` and `APP_BASE_URL` values if using email
+2. Set actual `MAIL_PASSWORD`, `MAIL_FROM`, `APP_BASE_URL`, and `FRONTEND_BASE_URL` values in the Render dashboard if using email
 3. Push to GitHub — Render auto-deploys via webhook
 4. Monitor logs in Render dashboard for startup errors
 

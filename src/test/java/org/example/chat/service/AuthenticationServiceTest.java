@@ -73,21 +73,34 @@ class AuthenticationServiceTest {
             user.setId(1L);
             return user;
         });
+        when(emailVerificationService.createAndSendToken(any(User.class)))
+                .thenAnswer(invocation -> {
+                    User user = invocation.getArgument(0);
+                    return new EmailVerificationService.VerificationDispatchResult(
+                            "token-123",
+                            "http://localhost:8080/api/auth/verify-email?token=token-123",
+                            true
+                    );
+                });
 
         // Act
-        User result = authenticationService.registerUser(username, email, password, displayName);
+        AuthenticationService.RegistrationResult result =
+                authenticationService.registerUser(username, email, password, displayName);
+        User user = result.user();
 
         // Assert
         assertNotNull(result);
-        assertEquals(username, result.getUsername());
-        assertEquals(email, result.getEmail());
-        assertEquals(displayName, result.getDisplayName());
-        assertNotNull(result.getPasswordHash());
-        assertNotEquals(password, result.getPasswordHash()); // Password should be hashed
-        assertFalse(result.getOnline());
-        assertFalse(result.getEmailVerified());
-        assertNotNull(result.getCreatedAt());
-        verify(emailVerificationService).createAndSendToken(result);
+        assertEquals(username, user.getUsername());
+        assertEquals(email, user.getEmail());
+        assertEquals(displayName, user.getDisplayName());
+        assertNotNull(user.getPasswordHash());
+        assertNotEquals(password, user.getPasswordHash()); // Password should be hashed
+        assertFalse(user.getOnline());
+        assertFalse(user.getEmailVerified());
+        assertNotNull(user.getCreatedAt());
+        assertEquals("http://localhost:8080/api/auth/verify-email?token=token-123", result.verificationUrl());
+        assertTrue(result.verificationEmailSent());
+        verify(emailVerificationService).createAndSendToken(user);
 
         verify(userRepository).existsByUsername(username);
         verify(userRepository).existsByEmail(email);

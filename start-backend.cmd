@@ -61,6 +61,23 @@ echo Server will start on: http://localhost:8080
 echo Press Ctrl+C to stop the server
 echo.
 
+REM Load environment variables from .env if present (for local dev)
+REM This matches the repo's application.yml which reads MAIL_*, DB_*, JWT_SECRET, etc.
+if exist ".env" (
+    echo Loading environment from .env...
+    setlocal EnableDelayedExpansion
+    for /f "usebackq eol=# tokens=1,* delims==" %%A in (".env") do (
+        set "k=%%A"
+        set "v=%%B"
+        if not "!k!"=="" (
+            REM Trim wrapping quotes if present
+            if "!v:~0,1!"=="\"" set "v=!v:~1!"
+            if "!v:~-1!"=="\"" set "v=!v:~0,-1!"
+            set "!k!=!v!"
+        )
+    )
+)
+
 REM Check if Maven wrapper exists
 if exist "mvnw.cmd" (
     echo Using Maven wrapper...

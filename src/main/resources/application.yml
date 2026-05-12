@@ -52,6 +52,14 @@ spring:
 # Application base URL for building verification links
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
+  frontend-url: ${FRONTEND_BASE_URL:http://localhost:3000}
+  mail:
+    # Optional but recommended: many SMTP providers require a real From address.
+    from: ${MAIL_FROM:}
+  verification:
+    # When true, /api/auth/register includes verificationUrl in the response.
+    # This is helpful for local dev when SMTP isn't configured.
+    expose-link: ${EXPOSE_VERIFICATION_LINK:false}
 
 # Server Configuration
 server:
@@ -183,6 +191,10 @@ logging:
     org.hibernate.SQL: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+app:
+  verification:
+    expose-link: true
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: logs/chat-application.log

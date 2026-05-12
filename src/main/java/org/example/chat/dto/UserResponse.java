@@ -24,6 +24,16 @@ public class UserResponse {
     private LocalDateTime lastSeen;
     private Boolean online;
     private Boolean emailVerified;
+
+    /**
+     * Optional: returned by registration when enabled to help users verify without email delivery.
+     */
+    private String verificationUrl;
+
+    /**
+     * Optional: indicates whether an email was successfully handed off to SMTP.
+     */
+    private Boolean verificationEmailSent;
     
     /**
      * Creates a UserResponse from a User entity.
@@ -40,7 +50,16 @@ public class UserResponse {
             user.getCreatedAt(),
             user.getLastSeen(),
             user.getOnline(),
-            user.getEmailVerified()
+            user.getEmailVerified(),
+            null,
+            null
         );
+    }
+
+    public static UserResponse from(User user, String verificationUrl, boolean verificationEmailSent) {
+        UserResponse response = from(user);
+        response.setVerificationUrl(verificationUrl);
+        response.setVerificationEmailSent(verificationEmailSent);
+        return response;
     }
 }

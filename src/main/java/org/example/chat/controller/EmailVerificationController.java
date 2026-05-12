@@ -5,9 +5,14 @@ import org.example.chat.dto.ResendVerificationRequest;
 import org.example.chat.service.EmailVerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -18,21 +23,24 @@ public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
 
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
+
     public EmailVerificationController(EmailVerificationService emailVerificationService) {
         this.emailVerificationService = emailVerificationService;
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<Map<String, String>> verifyEmail(@RequestParam("token") String token) {
+    public ResponseEntity<Void> verifyEmail(@RequestParam("token") String token) {
         logger.info("Email verification request received");
 
         try {
             emailVerificationService.verifyEmail(token);
             logger.info("Email verified successfully");
-            return ResponseEntity.ok(Map.of("message", "Email verified successfully"));
+            return redirectToFrontend("success", "Email verified successfully");
         } catch (IllegalArgumentException e) {
             logger.warn("Email verification failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return redirectToFrontend("error", e.getMessage());
         }
     }
 
@@ -49,5 +57,19 @@ public class EmailVerificationController {
             logger.warn("Resend verification failed: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private ResponseEntity<Void> redirectToFrontend(String status, String message) {
+        URI location = UriComponentsBuilder.fromUriString(frontendUrl)
+                .path("/auth/verify-email")
+                .queryParam("status", status)
+                .queryParam("message", message)
+                .build()
+                .encode()
+                .toUri();
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, location.toString())
+                .build();
     }
 }

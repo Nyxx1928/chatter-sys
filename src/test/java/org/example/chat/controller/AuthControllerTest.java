@@ -70,7 +70,7 @@ class AuthControllerTest {
 
         when(authenticationService.registerUser(
             anyString(), anyString(), anyString(), anyString()
-        )).thenReturn(testUser);
+        )).thenReturn(new AuthenticationService.RegistrationResult(testUser, null, true));
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
