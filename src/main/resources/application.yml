@@ -169,6 +169,8 @@ management:
   health:
     db:
       enabled: false
+    mail:
+      enabled: false
   
 logging:
   level:

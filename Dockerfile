@@ -8,7 +8,9 @@ COPY src ./src
 RUN mvn -DskipTests=true package
 
 # Runtime stage
-FROM eclipse-temurin:17-jre
+# Pin to a stable base OS to avoid inheriting new distro packages/vulns from
+# floating tags (e.g. ubuntu 26.04 currently ships a vulnerable `pebble` binary).
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 COPY --from=build /app/target/first-java-proj-1.0-SNAPSHOT.jar ./app.jar

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class SecurityAuditLogger {
 
     private static final Logger auditLogger = LoggerFactory.getLogger("SECURITY_AUDIT");
+    private static final int MAX_LOG_FIELD_LENGTH = 500;
 
     /**
      * Logs an authorization failure when a user attempts to access a resource
@@ -28,7 +29,7 @@ public class SecurityAuditLogger {
     public void logAuthorizationFailure(Long userId, Long roomId, String reason) {
         auditLogger.warn(
             "AUTHORIZATION_FAILURE: userId={}, roomId={}, reason={}, timestamp={}",
-            userId, roomId, reason, LocalDateTime.now()
+            userId, roomId, sanitizeField(reason), LocalDateTime.now()
         );
     }
 
@@ -43,7 +44,7 @@ public class SecurityAuditLogger {
     public void logXssAttempt(Long userId, Long roomId, String content) {
         auditLogger.warn(
             "XSS_ATTEMPT: userId={}, roomId={}, content={}, timestamp={}",
-            userId, roomId, content, LocalDateTime.now()
+            userId, roomId, sanitizeField(content), LocalDateTime.now()
         );
     }
 
@@ -58,7 +59,21 @@ public class SecurityAuditLogger {
     public void logCsrfFailure(Long userId, String endpoint, String reason) {
         auditLogger.warn(
             "CSRF_FAILURE: userId={}, endpoint={}, reason={}, timestamp={}",
-            userId, endpoint, reason, LocalDateTime.now()
+            userId, sanitizeField(endpoint), sanitizeField(reason), LocalDateTime.now()
         );
+    }
+
+    private String sanitizeField(String value) {
+        if (value == null) {
+            return null;
+        }
+        String cleaned = value
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t");
+        if (cleaned.length() > MAX_LOG_FIELD_LENGTH) {
+            return cleaned.substring(0, MAX_LOG_FIELD_LENGTH) + "...";
+        }
+        return cleaned;
     }
 }
