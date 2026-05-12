@@ -6,7 +6,8 @@ services:
     plan: free
     region: singapore
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /actuator/health
+    # Use liveness probe so startup isn't blocked by external dependencies (DB/SMTP, etc.)
+    healthCheckPath: /actuator/health/liveness
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
