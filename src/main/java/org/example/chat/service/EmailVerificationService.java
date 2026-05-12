@@ -6,6 +6,7 @@ import org.example.chat.repository.UserRepository;
 import org.example.chat.repository.VerificationTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,9 @@ public class EmailVerificationService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
     public EmailVerificationService(VerificationTokenRepository tokenRepository,
                                     UserRepository userRepository,
                                     EmailService emailService) {
@@ -28,14 +32,26 @@ public class EmailVerificationService {
         this.emailService = emailService;
     }
 
+    public record VerificationDispatchResult(String token, String verificationUrl, boolean emailSent) {}
+
     @Transactional
-    public void createAndSendToken(User user) {
+    public VerificationDispatchResult createAndSendToken(User user) {
         tokenRepository.deleteByUser(user);
 
         VerificationToken token = new VerificationToken(user);
         tokenRepository.save(token);
 
-        emailService.sendVerificationEmail(user.getEmail(), token.getToken());
+        String verificationUrl = buildVerificationUrl(token.getToken());
+        boolean emailSent = emailService.sendVerificationEmail(user.getEmail(), verificationUrl);
+        if (!emailSent) {
+            logger.warn("Verification email was not sent for user {}. Falling back to verificationUrl only.", user.getUsername());
+        }
+
+        return new VerificationDispatchResult(token.getToken(), verificationUrl, emailSent);
+    }
+
+    public String buildVerificationUrl(String token) {
+        return baseUrl + "/api/auth/verify-email?token=" + token;
     }
 
     @Transactional

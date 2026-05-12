@@ -54,11 +54,11 @@ public class AuthenticationService {
      * @param email the user's email address
      * @param password the plain text password
      * @param displayName the user's display name
-     * @return the created User entity
+     * @return registration result including optional verification URL details
      * @throws IllegalArgumentException if username or email already exists, or if input is invalid
      */
     @Transactional
-    public User registerUser(String username, String email, String password, String displayName) {
+    public RegistrationResult registerUser(String username, String email, String password, String displayName) {
         logger.info("Attempting to register user: {}", username);
 
         // Validate input
@@ -94,10 +94,13 @@ public class AuthenticationService {
         logger.info("Successfully registered user: {}", username);
 
         // Send verification email
-        emailVerificationService.createAndSendToken(savedUser);
+        EmailVerificationService.VerificationDispatchResult dispatch =
+                emailVerificationService.createAndSendToken(savedUser);
 
-        return savedUser;
+        return new RegistrationResult(savedUser, dispatch.verificationUrl(), dispatch.emailSent());
     }
+
+    public record RegistrationResult(User user, String verificationUrl, boolean verificationEmailSent) {}
 
     /**
      * Authenticates a user with the provided credentials and returns a JWT token.

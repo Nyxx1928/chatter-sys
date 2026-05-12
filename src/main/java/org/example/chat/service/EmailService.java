@@ -14,19 +14,24 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${spring.mail.host:}")
+    private String mailHost;
+
+    @Value("${spring.mail.port:0}")
+    private int mailPort;
 
     @Value("${spring.mail.username:}")
     private String fromEmail;
+
+    @Value("${app.mail.from:}")
+    private String configuredFrom;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String to, String token) {
+    public boolean sendVerificationEmail(String to, String verificationUrl) {
         String subject = "Verify your email - Real-Time Chat";
-        String verificationUrl = baseUrl + "/api/auth/verify-email?token=" + token;
         String message = """
             Thank you for registering!
             
@@ -38,22 +43,29 @@ public class EmailService {
             If you did not register for this account, please ignore this email.
             """.formatted(verificationUrl);
 
-        sendEmail(to, subject, message);
+        return sendEmail(to, subject, message);
     }
 
-    private void sendEmail(String to, String subject, String text) {
+    private boolean sendEmail(String to, String subject, String text) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setTo(to);
             mailMessage.setSubject(subject);
             mailMessage.setText(text);
-            if (fromEmail != null && !fromEmail.isBlank()) {
-                mailMessage.setFrom(fromEmail);
+            String from = (configuredFrom != null && !configuredFrom.isBlank()) ? configuredFrom : fromEmail;
+            if (from != null && !from.isBlank() && from.contains("@")) {
+                mailMessage.setFrom(from);
+            } else if (from != null && !from.isBlank()) {
+                logger.warn("Configured mail From is not an email address; not setting From header: {}", from);
             }
             mailSender.send(mailMessage);
             logger.info("Verification email sent to: {}", to);
+            return true;
         } catch (Exception e) {
-            logger.error("Failed to send email to {}: {}", to, e.getMessage());
+            logger.error(
+                    "Failed to send email to {} via SMTP {}:{} (check MAIL_* env vars).",
+                    to, mailHost, mailPort, e);
+            return false;
         }
     }
 }
