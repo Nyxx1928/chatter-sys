@@ -75,6 +75,9 @@ public class ChatMessageController {
     public void sendMessage(@Payload Message message,
             @DestinationVariable Long roomId,
             Principal principal) {
+        if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+            throw new UnauthorizedException("Authentication required");
+        }
         logger.info("Received message from user: {} for room: {}", principal.getName(), roomId);
 
         // Extract authenticated user
@@ -107,6 +110,9 @@ public class ChatMessageController {
      */
     @MessageMapping("/room.join/{roomId}")
     public void joinRoom(@DestinationVariable Long roomId, Principal principal) {
+        if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+            throw new UnauthorizedException("Authentication required");
+        }
         logger.info("User: {} joining room: {}", principal.getName(), roomId);
 
         // Extract authenticated user
@@ -148,16 +154,24 @@ public class ChatMessageController {
      */
     @MessageMapping("/room.leave/{roomId}")
     public void leaveRoom(@DestinationVariable Long roomId, Principal principal) {
+        if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+            throw new UnauthorizedException("Authentication required");
+        }
         logger.info("User: {} leaving room: {}", principal.getName(), roomId);
 
         // Extract authenticated user
         User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + principal.getName()));
 
+        // Enforce membership before broadcasting LEAVE system messages
+        ChatRoom chatRoom = chatRoomService.getRoomById(roomId);
+        roomMembershipRepository.findByUserAndChatRoom(user, chatRoom)
+                .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
+
         // Create and broadcast LEAVE system message (membership is preserved)
         Message leaveMessage = new Message();
         leaveMessage.setSender(user);
-        leaveMessage.setChatRoom(chatRoomService.getRoomById(roomId));
+        leaveMessage.setChatRoom(chatRoom);
         leaveMessage.setContent(user.getDisplayName() + " left the room");
         leaveMessage.setTimestamp(LocalDateTime.now());
         leaveMessage.setMessageType(MessageType.LEAVE);

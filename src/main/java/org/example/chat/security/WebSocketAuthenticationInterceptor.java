@@ -1,10 +1,17 @@
 package org.example.chat.security;
 
+import org.example.chat.entity.ChatRoom;
+import org.example.chat.entity.User;
+import org.example.chat.repository.ChatRoomRepository;
+import org.example.chat.repository.RoomMembershipRepository;
+import org.example.chat.repository.UserRepository;
+import org.example.chat.util.SecurityAuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -13,6 +20,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+
+import java.security.Principal;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * WebSocket authentication interceptor that validates JWT tokens from STOMP CONNECT frames.
@@ -30,12 +42,29 @@ public class WebSocketAuthenticationInterceptor implements ChannelInterceptor {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
+    private static final Pattern ROOM_ID_DESTINATION = Pattern.compile(
+            "^/(topic/(room|presence)|app/(chat\\.send|room\\.(join|leave)))/(?<roomId>\\d+)(/.*)?$");
+
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final RoomMembershipRepository roomMembershipRepository;
+    private final SecurityAuditLogger securityAuditLogger;
 
-    public WebSocketAuthenticationInterceptor(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public WebSocketAuthenticationInterceptor(
+            JwtUtil jwtUtil,
+            UserDetailsService userDetailsService,
+            UserRepository userRepository,
+            ChatRoomRepository chatRoomRepository,
+            RoomMembershipRepository roomMembershipRepository,
+            SecurityAuditLogger securityAuditLogger) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
+        this.chatRoomRepository = chatRoomRepository;
+        this.roomMembershipRepository = roomMembershipRepository;
+        this.securityAuditLogger = securityAuditLogger;
     }
 
     /**
@@ -52,7 +81,11 @@ public class WebSocketAuthenticationInterceptor implements ChannelInterceptor {
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+        if (accessor == null || accessor.getCommand() == null) {
+            return message;
+        }
+
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             logger.debug("Processing STOMP CONNECT frame");
 
             try {
@@ -97,6 +130,32 @@ public class WebSocketAuthenticationInterceptor implements ChannelInterceptor {
             }
         }
 
+        // Authorization checks for room-scoped destinations to prevent subscription leaks
+        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand()) || StompCommand.SEND.equals(accessor.getCommand())) {
+            String destination = accessor.getDestination();
+            if (destination == null || destination.isBlank()) {
+                return message;
+            }
+
+            Optional<Long> roomId = extractRoomId(destination);
+            if (roomId.isEmpty()) {
+                return message;
+            }
+
+            Principal principal = accessor.getUser();
+            if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+                logger.warn("Rejecting {} to {}: missing authenticated principal",
+                        accessor.getCommand(), destination);
+                return null;
+            }
+
+            try {
+                enforceRoomMembership(principal.getName(), roomId.get(), destination);
+            } catch (MessagingException ex) {
+                return null;
+            }
+        }
+
         return message;
     }
 
@@ -114,5 +173,32 @@ public class WebSocketAuthenticationInterceptor implements ChannelInterceptor {
         }
         
         return null;
+    }
+
+    private Optional<Long> extractRoomId(String destination) {
+        Matcher matcher = ROOM_ID_DESTINATION.matcher(destination);
+        if (!matcher.matches()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Long.parseLong(matcher.group("roomId")));
+        } catch (NumberFormatException ex) {
+            return Optional.empty();
+        }
+    }
+
+    private void enforceRoomMembership(String username, Long roomId, String destination) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new MessagingException("Unknown user for WebSocket principal"));
+
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new MessagingException("Unknown room destination"));
+
+        if (roomMembershipRepository.findByUserAndChatRoom(user, room).isEmpty()) {
+            logger.warn("Rejecting unauthorized WebSocket access: user {} to destination {}", user.getId(), destination);
+            securityAuditLogger.logAuthorizationFailure(user.getId(), roomId,
+                    "Unauthorized WebSocket access to destination: " + destination);
+            throw new MessagingException("User is not a member of this room");
+        }
     }
 }
