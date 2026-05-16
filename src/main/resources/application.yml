@@ -49,6 +49,20 @@ spring:
           writetimeout: 5000
     test-connection: false
 
+# Resend Email Service Configuration (HTTP API - Optional)
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from-email: ${RESEND_FROM_EMAIL:}
+  enabled: ${RESEND_ENABLED:false}
+
+# Brevo Email Service Configuration (HTTP API - Recommended for free tier)
+# Brevo offers 300 emails/day with no domain required
+brevo:
+  api-key: ${BREVO_API_KEY:}
+  from-email: ${BREVO_FROM_EMAIL:}
+  from-name: ${BREVO_FROM_NAME:Real-Time Chat}
+  enabled: ${BREVO_ENABLED:true}
+
 # Application base URL for building verification links
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
@@ -60,6 +74,10 @@ app:
     # When true, /api/auth/register includes verificationUrl in the response.
     # This is helpful for local dev when SMTP isn't configured.
     expose-link: ${EXPOSE_VERIFICATION_LINK:false}
+  admin:
+    # Enable admin endpoints for development/testing
+    # WARNING: Set to false in production!
+    enabled: ${ADMIN_ENABLED:false}
 
 # Server Configuration
 server:
