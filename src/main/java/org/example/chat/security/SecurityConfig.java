@@ -43,6 +43,9 @@ public class SecurityConfig {
     @Value("${cors.allowed-origins:}")
     private String corsAllowedOriginsEnv;
 
+    @Value("${app.admin.enabled:false}")
+    private boolean adminEnabled;
+
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -71,19 +74,25 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 // Configure authorization rules
-                .authorizeHttpRequests(auth -> auth
-                        // Permit authentication and verification endpoints
-                        .requestMatchers("/api/auth/register", "/api/auth/login",
-                                "/api/auth/verify-email", "/api/auth/resend-verification").permitAll()
+                .authorizeHttpRequests(auth -> {
+                    var authRules = auth
+                            // Permit authentication and verification endpoints
+                            .requestMatchers("/api/auth/register", "/api/auth/login",
+                                    "/api/auth/verify-email", "/api/auth/resend-verification").permitAll()
 
-                        // Permit health checks (Render)
-                        .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                            // Permit health checks (Render)
+                            .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
 
-                        // Permit WebSocket endpoint (authentication handled by STOMP interceptor)
-                        .requestMatchers("/ws/**").permitAll()
+                            // Permit WebSocket endpoint (authentication handled by STOMP interceptor)
+                            .requestMatchers("/ws/**").permitAll();
 
-                        // Require authentication for all other endpoints
-                        .anyRequest().authenticated())
+                    // Permit admin endpoints only if enabled (for development)
+                    if (adminEnabled) {
+                        authRules.requestMatchers("/api/admin/**").permitAll();
+                    }
+
+                    authRules.anyRequest().authenticated();
+                })
 
                 // Configure exception handling to return 401 for unauthenticated requests
                 .exceptionHandling(exception -> exception
