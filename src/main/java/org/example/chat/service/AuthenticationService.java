@@ -31,12 +31,14 @@ public class AuthenticationService {
     private final FriendshipRepository friendshipRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final EmailVerificationService emailVerificationService;
+    private final RegistrationService registrationService;
 
     public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,
                                  ChatRoomRepository chatRoomRepository,
                                  FriendshipRepository friendshipRepository,
                                  FriendRequestRepository friendRequestRepository,
-                                 EmailVerificationService emailVerificationService) {
+                                 EmailVerificationService emailVerificationService,
+                                 RegistrationService registrationService) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
@@ -44,63 +46,44 @@ public class AuthenticationService {
         this.friendshipRepository = friendshipRepository;
         this.friendRequestRepository = friendRequestRepository;
         this.emailVerificationService = emailVerificationService;
+        this.registrationService = registrationService;
     }
 
     /**
      * Registers a new user with the provided credentials.
-     * Validates that username and email are unique, hashes the password, and persists the user.
+     * Creates a pending registration and sends verification email.
+     * User account is NOT created until email is verified.
      *
      * @param username the desired username
      * @param email the user's email address
      * @param password the plain text password
      * @param displayName the user's display name
-     * @return registration result including optional verification URL details
+     * @return registration result including verification URL details
      * @throws IllegalArgumentException if username or email already exists, or if input is invalid
      */
     @Transactional
     public RegistrationResult registerUser(String username, String email, String password, String displayName) {
         logger.info("Attempting to register user: {}", username);
 
-        // Validate input
-        validateRegistrationInput(username, email, password, displayName);
+        RegistrationService.RegistrationInitiationResult result = 
+                registrationService.initiateRegistration(username, email, password, displayName);
 
-        // Check if username already exists
-        if (userRepository.existsByUsername(username)) {
-            logger.warn("Registration failed: username already exists: {}", username);
-            throw new IllegalArgumentException("Username already exists");
-        }
+        logger.info("Registration initiated for user: {}, email sent: {}", username, result.emailSent());
 
-        // Check if email already exists
-        if (userRepository.existsByEmail(email)) {
-            logger.warn("Registration failed: email already exists: {}", email);
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        // Hash password
-        String passwordHash = passwordEncoder.encode(password);
-
-        // Create user entity
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPasswordHash(passwordHash);
-        user.setDisplayName(displayName);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setOnline(false);
-        user.setEmailVerified(false);
-
-        // Persist user
-        User savedUser = userRepository.save(user);
-        logger.info("Successfully registered user: {}", username);
-
-        // Send verification email
-        EmailVerificationService.VerificationDispatchResult dispatch =
-                emailVerificationService.createAndSendToken(savedUser);
-
-        return new RegistrationResult(savedUser, dispatch.verificationUrl(), dispatch.emailSent());
+        return new RegistrationResult(
+                result.token(),
+                result.verificationUrl(),
+                result.emailSent(),
+                result.errorMessage()
+        );
     }
 
-    public record RegistrationResult(User user, String verificationUrl, boolean verificationEmailSent) {}
+    public record RegistrationResult(
+            String token,
+            String verificationUrl,
+            boolean verificationEmailSent,
+            String errorMessage
+    ) {}
 
     /**
      * Authenticates a user with the provided credentials and returns a JWT token.
@@ -252,7 +235,9 @@ public class AuthenticationService {
      * @param password the password to validate
      * @param displayName the display name to validate
      * @throws IllegalArgumentException if any input is invalid
+     * @deprecated Use RegistrationService.initiateRegistration instead
      */
+    @Deprecated
     private void validateRegistrationInput(String username, String email, String password, String displayName) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty");
