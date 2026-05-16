@@ -70,17 +70,22 @@ class AuthControllerTest {
 
         when(authenticationService.registerUser(
             anyString(), anyString(), anyString(), anyString()
-        )).thenReturn(new AuthenticationService.RegistrationResult(testUser, null, true));
+        )).thenReturn(new AuthenticationService.RegistrationResult(
+                "token-123",
+                "http://localhost:8080/api/auth/verify-email?token=token-123",
+                true,
+                null
+        ));
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value(1))
-            .andExpect(jsonPath("$.username").value("testuser"))
-            .andExpect(jsonPath("$.email").value("test@example.com"))
-            .andExpect(jsonPath("$.displayName").value("Test User"));
+            .andExpect(jsonPath("$.message").value("Registration initiated. Please check your email to verify your account."))
+            .andExpect(jsonPath("$.emailSent").value(true))
+            .andExpect(jsonPath("$.verificationUrl").exists())
+            .andExpect(jsonPath("$.errorMessage").doesNotExist());
     }
 
     @Test
