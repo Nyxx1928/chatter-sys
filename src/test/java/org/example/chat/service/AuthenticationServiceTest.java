@@ -46,6 +46,9 @@ class AuthenticationServiceTest {
     @Mock
     private EmailVerificationService emailVerificationService;
 
+    @Mock
+    private RegistrationService registrationService;
+
     private AuthenticationService authenticationService;
     private PasswordEncoder passwordEncoder;
 
@@ -55,7 +58,7 @@ class AuthenticationServiceTest {
         authenticationService = new AuthenticationService(
                 userRepository, jwtUtil, passwordEncoder,
                 chatRoomRepository, friendshipRepository, friendRequestRepository,
-                emailVerificationService);
+                emailVerificationService, registrationService);
     }
 
     @Test
@@ -66,45 +69,26 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
-        when(userRepository.existsByUsername(username)).thenReturn(false);
-        when(userRepository.existsByEmail(email)).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(1L);
-            return user;
-        });
-        when(emailVerificationService.createAndSendToken(any(User.class)))
-                .thenAnswer(invocation -> {
-                    User user = invocation.getArgument(0);
-                    return new EmailVerificationService.VerificationDispatchResult(
-                            "token-123",
-                            "http://localhost:8080/api/auth/verify-email?token=token-123",
-                            true
-                    );
-                });
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenReturn(new RegistrationService.RegistrationInitiationResult(
+                        "token-123",
+                        "http://localhost:8080/api/auth/verify-email?token=token-123",
+                        true,
+                        null
+                ));
 
         // Act
         AuthenticationService.RegistrationResult result =
                 authenticationService.registerUser(username, email, password, displayName);
-        User user = result.user();
 
         // Assert
         assertNotNull(result);
-        assertEquals(username, user.getUsername());
-        assertEquals(email, user.getEmail());
-        assertEquals(displayName, user.getDisplayName());
-        assertNotNull(user.getPasswordHash());
-        assertNotEquals(password, user.getPasswordHash()); // Password should be hashed
-        assertFalse(user.getOnline());
-        assertFalse(user.getEmailVerified());
-        assertNotNull(user.getCreatedAt());
+        assertEquals("token-123", result.token());
         assertEquals("http://localhost:8080/api/auth/verify-email?token=token-123", result.verificationUrl());
         assertTrue(result.verificationEmailSent());
-        verify(emailVerificationService).createAndSendToken(user);
+        assertNull(result.errorMessage());
 
-        verify(userRepository).existsByUsername(username);
-        verify(userRepository).existsByEmail(email);
-        verify(userRepository).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -115,7 +99,8 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
-        when(userRepository.existsByUsername(username)).thenReturn(true);
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Username already exists"));
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
@@ -124,8 +109,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Username already exists", exception.getMessage());
-        verify(userRepository).existsByUsername(username);
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -136,8 +120,8 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
-        when(userRepository.existsByUsername(username)).thenReturn(false);
-        when(userRepository.existsByEmail(email)).thenReturn(true);
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Email already exists"));
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
@@ -146,9 +130,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Email already exists", exception.getMessage());
-        verify(userRepository).existsByUsername(username);
-        verify(userRepository).existsByEmail(email);
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -159,6 +141,9 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Username cannot be empty"));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -166,7 +151,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Username cannot be empty", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -177,6 +162,9 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Invalid email format"));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -184,7 +172,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Invalid email format", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -195,6 +183,9 @@ class AuthenticationServiceTest {
         String password = "short";
         String displayName = "Test User";
 
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Password must be at least 8 characters long"));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -202,7 +193,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Password must be at least 8 characters long", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -345,6 +336,9 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Username cannot exceed 50 characters"));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -352,7 +346,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Username cannot exceed 50 characters", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -363,6 +357,9 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "Test User";
 
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Email cannot exceed 100 characters"));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -370,7 +367,7 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Email cannot exceed 100 characters", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 
     @Test
@@ -381,6 +378,9 @@ class AuthenticationServiceTest {
         String password = "password123";
         String displayName = "a".repeat(101); // 101 characters
 
+        when(registrationService.initiateRegistration(username, email, password, displayName))
+                .thenThrow(new IllegalArgumentException("Display name cannot exceed 100 characters"));
+
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -388,6 +388,6 @@ class AuthenticationServiceTest {
         );
 
         assertEquals("Display name cannot exceed 100 characters", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
+        verify(registrationService).initiateRegistration(username, email, password, displayName);
     }
 }

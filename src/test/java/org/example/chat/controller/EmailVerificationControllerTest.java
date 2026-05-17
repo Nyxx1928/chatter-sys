@@ -3,7 +3,9 @@ package org.example.chat.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.chat.config.WebMvcTestConfig;
 import org.example.chat.dto.ResendVerificationRequest;
+import org.example.chat.entity.User;
 import org.example.chat.service.EmailVerificationService;
+import org.example.chat.service.RegistrationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -39,18 +42,26 @@ class EmailVerificationControllerTest {
     @MockBean
     private EmailVerificationService emailVerificationService;
 
+    @MockBean
+    private RegistrationService registrationService;
+
     @Test
     void verifyEmail_ValidToken_RedirectsToFrontendSuccessPage() throws Exception {
-        doNothing().when(emailVerificationService).verifyEmail("valid-token");
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+        when(registrationService.completeRegistration("valid-token")).thenReturn(user);
 
         mockMvc.perform(get("/api/auth/verify-email").param("token", "valid-token"))
                 .andExpect(status().isFound())
                 .andExpect(header().string("Location",
-                        "http://localhost:3000/auth/verify-email?status=success&message=Email%20verified%20successfully"));
+                        "http://localhost:3000/auth/verify-email?status=success&message=Email%20verified%20successfully!%20You%20can%20now%20log%20in."));
     }
 
     @Test
     void verifyEmail_InvalidToken_RedirectsToFrontendErrorPage() throws Exception {
+        when(registrationService.completeRegistration("bad-token"))
+                .thenThrow(new IllegalArgumentException("Invalid verification token"));
         doThrow(new IllegalArgumentException("Invalid verification token"))
                 .when(emailVerificationService).verifyEmail("bad-token");
 

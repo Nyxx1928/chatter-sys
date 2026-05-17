@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({WebMvcTestConfig.class, org.example.chat.exception.GlobalExceptionHandler.class}) // Import test config and exception handler
 @AutoConfigureMockMvc(addFilters = false) // Disable security filters for unit tests
 @ActiveProfiles("test") // Use H2 in-memory database for tests
+@TestPropertySource(properties = "app.verification.expose-link=true") // Enable verification URL in response for tests
 class AuthControllerTest {
 
     @Autowired
@@ -70,17 +72,22 @@ class AuthControllerTest {
 
         when(authenticationService.registerUser(
             anyString(), anyString(), anyString(), anyString()
-        )).thenReturn(new AuthenticationService.RegistrationResult(testUser, null, true));
+        )).thenReturn(new AuthenticationService.RegistrationResult(
+                "token-123",
+                "http://localhost:8080/api/auth/verify-email?token=token-123",
+                true,
+                null
+        ));
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value(1))
-            .andExpect(jsonPath("$.username").value("testuser"))
-            .andExpect(jsonPath("$.email").value("test@example.com"))
-            .andExpect(jsonPath("$.displayName").value("Test User"));
+            .andExpect(jsonPath("$.message").value("Registration initiated. Please check your email to verify your account."))
+            .andExpect(jsonPath("$.emailSent").value(true))
+            .andExpect(jsonPath("$.verificationUrl").exists())
+            .andExpect(jsonPath("$.errorMessage").doesNotExist());
     }
 
     @Test

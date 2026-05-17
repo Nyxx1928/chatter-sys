@@ -35,12 +35,14 @@ public class AuthController {
 
     /**
      * Registers a new user.
+     * Creates a pending registration and sends verification email.
+     * User must verify email before account is created.
      *
      * @param request the registration request containing username, email, password, and display name
-     * @return ResponseEntity with UserResponse and HTTP 201 Created status
+     * @return ResponseEntity with registration status and verification details
      */
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegisterRequest request) {
         logger.info("Registration request received for username: {}", request.getUsername());
 
         try {
@@ -54,8 +56,16 @@ public class AuthController {
             String verificationUrl = (exposeVerificationLink || !result.verificationEmailSent())
                     ? result.verificationUrl()
                     : null;
-            UserResponse response = UserResponse.from(result.user(), verificationUrl, result.verificationEmailSent());
-            logger.info("User registered successfully: {}", request.getUsername());
+
+            RegistrationResponse response = new RegistrationResponse(
+                    "Registration initiated. Please check your email to verify your account.",
+                    result.verificationEmailSent(),
+                    verificationUrl,
+                    result.errorMessage()
+            );
+
+            logger.info("Registration initiated for username: {}, email sent: {}", 
+                    request.getUsername(), result.verificationEmailSent());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
@@ -63,6 +73,16 @@ public class AuthController {
             throw e;
         }
     }
+
+    /**
+     * Response for registration initiation.
+     */
+    public record RegistrationResponse(
+            String message,
+            boolean emailSent,
+            String verificationUrl,
+            String errorMessage
+    ) {}
 
     /**
      * Authenticates a user and returns a JWT token and CSRF token.
