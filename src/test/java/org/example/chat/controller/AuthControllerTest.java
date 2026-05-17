@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({WebMvcTestConfig.class, org.example.chat.exception.GlobalExceptionHandler.class}) // Import test config and exception handler
 @AutoConfigureMockMvc(addFilters = false) // Disable security filters for unit tests
 @ActiveProfiles("test") // Use H2 in-memory database for tests
+@TestPropertySource(properties = "app.verification.expose-link=true") // Enable verification URL in response for tests
 class AuthControllerTest {
 
     @Autowired
