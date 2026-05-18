@@ -49,13 +49,7 @@ spring:
           writetimeout: 5000
     test-connection: false
 
-# Resend Email Service Configuration (HTTP API - Optional)
-resend:
-  api-key: ${RESEND_API_KEY:}
-  from-email: ${RESEND_FROM_EMAIL:}
-  enabled: ${RESEND_ENABLED:false}
-
-# Brevo Email Service Configuration (HTTP API - Recommended for free tier)
+# Brevo Email Service Configuration (HTTP API)
 # Brevo offers 300 emails/day with no domain required
 brevo:
   api-key: ${BREVO_API_KEY:}

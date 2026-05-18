@@ -21,22 +21,15 @@ services:
       # Set DATABASE_URL in the Render dashboard (Environment tab) to your real Neon URL:
       # postgresql://user:pass@host/dbname?sslmode=require
 
-      # Email configuration (for email verification via Resend)
-      # These vars must be set on the backend service (Render), not on the Vercel frontend.
-      # Sign up at https://resend.com, get an API key from the dashboard
-      - key: MAIL_HOST
-        value: smtp.resend.com
-      - key: MAIL_PORT
-        value: "587"
-      - key: MAIL_USERNAME
-        value: resend
-      - key: MAIL_PASSWORD
-        value: re_<your-resend-api-key>
-      - key: MAIL_FROM
-        value: onboarding@resend.dev
-      - key: MAIL_SMTP_AUTH
-        value: "true"
-      - key: MAIL_SMTP_STARTTLS
+      # Email configuration (for email verification via Brevo)
+      # Sign up at https://brevo.com, get an API key from the dashboard
+      - key: BREVO_API_KEY
+        value: <your-brevo-api-key>
+      - key: BREVO_FROM_EMAIL
+        value: <your-from-email>
+      - key: BREVO_FROM_NAME
+        value: Chatter Real-Time Chat
+      - key: BREVO_ENABLED
         value: "true"
       - key: APP_BASE_URL
         value: https://<your-render-app-name>.onrender.com
