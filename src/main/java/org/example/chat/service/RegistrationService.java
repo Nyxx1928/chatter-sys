@@ -27,25 +27,19 @@ public class RegistrationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BrevoEmailService brevoEmailService;
-    private final ResendEmailService resendEmailService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
-
-    @Value("${brevo.enabled:false}")
-    private boolean brevoEnabled;
 
     public RegistrationService(
             PendingRegistrationRepository pendingRegistrationRepository,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            BrevoEmailService brevoEmailService,
-            ResendEmailService resendEmailService) {
+            BrevoEmailService brevoEmailService) {
         this.pendingRegistrationRepository = pendingRegistrationRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.brevoEmailService = brevoEmailService;
-        this.resendEmailService = resendEmailService;
     }
 
     /**
@@ -89,22 +83,12 @@ public class RegistrationService {
         PendingRegistration pending = new PendingRegistration(
                 username, email, passwordHash, displayName);
 
-        // Send verification email (use Brevo if enabled, otherwise Resend)
+        // Send verification email via Brevo
         String verificationUrl = buildVerificationUrl(pending.getToken());
-        boolean emailSent;
-        String errorMessage;
-        
-        if (brevoEnabled) {
-            BrevoEmailService.EmailResult emailResult = 
-                    brevoEmailService.sendVerificationEmail(email, verificationUrl);
-            emailSent = emailResult.success();
-            errorMessage = emailResult.errorMessage();
-        } else {
-            ResendEmailService.EmailResult emailResult = 
-                    resendEmailService.sendVerificationEmail(email, verificationUrl);
-            emailSent = emailResult.success();
-            errorMessage = emailResult.errorMessage();
-        }
+        BrevoEmailService.EmailResult emailResult = 
+                brevoEmailService.sendVerificationEmail(email, verificationUrl);
+        boolean emailSent = emailResult.success();
+        String errorMessage = emailResult.errorMessage();
 
         pending.setEmailSent(emailSent);
         PendingRegistration savedPending = pendingRegistrationRepository.save(pending);
@@ -200,20 +184,10 @@ public class RegistrationService {
         }
 
         String verificationUrl = buildVerificationUrl(pending.getToken());
-        boolean emailSent;
-        String errorMessage;
-        
-        if (brevoEnabled) {
-            BrevoEmailService.EmailResult emailResult = 
-                    brevoEmailService.sendVerificationEmail(email, verificationUrl);
-            emailSent = emailResult.success();
-            errorMessage = emailResult.errorMessage();
-        } else {
-            ResendEmailService.EmailResult emailResult = 
-                    resendEmailService.sendVerificationEmail(email, verificationUrl);
-            emailSent = emailResult.success();
-            errorMessage = emailResult.errorMessage();
-        }
+        BrevoEmailService.EmailResult emailResult = 
+                brevoEmailService.sendVerificationEmail(email, verificationUrl);
+        boolean emailSent = emailResult.success();
+        String errorMessage = emailResult.errorMessage();
 
         pending.setEmailSent(emailSent);
         pendingRegistrationRepository.save(pending);

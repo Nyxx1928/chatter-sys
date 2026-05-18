@@ -57,6 +57,18 @@ public class AuthController {
                     ? result.verificationUrl()
                     : null;
 
+            if (!result.verificationEmailSent()) {
+                logger.warn("Registration email failed to send for username {}: {}", 
+                        request.getUsername(), result.errorMessage());
+                RegistrationResponse response = new RegistrationResponse(
+                        "Registration saved but verification email could not be sent. Please contact support.",
+                        false,
+                        verificationUrl,
+                        result.errorMessage()
+                );
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            }
+
             RegistrationResponse response = new RegistrationResponse(
                     "Registration initiated. Please check your email to verify your account.",
                     result.verificationEmailSent(),
