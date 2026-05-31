@@ -116,8 +116,8 @@ export function SplashScreen({
           aria-busy={!isComplete}
         >
           <div
-            className="h-3 rounded-full bg-gradient-to-r from-kiro-purple-700 via-kiro-purple-500 to-kiro-purple-400 transition-[width] duration-150"
-            style={{ width: `${progress}%` }}
+            className="h-3 origin-left rounded-full bg-gradient-to-r from-kiro-purple-700 via-kiro-purple-500 to-kiro-purple-400 transition-transform duration-150 will-change-transform"
+            style={{ transform: `scaleX(${progress / 100})` }}
           />
         </div>
         <p className="mt-3 text-sm text-kiro-slate-200" aria-hidden="true">{progress}%</p>

@@ -10,10 +10,12 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { label: 'Features', id: 'features' },
-  { label: 'About', id: 'about' },
-  { label: 'How It Works', id: 'how-it-works' },
-  { label: 'Contact', id: 'contact' },
+  { label: 'Home', id: 'home' },
+  { label: 'Readiness', id: 'readiness' },
+  { label: 'System', id: 'system' },
+  { label: 'Integration', id: 'integration' },
+  { label: 'Community', id: 'community' },
+  { label: 'Stories', id: 'stories' },
 ];
 
 export interface NavigationHeaderProps {
@@ -107,12 +109,12 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b border-white/5 bg-[#0a0a0f]/90 backdrop-blur-md ${className}`.trim()}
+      className={`sticky top-0 z-40 w-full border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl ${className}`.trim()}
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-kiro-purple-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-kiro-purple-600 sm:h-9 sm:w-9">
             <Image
               src="/logo1.png"
               alt="Chatter logo"
@@ -121,22 +123,19 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
               className="brightness-0 invert"
             />
           </div>
-          <span className="text-lg font-bold text-white">Chatter</span>
+          <span className="text-base font-bold text-white sm:text-lg">Chatter</span>
         </div>
 
         {/* Desktop nav */}
-        <nav
-          className="hidden items-center gap-1 lg:flex"
-          aria-label="Main navigation"
-        >
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
           {MENU_ITEMS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => handleItemClick(item.id)}
-              className={`rounded-lg px-4 py-2 text-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f] ${
+              className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f] ${
                 activeSection === item.id
-                  ? 'text-white'
+                  ? 'bg-white/10 text-white'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -149,15 +148,15 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
         <div className="hidden items-center gap-3 lg:flex">
           <Link
             href="/auth/login"
-            className="rounded-lg border border-kiro-purple-500/60 px-5 py-2 text-sm font-medium text-white transition-colors hover:border-kiro-purple-400 hover:bg-kiro-purple-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
+            className="rounded-full border border-white/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:border-kiro-purple-400/60 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
           >
-            Log In
+            Sign In
           </Link>
           <Link
             href="/auth/register"
-            className="rounded-lg bg-kiro-purple-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-kiro-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
+            className="rounded-full bg-gradient-to-r from-kiro-purple-600 via-kiro-purple-500 to-kiro-purple-400 px-6 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-[0_12px_30px_rgba(88,61,196,0.35)] transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
           >
-            Sign Up Free
+            Start Journey
           </Link>
         </div>
 
@@ -166,7 +165,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
           ref={menuButtonRef}
           type="button"
           onClick={handleMenuToggle}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 lg:hidden"
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
         >
@@ -195,7 +194,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
                 ref={index === 0 ? firstFocusableRef : null}
                 type="button"
                 onClick={() => handleItemClick(item.id)}
-                className={`block w-full rounded-lg px-4 py-3 text-left text-sm transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset ${
+                className={`block w-full rounded-xl px-4 py-3 text-left text-xs uppercase tracking-[0.18em] transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset ${
                   activeSection === item.id ? 'text-white' : 'text-white/60 hover:text-white'
                 }`}
               >
@@ -205,15 +204,15 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
             <div className="flex flex-col gap-2 pt-3">
               <Link
                 href="/auth/login"
-                className="block rounded-lg border border-kiro-purple-500/60 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-kiro-purple-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
+                className="block rounded-full border border-white/15 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
               >
-                Log In
+                Sign In
               </Link>
               <Link
                 href="/auth/register"
-                className="block rounded-lg bg-kiro-purple-600 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-kiro-purple-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
+                className="block rounded-full bg-gradient-to-r from-kiro-purple-600 via-kiro-purple-500 to-kiro-purple-400 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
               >
-                Sign Up Free
+                Start Journey
               </Link>
             </div>
           </div>
