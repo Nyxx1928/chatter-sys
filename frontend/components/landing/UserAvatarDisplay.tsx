@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
-  avatarConnections,
   avatarLayout,
   avatarSizes,
   placeholderAvatars,
@@ -73,7 +72,7 @@ function AvatarItem({
 
   return (
     <div
-      className="absolute transition-all duration-100 hover:scale-110 hover:z-10 hover:drop-shadow-lg"
+      className="absolute transition-transform duration-100 will-change-transform hover:scale-110 hover:z-10 hover:drop-shadow-lg"
       style={{
         left: `${position.x}%`,
         top: `${position.y}%`,
@@ -90,8 +89,11 @@ function AvatarItem({
             alt={avatar.alt}
             fill
             className="object-cover"
+            sizes={`${size}px`}
+            placeholder={avatar.blurDataUrl ? 'blur' : 'empty'}
+            blurDataURL={avatar.blurDataUrl}
+            loading="lazy"
             onError={handleError}
-            unoptimized
           />
         </div>
       )}
@@ -99,81 +101,14 @@ function AvatarItem({
   );
 }
 
-interface ConnectionLinesProps {
-  viewportSize: ViewportSize;
-  containerWidth: number;
-  containerHeight: number;
-}
-
-function ConnectionLines({
-  viewportSize,
-  containerWidth,
-  containerHeight,
-}: ConnectionLinesProps) {
-  const lines = useMemo(() => {
-    if (containerWidth === 0 || containerHeight === 0) {
-      return [];
-    }
-
-    return avatarConnections
-      .map((connection) => {
-        const fromPosition = avatarLayout[connection.from]?.[viewportSize];
-        const toPosition = avatarLayout[connection.to]?.[viewportSize];
-
-        if (!fromPosition || !toPosition) {
-          return null;
-        }
-
-        const fromSize = avatarSizes[fromPosition.size];
-        const toSize = avatarSizes[toPosition.size];
-
-        const x1 = (fromPosition.x / 100) * containerWidth + fromSize / 2;
-        const y1 = (fromPosition.y / 100) * containerHeight + fromSize / 2;
-        const x2 = (toPosition.x / 100) * containerWidth + toSize / 2;
-        const y2 = (toPosition.y / 100) * containerHeight + toSize / 2;
-
-        return {
-          id: `${connection.from}-${connection.to}`,
-          x1,
-          y1,
-          x2,
-          y2,
-          color: connection.color,
-        };
-      })
-      .filter((line): line is NonNullable<typeof line> => line !== null);
-  }, [viewportSize, containerWidth, containerHeight]);
-
-  if (lines.length === 0) {
-    return null;
-  }
-
+function AmbientField() {
   return (
-    <svg
-      className="pointer-events-none absolute inset-0 h-full w-full"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#7c5cff" stopOpacity="0.4" />
-          <stop offset="50%" stopColor="#9b7cff" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#7c5cff" stopOpacity="0.4" />
-        </linearGradient>
-      </defs>
-      {lines.map((line) => (
-        <line
-          key={line.id}
-          x1={line.x1}
-          y1={line.y1}
-          x2={line.x2}
-          y2={line.y2}
-          stroke="url(#lineGradient)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          opacity={0.8}
-        />
-      ))}
-    </svg>
+    <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
+      <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(circle,rgba(124,92,255,0.28)_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-kiro-purple-500/25 blur-3xl" />
+      <div className="absolute right-8 top-14 h-20 w-20 rounded-full bg-kiro-purple-400/20 blur-3xl" />
+      <div className="absolute bottom-8 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full bg-kiro-purple-600/20 blur-[90px]" />
+    </div>
   );
 }
 
@@ -182,9 +117,7 @@ export function UserAvatarDisplay({
   avatarCount = 8,
 }: UserAvatarDisplayProps) {
   const [viewportSize, setViewportSize] = useState<ViewportSize>('desktop');
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-  const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
 
   const displayAvatars = useMemo(
     () => placeholderAvatars.slice(0, avatarCount),
@@ -209,53 +142,33 @@ export function UserAvatarDisplay({
     return () => window.removeEventListener('resize', updateViewportSize);
   }, []);
 
-  useEffect(() => {
-    if (!containerRef) return;
-
-    const updateContainerSize = () => {
-      const rect = containerRef.getBoundingClientRect();
-      setContainerSize({ width: rect.width, height: rect.height });
-    };
-
-    updateContainerSize();
-
-    const resizeObserver = new ResizeObserver(updateContainerSize);
-    resizeObserver.observe(containerRef);
-
-    return () => resizeObserver.disconnect();
-  }, [containerRef]);
-
   const handleImageError = useCallback((id: string) => {
     setImageErrors((prev) => new Set(prev).add(id));
   }, []);
 
   return (
     <div
-      ref={setContainerRef}
-      className={`relative h-full min-h-[400px] w-full overflow-hidden ${className}`.trim()}
+      className={`relative h-full min-h-[320px] w-full overflow-hidden sm:min-h-[360px] lg:min-h-[400px] ${className}`.trim()}
       role="img"
       aria-label="Network of connected users"
     >
-      <ConnectionLines
-        viewportSize={viewportSize}
-        containerWidth={containerSize.width}
-        containerHeight={containerSize.height}
-      />
+      <AmbientField />
+      <div className="relative z-10">
+        {displayAvatars.map((avatar) => {
+          const position = avatarLayout[avatar.id]?.[viewportSize];
+          if (!position) return null;
 
-      {displayAvatars.map((avatar) => {
-        const position = avatarLayout[avatar.id]?.[viewportSize];
-        if (!position) return null;
-
-        return (
-          <AvatarItem
-            key={avatar.id}
-            avatar={avatar}
-            position={position}
-            onImageError={handleImageError}
-            hasError={imageErrors.has(avatar.id)}
-          />
-        );
-      })}
+          return (
+            <AvatarItem
+              key={avatar.id}
+              avatar={avatar}
+              position={position}
+              onImageError={handleImageError}
+              hasError={imageErrors.has(avatar.id)}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -10,8 +10,13 @@ import Link from 'next/link';
  */
 export default function RegisterPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-kiro-ink-950">
-      <div className="w-full max-w-md space-y-6">
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-kiro-ink-950 p-4">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(111,66,193,0.25),transparent_55%)]" />
+        <div className="absolute -right-24 top-10 h-64 w-64 rounded-full bg-kiro-purple-600/25 blur-[120px]" />
+        <div className="absolute -left-24 bottom-0 h-64 w-64 rounded-full bg-kiro-purple-500/20 blur-[120px]" />
+      </div>
+      <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -25,7 +30,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Registration Form Card */}
-        <div className="bg-kiro-ink-900 rounded-xl border border-kiro-ink-900/80 p-6 sm:p-8">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_60px_rgba(8,8,20,0.45)] backdrop-blur-xl sm:p-8">
           <RegisterForm />
         </div>
 

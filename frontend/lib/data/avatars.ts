@@ -12,6 +12,7 @@ export interface AvatarData {
   id: string;
   imageUrl: string;
   alt: string;
+  blurDataUrl?: string;
 }
 
 /**
@@ -55,46 +56,57 @@ export const avatarSizes: Record<'sm' | 'md' | 'lg', number> = {
  * Array of placeholder avatars using DiceBear API
  * Seeds are used to generate consistent, unique avatars
  */
+const DEFAULT_AVATAR_BLUR =
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMiIgaGVpZ2h0PSIyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiM2ZjQyYzEiLz48L3N2Zz4=';
+
 export const placeholderAvatars: AvatarData[] = [
   {
     id: 'avatar-1',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Felix',
     alt: 'User avatar 1',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-2',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Luna',
     alt: 'User avatar 2',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-3',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Max',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Max',
     alt: 'User avatar 3',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-4',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Zoe',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Zoe',
     alt: 'User avatar 4',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-5',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Leo',
     alt: 'User avatar 5',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-6',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mia',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Mia',
     alt: 'User avatar 6',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-7',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Oscar',
     alt: 'User avatar 7',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
   {
     id: 'avatar-8',
-    imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bella',
+    imageUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Bella',
     alt: 'User avatar 8',
+    blurDataUrl: DEFAULT_AVATAR_BLUR,
   },
 ];
 
