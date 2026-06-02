@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import fc from 'fast-check';
-import { Client, IFrame } from '@stomp/stompjs';
+import { IFrame } from '@stomp/stompjs';
 import { createStompClient } from '../client';
 
 /**
@@ -16,17 +16,7 @@ import { createStompClient } from '../client';
  */
 
 describe('WebSocket Error Handling - Property-Based Tests', () => {
-  let mockOnConnect: ReturnType<typeof vi.fn>;
-  let mockOnDisconnect: ReturnType<typeof vi.fn>;
-  let mockOnStompError: ReturnType<typeof vi.fn>;
-  let mockOnWebSocketError: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
-    mockOnConnect = vi.fn();
-    mockOnDisconnect = vi.fn();
-    mockOnStompError = vi.fn();
-    mockOnWebSocketError = vi.fn();
-
     // Mock SockJS
     vi.mock('sockjs-client', () => ({
       default: vi.fn(() => ({

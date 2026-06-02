@@ -119,7 +119,7 @@ export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
-                  Let's get to know you
+                  Let&apos;s get to know you
                 </p>
                 <p className="mt-2 text-lg font-semibold text-white">Readiness checkpoint</p>
               </div>
@@ -266,7 +266,7 @@ export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
             <div className="mt-5 space-y-3 text-sm text-white/70 sm:mt-6">
               <p>Weekly feedback rooms with curated mentors.</p>
               <p>Real-time collaboration with multi-team visibility.</p>
-              <p>Signals dashboard that highlights what's next.</p>
+              <p>Signals dashboard that highlights what&apos;s next.</p>
             </div>
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 sm:mt-8 sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
