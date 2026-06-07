@@ -2,10 +2,13 @@ package org.example.chat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.chat.config.WebMvcTestConfig;
+import org.example.chat.dto.ForgotPasswordRequest;
 import org.example.chat.dto.LoginRequest;
 import org.example.chat.dto.RegisterRequest;
+import org.example.chat.dto.ResetPasswordRequest;
 import org.example.chat.entity.User;
 import org.example.chat.service.AuthenticationService;
+import org.example.chat.service.ForgotPasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,6 +49,9 @@ class AuthControllerTest {
 
     @MockBean
     private AuthenticationService authenticationService;
+
+    @MockBean
+    private ForgotPasswordService forgotPasswordService;
 
     private User testUser;
 
@@ -189,5 +195,71 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void forgotPassword_ValidEmail_ReturnsOk() throws Exception {
+        ForgotPasswordRequest request = new ForgotPasswordRequest("test@example.com");
+
+        doNothing().when(forgotPasswordService).initiateReset("test@example.com");
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk());
+
+        verify(forgotPasswordService).initiateReset("test@example.com");
+    }
+
+    @Test
+    void forgotPassword_InvalidEmail_ReturnsBadRequest() throws Exception {
+        ForgotPasswordRequest request = new ForgotPasswordRequest("invalid-email");
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+
+        verify(forgotPasswordService, never()).initiateReset(anyString());
+    }
+
+    @Test
+    void resetPassword_ValidRequest_ReturnsOk() throws Exception {
+        ResetPasswordRequest request = new ResetPasswordRequest("valid-token-hex", "newPassword123");
+
+        doNothing().when(forgotPasswordService).resetPassword("valid-token-hex", "newPassword123");
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk());
+
+        verify(forgotPasswordService).resetPassword("valid-token-hex", "newPassword123");
+    }
+
+    @Test
+    void resetPassword_WeakPassword_ReturnsBadRequest() throws Exception {
+        ResetPasswordRequest request = new ResetPasswordRequest("valid-token-hex", "short");
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+
+        verify(forgotPasswordService, never()).resetPassword(anyString(), anyString());
+    }
+
+    @Test
+    void resetPassword_ExpiredToken_ReturnsBadRequest() throws Exception {
+        ResetPasswordRequest request = new ResetPasswordRequest("expired-token-hex", "newPassword123");
+
+        doThrow(new IllegalArgumentException("This reset link has expired. Please request a new one."))
+                .when(forgotPasswordService).resetPassword("expired-token-hex", "newPassword123");
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("This reset link has expired. Please request a new one."));
     }
 }

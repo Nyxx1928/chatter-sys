@@ -1,12 +1,15 @@
 package org.example.chat.controller;
 
 import jakarta.validation.Valid;
+import org.example.chat.dto.ForgotPasswordRequest;
 import org.example.chat.dto.LoginRequest;
 import org.example.chat.dto.LoginResponse;
 import org.example.chat.dto.RegisterRequest;
+import org.example.chat.dto.ResetPasswordRequest;
 import org.example.chat.dto.UserResponse;
 import org.example.chat.entity.User;
 import org.example.chat.service.AuthenticationService;
+import org.example.chat.service.ForgotPasswordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +28,15 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthenticationService authenticationService;
+    private final ForgotPasswordService forgotPasswordService;
 
     @Value("${app.verification.expose-link:false}")
     private boolean exposeVerificationLink;
 
-    public AuthController(AuthenticationService authenticationService) {
+    public AuthController(AuthenticationService authenticationService,
+                          ForgotPasswordService forgotPasswordService) {
         this.authenticationService = authenticationService;
+        this.forgotPasswordService = forgotPasswordService;
     }
 
     /**
@@ -123,5 +129,37 @@ public class AuthController {
             logger.warn("Login failed for username {}: {}", request.getUsername(), e.getMessage());
             throw e;
         }
+    }
+
+    /**
+     * Initiates a password reset by sending a reset link to the user's email.
+     * Always returns 200 OK to prevent email enumeration.
+     *
+     * @param request the forgot password request containing the email
+     * @return ResponseEntity with 200 OK
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        logger.info("Password reset requested for email: {}", request.getEmail());
+
+        forgotPasswordService.initiateReset(request.getEmail());
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Resets the user's password using a valid reset token.
+     *
+     * @param request the reset password request containing token and new password
+     * @return ResponseEntity with 200 OK if successful
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        logger.info("Password reset attempt received");
+
+        forgotPasswordService.resetPassword(request.getToken(), request.getNewPassword());
+
+        logger.info("Password reset completed successfully");
+        return ResponseEntity.ok().build();
     }
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useAuthStore } from '../../lib/store/authStore';
@@ -123,6 +124,15 @@ export function LoginForm() {
       >
         {isLoading ? 'Logging in...' : 'Log In'}
       </Button>
+
+      <div className="text-center text-xs">
+        <Link
+          href="/auth/forgot-password"
+          className="text-kiro-slate-500 hover:text-kiro-purple-400 focus:outline-none focus:underline"
+        >
+          Forgot Password?
+        </Link>
+      </div>
     </form>
   );
 }

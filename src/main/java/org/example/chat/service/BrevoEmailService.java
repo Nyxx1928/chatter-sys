@@ -87,6 +87,29 @@ public class BrevoEmailService {
         return sendEmail(to, subject, htmlContent, textContent);
     }
 
+    public EmailResult sendPasswordResetEmail(String to, String resetUrl, String username) {
+        if (!enabled) {
+            logger.warn("Email service disabled. Would have sent password reset email to: {}", to);
+            return new EmailResult(false, "Email service is disabled", null);
+        }
+
+        if (apiKey == null || apiKey.isBlank()) {
+            logger.error("Cannot send email: Brevo API key not configured");
+            return new EmailResult(false, "Email service not configured", null);
+        }
+
+        if (fromEmail == null || fromEmail.isBlank()) {
+            logger.error("Cannot send email: From email not configured");
+            return new EmailResult(false, "Email service not configured", null);
+        }
+
+        String subject = "Reset Your Password - Real-Time Chat";
+        String htmlContent = buildPasswordResetEmailHtml(resetUrl, username);
+        String textContent = buildPasswordResetEmailText(resetUrl, username);
+
+        return sendEmail(to, subject, htmlContent, textContent);
+    }
+
     /**
      * Sends an email using Brevo HTTP API.
      *
@@ -196,6 +219,60 @@ public class BrevoEmailService {
             
             If you did not register for this account, please ignore this email.
             """.formatted(verificationUrl);
+    }
+
+    private String buildPasswordResetEmailHtml(String resetUrl, String username) {
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background-color: #f4f4f4; padding: 20px; border-radius: 10px;">
+                    <h1 style="color: #4a5568; margin-bottom: 20px;">Reset Your Password</h1>
+                    <p style="font-size: 16px; margin-bottom: 20px;">
+                        Hello %s,
+                    </p>
+                    <p style="font-size: 16px; margin-bottom: 20px;">
+                        We received a request to reset your password. Click the button below to set a new password.
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="%s"
+                           style="background-color: #4299e1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                            Reset Password
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                        Or copy and paste this link into your browser:
+                    </p>
+                    <p style="font-size: 12px; color: #4299e1; word-break: break-all; background-color: #fff; padding: 10px; border-radius: 5px;">
+                        %s
+                    </p>
+                    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+                        This link will expire in 15 minutes.
+                    </p>
+                    <p style="font-size: 14px; color: #666;">
+                        If you did not request a password reset, please ignore this email.
+                    </p>
+                </div>
+            </body>
+            </html>
+            """.formatted(username, resetUrl, resetUrl);
+    }
+
+    private String buildPasswordResetEmailText(String resetUrl, String username) {
+        return """
+            Hello %s,
+            
+            We received a request to reset your password. Click the link below to set a new password:
+            %s
+            
+            This link will expire in 15 minutes.
+            
+            If you did not request a password reset, please ignore this email.
+            """.formatted(username, resetUrl);
     }
 
     /**

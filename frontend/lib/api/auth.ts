@@ -1,7 +1,9 @@
 import {
+  ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  ResetPasswordRequest,
   UpdateProfileRequest
 } from '../../types/api';
 import { User } from '../../types/domain';
@@ -32,5 +34,17 @@ export const updateProfile = async (
   apiCall<User>('/api/users/me', {
     method: 'PUT',
     token,
+    body: JSON.stringify(request)
+  });
+
+export const forgotPassword = async (request: ForgotPasswordRequest): Promise<void> =>
+  apiCall<void>('/api/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(request)
+  });
+
+export const resetPassword = async (request: ResetPasswordRequest): Promise<void> =>
+  apiCall<void>('/api/auth/reset-password', {
+    method: 'POST',
     body: JSON.stringify(request)
   });

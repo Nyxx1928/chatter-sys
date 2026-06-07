@@ -48,6 +48,26 @@ public class RateLimiterService {
         }
     }
 
+    private static final int FORGOT_PASSWORD_CAPACITY = 3;
+    private static final long FORGOT_PASSWORD_REFILL_INTERVAL_MS = 5 * 60 * 1000L;
+
+    /**
+     * Checks whether the given email is allowed to request a password reset.
+     * 3 requests per email per 15 minutes.
+     * Throws {@link org.example.chat.exception.RateLimitExceededException} (429) if exceeded.
+     */
+    public void checkForgotPassword(String email) {
+        String key = "forgot_password:" + email.toLowerCase();
+        TokenBucket bucket = buckets.computeIfAbsent(key,
+                k -> new TokenBucket(FORGOT_PASSWORD_CAPACITY, FORGOT_PASSWORD_REFILL_INTERVAL_MS));
+
+        if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for forgot-password by email: {}", email);
+            throw new org.example.chat.exception.RateLimitExceededException(
+                    "Too many password reset requests. Please try again later.");
+        }
+    }
+
     // ── Inner class ──────────────────────────────────────────────────────────
 
     /**

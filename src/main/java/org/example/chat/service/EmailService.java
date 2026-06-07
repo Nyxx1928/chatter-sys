@@ -46,6 +46,22 @@ public class EmailService {
         return sendEmail(to, subject, message);
     }
 
+    public boolean sendPasswordResetEmail(String to, String resetUrl, String username) {
+        String subject = "Reset Your Password - Real-Time Chat";
+        String message = """
+            Hello %s,
+            
+            We received a request to reset your password. Click the link below to set a new password:
+            %s
+            
+            This link will expire in 15 minutes.
+            
+            If you did not request a password reset, please ignore this email.
+            """.formatted(username, resetUrl);
+
+        return sendEmail(to, subject, message);
+    }
+
     private boolean sendEmail(String to, String subject, String text) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
