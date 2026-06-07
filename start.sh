@@ -84,4 +84,9 @@ echo "📊 Database host: $(echo "$JDBC_DATABASE_URL" | sed -E 's#^jdbc:postgres
 echo "🔧 Active profile: ${SPRING_PROFILES_ACTIVE:-default}"
 
 echo "🎯 Starting Spring Boot application..."
-exec java -jar /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}
+exec java -jar \
+    -XX:TieredStopAtLevel=1 \
+    -XX:+UseParallelGC \
+    -XX:SharedArchiveFile=/app/app.jsa \
+    -Xshare:auto \
+    /app/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}

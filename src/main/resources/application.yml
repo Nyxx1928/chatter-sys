@@ -158,6 +158,8 @@ logging:
 ---
 # Production Profile
 spring:
+  main:
+    lazy-initialization: true
   config:
     activate:
       on-profile: prod
@@ -178,7 +180,7 @@ spring:
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
       
 management:
   endpoint:
