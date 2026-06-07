@@ -96,6 +96,23 @@ export interface MessageHistoryResponse {
 }
 
 /**
+ * Forgot password request payload.
+ * Sent to POST /api/auth/forgot-password
+ */
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+/**
+ * Reset password request payload.
+ * Sent to POST /api/auth/reset-password
+ */
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+/**
  * Simplified pagination parameters for API requests.
  */
 export interface PaginationParams {
