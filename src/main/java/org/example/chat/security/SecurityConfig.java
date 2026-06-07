@@ -78,7 +78,8 @@ public class SecurityConfig {
                     var authRules = auth
                             // Permit authentication and verification endpoints
                             .requestMatchers("/api/auth/register", "/api/auth/login",
-                                    "/api/auth/verify-email", "/api/auth/resend-verification").permitAll()
+                                    "/api/auth/verify-email", "/api/auth/resend-verification",
+                                    "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
 
                             // Permit health checks (Render)
                             .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
