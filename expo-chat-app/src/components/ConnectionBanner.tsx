@@ -1,0 +1,54 @@
+import { useEffect, useRef } from 'react';
+import { Animated, StyleSheet } from 'react-native';
+import { Text } from '@/components/Themed';
+import { useConnectionStore } from '@/src/stores/connectionStore';
+
+export default function ConnectionBanner() {
+  const connected = useConnectionStore((s) => s.connected);
+  const connecting = useConnectionStore((s) => s.connecting);
+  const error = useConnectionStore((s) => s.error);
+  const translateY = useRef(new Animated.Value(-60)).current;
+
+  const show = !connected || connecting;
+
+  useEffect(() => {
+    Animated.spring(translateY, {
+      toValue: show ? 0 : -60,
+      useNativeDriver: true,
+      tension: 80,
+      friction: 12,
+    }).start();
+  }, [show, translateY]);
+
+  let bgColor = '#ef4444';
+  let message = error || 'No Connection';
+
+  if (connecting) {
+    bgColor = '#f59e0b';
+    message = 'Reconnecting...';
+  }
+
+  return (
+    <Animated.View style={[styles.banner, { backgroundColor: bgColor, transform: [{ translateY }] }]}>
+      <Text style={styles.text}>{message}</Text>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  banner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  text: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+});
