@@ -12,19 +12,19 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Establish the Expo project, configure tooling, and migrate all reusable code from the web frontend so that types, stores, API client, and STOMP client compile without errors.
 
-- [ ] **1.1** Create Expo project with tabs template
+- [x] **1.1** Create Expo project with tabs template
   - `npx create-expo-app@latest expo-chat-app --template tabs`
   - Install dependencies: `zustand`, `@stomp/stompjs`, `expo-secure-store`, `@react-native-async-storage/async-storage`, `@shopify/flash-list`, `expo-notifications`, `expo-device`, `expo-linking`, `@react-native-community/netinfo`
   - Configure `app.json` with app name "Chatter", scheme "chatter", SecureStore + Notifications + Linking plugins
   - Configure `tsconfig.json`, `eslint`, and `eas.json` for development/preview/production profiles
   - _Requirements: 12.1, 12.2, 12.3_
 
-- [ ] **1.2** Copy and verify all TypeScript types from `frontend/types/`
+- [x] **1.2** Copy and verify all TypeScript types from `frontend/types/`
   - Copy `domain.ts`, `api.ts`, `stomp.ts`, `index.ts` to `src/types/` with zero changes
   - Verify compilation: `npx tsc --noEmit`
   - _Requirements: All (types are cross-cutting)_
 
-- [ ] **1.3** Adapt and copy API client from `frontend/lib/api/client.ts`
+- [x] **1.3** Adapt and copy API client from `frontend/lib/api/client.ts`
   - Create `src/api/client.ts`:
     - Replace `process.env.NEXT_PUBLIC_*` with `process.env.EXPO_PUBLIC_*`
     - Remove SockJS references
@@ -32,34 +32,34 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Verify with a test call to `GET /api/auth/health` (if exists)
   - _Requirements: All (client is cross-cutting)_
 
-- [ ] **1.4** Copy and adapt API modules from `frontend/lib/api/`
+- [x] **1.4** Copy and adapt API modules from `frontend/lib/api/`
   - Copy `auth.ts`, `rooms.ts`, `messages.ts`, `friends.ts`, `users.ts` to `src/api/` — zero content changes needed (they call `apiCall()`)
   - Create new `src/api/notifications.ts` with `registerPushToken()` and `unregisterPushToken()` (stubs for now, connected in Phase 7)
   - _Requirements: 2.x, 3.x, 5.x, 6.x, 9.x_
 
-- [ ] **1.5** Copy and adapt Zustand stores from `frontend/lib/store/`
+- [x] **1.5** Copy and adapt Zustand stores from `frontend/lib/store/`
   - Copy `chatStore.ts`, `presenceStore.ts` verbatim — no platform dependencies
   - Adapt `authStore.ts`: replace `localStorage` calls with `expo-secure-store` equivalents (`getItemAsync`, `setItemAsync`, `deleteItemAsync`) and `AsyncStorage` for user cache
   - Adapt `connectionStore.ts`: replace SockJS-based STOMP client with raw WebSocket STOMP client
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 4.1_
 
-- [ ] **1.6** Copy and adapt STOMP client from `frontend/lib/stomp/`
+- [x] **1.6** Copy and adapt STOMP client from `frontend/lib/stomp/`
   - Copy `hooks.ts` verbatim (React hooks, no platform deps)
   - Adapt `client.ts`: replace `webSocketFactory: () => new SockJS(brokerUrl)` with `webSocketFactory: () => new WebSocket(brokerUrl)`. Keep all reconnect logic, heartbeat config, connect headers, and error handlers
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] **1.7** Write storage utility `src/utils/storage.ts`
+- [x] **1.7** Write storage utility `src/utils/storage.ts`
   - `setSecureToken(token)`, `getSecureToken()`, `clearSecureToken()` using `expo-secure-store`
   - `setCachedUser(user)`, `getCachedUser()`, `clearCachedUser()` using `AsyncStorage`
   - `clearAll()` — clears both stores
   - _Requirements: 1.1, 1.5_
 
-- [ ] **1.8** Create constants utility `src/utils/constants.ts`
+- [x] **1.8** Create constants utility `src/utils/constants.ts`
   - `API_BASE_URL` from `EXPO_PUBLIC_API_BASE_URL` or default `http://localhost:8080`
   - `WS_URL` from `EXPO_PUBLIC_WS_URL` or default `ws://localhost:8080/ws`
   - _Requirements: None (infrastructure)_
 
-- [ ] **1.9** Checkpoint — Verify Phase 1
+- [x] **1.9** Checkpoint — Verify Phase 1
   - All TypeScript compiles without errors (`npx tsc --noEmit`)
   - Expo dev server starts (`npx expo start`)
   - All 5 stores instantiate without runtime errors
@@ -72,19 +72,19 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Build the complete authentication flow — login, register, forgot password, reset password, email verification — with session persistence and proper error handling.
 
-- [ ] **2.1** Build root layout (`app/_layout.tsx`) with auth gate
+- [x] **2.1** Build root layout (`app/_layout.tsx`) with auth gate
   - On mount: check `expo-secure-store` for JWT → `authStore.validateSession()`
   - While validating: show splash screen (logo + ActivityIndicator)
   - After validation: if authenticated → show `(tabs)`; if not → show `(auth)`
   - Register `expo-notifications` handler for notification tap → deep link (stub, connected in Phase 7)
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 12.4, 12.5, 12.6_
 
-- [ ] **2.2** Build auth group layout (`app/(auth)/_layout.tsx`)
+- [x] **2.2** Build auth group layout (`app/(auth)/_layout.tsx`)
   - Stack navigator with no header
   - Routes: login, register, forgot-password, reset-password, verify-email
   - _Requirements: 12.1, 12.2_
 
-- [ ] **2.3** Build login screen (`app/(auth)/login.tsx`)
+- [x] **2.3** Build login screen (`app/(auth)/login.tsx`)
   - Username + password inputs with validation (non-empty, min lengths)
   - Submit → `authStore.login()` → on success navigate to tabs
   - Error display: invalid credentials (401) → "Invalid username or password"
@@ -93,31 +93,31 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Loading state: disable inputs + show spinner on submit button
   - _Requirements: 2.1, 2.2_
 
-- [ ] **2.4** Build register screen (`app/(auth)/register.tsx`)
+- [x] **2.4** Build register screen (`app/(auth)/register.tsx`)
   - Username + email + password + display name inputs with validation
   - Submit → `authStore.register()` → on success navigate to login with `?registered=true`
   - Error: 409 Conflict → "Username or email already exists"
   - Loading state: disable form + spinner
   - _Requirements: 2.3_
 
-- [ ] **2.5** Build forgot password screen (`app/(auth)/forgot-password.tsx`)
+- [x] **2.5** Build forgot password screen (`app/(auth)/forgot-password.tsx`)
   - Email input with validation
   - Submit → `POST /api/auth/forgot-password` → show "Check your email for reset link"
   - _Requirements: 2.4_
 
-- [ ] **2.6** Build reset password screen (`app/(auth)/reset-password.tsx`)
+- [x] **2.6** Build reset password screen (`app/(auth)/reset-password.tsx`)
   - Read `?token=` from route params
   - New password + confirm password inputs
   - Submit → `POST /api/auth/reset-password` → on success navigate to login with `?emailSent=true`
   - _Requirements: 2.5_
 
-- [ ] **2.7** Build email verification result screen (`app/(auth)/verify-email.tsx`)
+- [x] **2.7** Build email verification result screen (`app/(auth)/verify-email.tsx`)
   - Read `?status=success|error` and `?message=` from route params
   - Display success icon + message, or error icon + message
   - "Continue to Login" button → navigate to login
   - _Requirements: 2.6_
 
-- [ ] **2.8** Checkpoint — Auth Flow Validation
+- [x] **2.8** Checkpoint — Auth Flow Validation
   - Full flow: launch → splash → login → enter credentials → navigate to tabs
   - Kill app → relaunch → session restored → no login screen
   - Logout → token cleared → login screen shown
@@ -131,18 +131,18 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Build the core chat experience — room list, real-time messaging, message history, and presence indicators.
 
-- [ ] **3.1** Build tab layout (`app/(tabs)/_layout.tsx`)
+- [x] **3.1** Build tab layout (`app/(tabs)/_layout.tsx`)
   - 4 bottom tabs: Chats, Channels, Contacts, Profile
   - Icons from `@expo/vector-icons` (Ionicons): chatbubbles, hash, people, person
   - Active tab highlighting with custom tint color
   - Badge on Contacts tab from `authStore.pendingRequestCount` (populated in Phase 5)
   - _Requirements: 12.1, 12.2, 12.3_
 
-- [ ] **3.2** Build Chats stack layout (`app/(tabs)/chats/_layout.tsx`)
+- [x] **3.2** Build Chats stack layout (`app/(tabs)/chats/_layout.tsx`)
   - Stack navigator: index (room list) → `[roomId]` (chat view)
   - _Requirements: 12.3_
 
-- [ ] **3.3** Build room list screen (`app/(tabs)/chats/index.tsx`)
+- [x] **3.3** Build room list screen (`app/(tabs)/chats/index.tsx`)
   - On mount: `GET /api/rooms` → filter `roomType === 'DIRECT'` → render in `FlashList`
   - Each row: `RoomListItem` — other participant's display name, latest message preview, timestamp, presence dot
   - Text input at top for filtering rooms client-side by display name
@@ -153,17 +153,17 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Loading state: skeleton rows
   - _Requirements: 3.1, 3.6_
 
-- [ ] **3.4** Build `RoomListItem` component
+- [x] **3.4** Build `RoomListItem` component
   - Avatar (initials fallback) + presence dot (green/gray)
   - Display name + last message preview (truncated to 1 line)
   - Relative timestamp ("2m ago", "Yesterday", "Jun 12")
   - _Requirements: 3.1_
 
-- [ ] **3.5** Build `PresenceDot` component
+- [x] **3.5** Build `PresenceDot` component
   - Small circle: `online ? green (#22c55e) : gray (#6b7280)`
   - _Requirements: 7.1, 7.2_
 
-- [ ] **3.6** Build chat view screen (`app/(tabs)/chats/[roomId].tsx`)
+- [x] **3.6** Build chat view screen (`app/(tabs)/chats/[roomId].tsx`)
   - Header: back button + other participant name + info button
   - `MessageList` (FlashList) at center
   - `MessageInput` at bottom (keyboard-avoiding)
@@ -174,7 +174,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Auto-scroll to bottom on new messages (unless user scrolled up → show "New Messages" button)
   - _Requirements: 3.2, 3.4, 7.3_
 
-- [ ] **3.7** Build `MessageList` component
+- [x] **3.7** Build `MessageList` component
   - `FlashList` with `estimatedItemSize={72}`
   - Sections with date separators ("Today", "Yesterday", date strings)
   - `onEndReached` (scrolled to top) → load next page of history → prepend older messages
@@ -184,7 +184,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Failed state: `status === 'failed'` → red indicator + tap to retry
   - _Requirements: 3.2, 3.4, 3.5, 3.7_
 
-- [ ] **3.8** Build `MessageBubble` component
+- [x] **3.8** Build `MessageBubble` component
   - Props: `message: Message, isOwn: boolean`
   - Outbound: right-aligned, primary color background, white text
   - Inbound: left-aligned, gray background, dark text
@@ -192,7 +192,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Timestamp below bubble on long-press (future: configurable)
   - _Requirements: 3.3, 3.4, 3.7_
 
-- [ ] **3.9** Build `MessageInput` component
+- [x] **3.9** Build `MessageInput` component
   - Multi-line `TextInput` with auto-grow
   - Send button (icon, disabled when empty)
   - Wrapped in `KeyboardAvoidingView` (behavior: padding on iOS, height on Android)
@@ -200,21 +200,21 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Optimistic insert in chatStore BEFORE send
   - _Requirements: 3.3, 3.7_
 
-- [ ] **3.10** Implement message history pagination
+- [x] **3.10** Implement message history pagination
   - Track `currentPage` and `hasMore` flags per room
   - `FlashList.onEndReached` (at top) → `GET /api/rooms/{roomId}/messages?page=${page+1}&size=50`
   - Prepend fetched messages to existing array — maintain sort order by timestamp
   - Infer `hasMore` from `totalPages` in response
   - _Requirements: 3.5_
 
-- [ ] **3.11** Implement connection banner
+- [x] **3.11** Implement connection banner
   - `ConnectionBanner` component: full-width bar at top of chat screen
   - Listens to `connectionStore.error` and `connectionStore.connected`
   - States: "No Connection" (red) when disconnected, "Reconnecting..." (yellow) during reconnect
   - Dismisses automatically on reconnection
   - _Requirements: 4.4, 4.5, 11.1, 11.2_
 
-- [ ] **3.12** Checkpoint — Direct Messaging Validation
+- [x] **3.12** Checkpoint — Direct Messaging Validation
   - Room list loads with correct rooms
   - Tap room → messages load with pagination
   - Send message → appears optimistically → confirmed via STOMP
@@ -229,11 +229,11 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Add group channel support — list, chat, create, invite members, and delete.
 
-- [ ] **4.1** Build Channels stack layout (`app/(tabs)/channels/_layout.tsx`)
+- [x] **4.1** Build Channels stack layout (`app/(tabs)/channels/_layout.tsx`)
   - Stack navigator: index (channel list) → `[roomId]` (channel chat view)
   - _Requirements: 12.3_
 
-- [ ] **4.2** Build channel list screen (`app/(tabs)/channels/index.tsx`)
+- [x] **4.2** Build channel list screen (`app/(tabs)/channels/index.tsx`)
   - On mount: `GET /api/rooms` → filter `roomType === 'GROUP'` → render in FlashList
   - Each row: channel name, member count, latest message preview
   - Header with "Channels" title + "+" create button (top-right)
@@ -241,26 +241,26 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Empty state: "No channels yet. Create one!"
   - _Requirements: 5.1_
 
-- [ ] **4.3** Build create channel modal
+- [x] **4.3** Build create channel modal
   - Modal with name (required) + description (optional) + "Create" button
   - On submit: `POST /api/rooms` → on success navigate to new channel's chat view
   - Error: name already taken or validation → inline error
   - _Requirements: 5.2, 5.3_
 
-- [ ] **4.4** Build channel chat view (`app/(tabs)/channels/[roomId].tsx`)
+- [x] **4.4** Build channel chat view (`app/(tabs)/channels/[roomId].tsx`)
   - Reuses same `MessageList` + `MessageInput` from Phase 3 (extract shared components)
   - Header: channel name + member count + info (ⓘ) button
   - Info button → push member list screen (or bottom sheet)
   - _Requirements: 5.4_
 
-- [ ] **4.5** Build member list screen/bottom sheet
+- [x] **4.5** Build member list screen/bottom sheet
   - `GET /api/rooms/{id}/members` → render users with presence indicators
   - Owner/moderator sees: "Invite" button + "Delete Channel" button
   - Invite → user search flow (same component from contacts, Phase 5)
   - Delete → confirmation dialog → `DELETE /api/rooms/{id}` → navigate back to channel list
   - _Requirements: 5.5, 5.6, 5.7, 5.8_
 
-- [ ] **4.6** Checkpoint — Channel Validation
+- [x] **4.6** Checkpoint — Channel Validation
   - Channel list loads GROUP rooms only
   - Create channel → appears in list → can send messages
   - Invite user → user appears in member list
