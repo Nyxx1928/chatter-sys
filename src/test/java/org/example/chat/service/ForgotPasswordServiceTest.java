@@ -38,7 +38,7 @@ class ForgotPasswordServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private EmailService emailService;
+    private BrevoEmailService brevoEmailService;
 
     @Mock
     private SecurityAuditLogger auditLogger;
@@ -89,7 +89,8 @@ class ForgotPasswordServiceTest {
         doNothing().when(rateLimiterService).checkForgotPassword(email);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(testUser));
         when(tokenRepository.save(any(PasswordResetToken.class))).thenReturn(validToken);
-        when(emailService.sendPasswordResetEmail(anyString(), anyString(), anyString())).thenReturn(true);
+        when(brevoEmailService.sendPasswordResetEmail(anyString(), anyString(), anyString()))
+                .thenReturn(new BrevoEmailService.EmailResult(true, null, "msg-123"));
 
         forgotPasswordService.initiateReset(email);
 
@@ -97,7 +98,7 @@ class ForgotPasswordServiceTest {
         verify(userRepository).findByEmail(email);
         verify(tokenRepository).deleteByUser(testUser);
         verify(tokenRepository).save(any(PasswordResetToken.class));
-        verify(emailService).sendPasswordResetEmail(eq("test@example.com"), anyString(), eq("testuser"));
+        verify(brevoEmailService).sendPasswordResetEmail(eq("test@example.com"), anyString(), eq("testuser"));
     }
 
     @Test
@@ -112,7 +113,7 @@ class ForgotPasswordServiceTest {
         verify(rateLimiterService).checkForgotPassword(email);
         verify(userRepository).findByEmail(email);
         verify(tokenRepository, never()).save(any());
-        verify(emailService, never()).sendPasswordResetEmail(anyString(), anyString(), anyString());
+        verify(brevoEmailService, never()).sendPasswordResetEmail(anyString(), anyString(), anyString());
     }
 
     @Test

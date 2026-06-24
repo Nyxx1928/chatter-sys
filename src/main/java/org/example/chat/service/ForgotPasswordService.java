@@ -26,7 +26,7 @@ public class ForgotPasswordService {
     private final PasswordResetTokenRepository tokenRepository;
     private final RateLimiterService rateLimiterService;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+    private final BrevoEmailService brevoEmailService;
     private final SecurityAuditLogger auditLogger;
 
     @Value("${app.frontend-url:http://localhost:3000}")
@@ -36,13 +36,13 @@ public class ForgotPasswordService {
                                   PasswordResetTokenRepository tokenRepository,
                                   RateLimiterService rateLimiterService,
                                   PasswordEncoder passwordEncoder,
-                                  EmailService emailService,
+                                  BrevoEmailService brevoEmailService,
                                   SecurityAuditLogger auditLogger) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.rateLimiterService = rateLimiterService;
         this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
+        this.brevoEmailService = brevoEmailService;
         this.auditLogger = auditLogger;
     }
 
@@ -68,12 +68,13 @@ public class ForgotPasswordService {
         tokenRepository.save(resetToken);
 
         String resetUrl = buildResetUrl(token);
-        boolean emailSent = emailService.sendPasswordResetEmail(user.getEmail(), resetUrl, user.getUsername());
+        BrevoEmailService.EmailResult emailResult =
+                brevoEmailService.sendPasswordResetEmail(user.getEmail(), resetUrl, user.getUsername());
 
-        if (emailSent) {
+        if (emailResult.success()) {
             logger.info("Password reset email sent to: {}", email);
         } else {
-            logger.warn("Password reset email failed to send to: {}", email);
+            logger.warn("Password reset email failed to send to: {}. Error: {}", email, emailResult.errorMessage());
         }
     }
 
