@@ -11,6 +11,7 @@ RUN mvn -DskipTests=true package
 # Pin to a stable base OS to avoid inheriting new distro packages/vulns from
 # floating tags (e.g. ubuntu 26.04 currently ships a vulnerable `pebble` binary).
 FROM eclipse-temurin:17-jre-jammy AS runtime
+RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 COPY --from=build /app/target/first-java-proj-1.0-SNAPSHOT.jar ./app.jar
