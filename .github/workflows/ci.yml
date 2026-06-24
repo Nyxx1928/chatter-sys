@@ -174,14 +174,6 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps
 
-      # Two-step visual snapshot handling:
-      # 1. Generate missing snapshots (exit code ignored — first run has no baselines)
-      # 2. Run actual tests with retries for comparison
-      - name: Generate visual snapshot baselines
-        if: steps.playwright.outputs.enabled == 'true'
-        working-directory: frontend
-        run: npx playwright test --update-snapshots --reporter=list || true
-
       - name: Run Playwright tests
         if: steps.playwright.outputs.enabled == 'true'
         working-directory: frontend
