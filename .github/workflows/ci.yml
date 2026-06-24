@@ -183,11 +183,34 @@ jobs:
         working-directory: frontend
         run: npx playwright test --update-snapshots --retries=2
 
+  phase4-mobile-check:
+    name: phase 4 - mobile type-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [phase1-lint-validate]
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: expo-chat-app/package-lock.json
+
+      - name: Install mobile dependencies
+        working-directory: expo-chat-app
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: expo-chat-app
+        run: npx tsc --noEmit
+
   phase5-test-build-docker:
     name: phase 5 - test and build docker
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [phase2-unit-tests, phase3-integration-tests, phase4-e2e-playwright, changes]
+    needs: [phase2-unit-tests, phase3-integration-tests, phase4-e2e-playwright, phase4-mobile-check, changes]
     outputs:
       backend_built: ${{ steps.dockerfiles.outputs.backend }}
       frontend_built: ${{ steps.dockerfiles.outputs.frontend }}
@@ -285,7 +308,6 @@ jobs:
           exit-code: "1"
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          skip-db-update: ${{ github.event_name == 'pull_request' }}
 
       - name: Trivy scan (frontend)
         if: steps.dockerfiles.outputs.frontend == 'true'
@@ -296,7 +318,6 @@ jobs:
           exit-code: "1"
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          skip-db-update: ${{ github.event_name == 'pull_request' }}
 
   phase6-security-scan:
     name: phase 6 - security scan
@@ -376,6 +397,7 @@ jobs:
       - phase2-unit-tests
       - phase3-integration-tests
       - phase4-e2e-playwright
+      - phase4-mobile-check
       - phase5-test-build-docker
       - phase6-security-scan
       - phase6-dependency-audit
@@ -387,6 +409,7 @@ jobs:
           echo "- Phase 2 (Unit Tests): ${{ needs.phase2-unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 3 (Integration Tests): ${{ needs.phase3-integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 4 (E2E Playwright): ${{ needs.phase4-e2e-playwright.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Phase 4 (Mobile TypeScript): ${{ needs.phase4-mobile-check.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 5 (Docker Build): ${{ needs.phase5-test-build-docker.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 6 (Security Scan): ${{ needs.phase6-security-scan.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 6 (Dependency Audit): ${{ needs.phase6-dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
