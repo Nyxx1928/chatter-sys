@@ -105,9 +105,7 @@ jobs:
           cache: maven
 
       - name: Run backend unit tests
-        run: |
-          mvn -DskipTests=true dependency:go-offline
-          mvn -Dtest="*Test" -DfailIfNoTests=false test
+        run: mvn -Dtest="*Test" -DfailIfNoTests=false test
 
   phase3-integration-tests:
     name: phase 3 - integration testing
@@ -139,9 +137,7 @@ jobs:
           cache: maven
 
       - name: Run backend integration tests
-        run: |
-          mvn -DskipTests=true dependency:go-offline
-          mvn -Dtest="*IntegrationTest" -DfailIfNoTests=false test
+        run: mvn -Dtest="*IntegrationTest" -DfailIfNoTests=false test
 
   phase4-e2e-playwright:
     name: phase 4 - e2e playwright
@@ -181,10 +177,10 @@ jobs:
       - name: Run Playwright tests
         if: steps.playwright.outputs.enabled == 'true'
         working-directory: frontend
-        run: npx playwright test --update-snapshots --retries=2
+        run: npx playwright test --retries=2
 
-  phase4-mobile-check:
-    name: phase 4 - mobile type-check
+  phase5-mobile-check:
+    name: phase 5 - mobile type-check
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [phase1-lint-validate]
@@ -206,11 +202,25 @@ jobs:
         working-directory: expo-chat-app
         run: npx tsc --noEmit
 
-  phase5-test-build-docker:
-    name: phase 5 - test and build docker
+  phase6-secrets-scan:
+    name: phase 6 - secrets scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [phase1-lint-validate]
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Scan for secrets
+        run: |
+          ! rg -n "\b(?i)(?:sk_live|sk_test|pk_live|pk_test|ghp_|gho_|ghu_|ghs_|github_pat)_[A-Za-z0-9]+" --glob "*.{ts,tsx,js,jsx,java,kt,go,py}" --glob "!**/node_modules/**" --glob "!**/target/**" .
+          ! rg -n "(?i)(?:SUPABASE_SERVICE_ROLE|DOCKERHUB_TOKEN|POSTGRES_PASSWORD)\s*=" --glob "*.{ts,tsx,js,jsx,java,properties}" --glob "!**/node_modules/**" --glob "!**/target/**" .
+          ! rg -n "-----BEGIN (?:RSA |EC |)PRIVATE KEY-----" --glob "**/*" --glob "!**/node_modules/**" --glob "!**/target/**" .
+
+  phase7-build-docker:
+    name: phase 7 - build docker
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [phase2-unit-tests, phase3-integration-tests, phase4-e2e-playwright, phase4-mobile-check, changes]
+    needs: [phase2-unit-tests, phase3-integration-tests, phase4-e2e-playwright, phase5-mobile-check, changes]
     outputs:
       backend_built: ${{ steps.dockerfiles.outputs.backend }}
       frontend_built: ${{ steps.dockerfiles.outputs.frontend }}
@@ -319,32 +329,32 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
 
-  phase6-security-scan:
-    name: phase 6 - security scan
+  phase8-security-scan:
+    name: phase 8 - security scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [phase5-test-build-docker, changes]
+    needs: [phase7-build-docker, changes]
     steps:
       - uses: actions/checkout@v6.0.2
 
       - name: Install Cosign
-        if: needs.phase5-test-build-docker.outputs.images_pushed == 'true'
+        if: needs.phase7-build-docker.outputs.images_pushed == 'true'
         uses: sigstore/cosign-installer@v4.1.1
 
       - name: Sign backend image
-        if: needs.phase5-test-build-docker.outputs.backend_built == 'true' && needs.phase5-test-build-docker.outputs.images_pushed == 'true'
+        if: needs.phase7-build-docker.outputs.backend_built == 'true' && needs.phase7-build-docker.outputs.images_pushed == 'true'
         env:
           COSIGN_EXPERIMENTAL: "1"
-        run: cosign sign --yes ${{ needs.phase5-test-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }}
+        run: cosign sign --yes ${{ needs.phase7-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }}
 
       - name: Sign frontend image
-        if: needs.phase5-test-build-docker.outputs.frontend_built == 'true' && needs.phase5-test-build-docker.outputs.images_pushed == 'true'
+        if: needs.phase7-build-docker.outputs.frontend_built == 'true' && needs.phase7-build-docker.outputs.images_pushed == 'true'
         env:
           COSIGN_EXPERIMENTAL: "1"
-        run: cosign sign --yes ${{ needs.phase5-test-build-docker.outputs.frontend_image }}:${{ env.IMAGE_TAG }}
+        run: cosign sign --yes ${{ needs.phase7-build-docker.outputs.frontend_image }}:${{ env.IMAGE_TAG }}
 
-  phase6-dependency-audit:
-    name: phase 6 - dependency audit
+  phase9-dependency-audit:
+    name: phase 9 - dependency audit
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [phase1-lint-validate]
@@ -363,6 +373,7 @@ jobs:
         run: npm ci
 
       - name: npm audit
+        if: github.event_name != 'pull_request' || needs.changes.outputs.deps_changed == 'true'
         working-directory: frontend
         run: npm audit --audit-level=high
 
@@ -385,10 +396,10 @@ jobs:
 
       - name: Maven dependency audit (weekly only)
         if: github.event_name == 'schedule'
-        run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 -DnvdDatafeedUrl=https://www.nist.gov/feeds -DautoUpdate=false || true
+        run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 -DnvdDatafeedUrl=https://www.nist.gov/feeds -DautoUpdate=false
 
-  phase7-ci-summary:
-    name: phase 7 - ci summary
+  phase10-ci-summary:
+    name: phase 10 - ci summary
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: always()
@@ -397,10 +408,11 @@ jobs:
       - phase2-unit-tests
       - phase3-integration-tests
       - phase4-e2e-playwright
-      - phase4-mobile-check
-      - phase5-test-build-docker
-      - phase6-security-scan
-      - phase6-dependency-audit
+      - phase5-mobile-check
+      - phase6-secrets-scan
+      - phase7-build-docker
+      - phase8-security-scan
+      - phase9-dependency-audit
     steps:
       - name: Write summary
         run: |
@@ -409,7 +421,8 @@ jobs:
           echo "- Phase 2 (Unit Tests): ${{ needs.phase2-unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 3 (Integration Tests): ${{ needs.phase3-integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Phase 4 (E2E Playwright): ${{ needs.phase4-e2e-playwright.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 4 (Mobile TypeScript): ${{ needs.phase4-mobile-check.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 5 (Docker Build): ${{ needs.phase5-test-build-docker.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 6 (Security Scan): ${{ needs.phase6-security-scan.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 6 (Dependency Audit): ${{ needs.phase6-dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Phase 5 (Mobile TypeScript): ${{ needs.phase5-mobile-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Phase 6 (Secrets Scan): ${{ needs.phase6-secrets-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Phase 7 (Docker Build): ${{ needs.phase7-build-docker.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Phase 8 (Security Scan): ${{ needs.phase8-security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Phase 9 (Dependency Audit): ${{ needs.phase9-dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
