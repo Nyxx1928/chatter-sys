@@ -1,5 +1,6 @@
 package org.example.chat.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.example.chat.dto.ForgotPasswordRequest;
 import org.example.chat.dto.LoginRequest;
@@ -10,6 +11,7 @@ import org.example.chat.dto.UserResponse;
 import org.example.chat.entity.User;
 import org.example.chat.service.AuthenticationService;
 import org.example.chat.service.ForgotPasswordService;
+import org.example.chat.service.RateLimiterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,14 +31,17 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
     private final ForgotPasswordService forgotPasswordService;
+    private final RateLimiterService rateLimiterService;
 
     @Value("${app.verification.expose-link:false}")
     private boolean exposeVerificationLink;
 
     public AuthController(AuthenticationService authenticationService,
-                          ForgotPasswordService forgotPasswordService) {
+                          ForgotPasswordService forgotPasswordService,
+                          RateLimiterService rateLimiterService) {
         this.authenticationService = authenticationService;
         this.forgotPasswordService = forgotPasswordService;
+        this.rateLimiterService = rateLimiterService;
     }
 
     /**
@@ -48,8 +53,13 @@ public class AuthController {
      * @return ResponseEntity with registration status and verification details
      */
     @PostMapping("/register")
-    public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<RegistrationResponse> register(
+            @Valid @RequestBody RegisterRequest request,
+            HttpServletRequest httpRequest) {
         logger.info("Registration request received for username: {}", request.getUsername());
+
+        // Rate limit: 3 registrations per 60 minutes per IP (JLabs3 pattern)
+        rateLimiterService.checkRegistration(httpRequest.getRemoteAddr());
 
         try {
             AuthenticationService.RegistrationResult result = authenticationService.registerUser(
@@ -111,6 +121,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         logger.info("Login request received for username: {}", request.getUsername());
+
+        // Rate limit: 5 attempts per 1 minute per username (JLabs3 pattern)
+        rateLimiterService.checkLogin(request.getUsername());
 
         try {
             String token = authenticationService.authenticateUser(

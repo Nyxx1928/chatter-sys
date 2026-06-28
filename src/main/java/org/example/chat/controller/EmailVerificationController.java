@@ -1,9 +1,11 @@
 package org.example.chat.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.example.chat.dto.ResendVerificationRequest;
 import org.example.chat.entity.User;
 import org.example.chat.service.EmailVerificationService;
+import org.example.chat.service.RateLimiterService;
 import org.example.chat.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller for email verification operations.
@@ -29,41 +32,72 @@ public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
     private final RegistrationService registrationService;
+    private final RateLimiterService rateLimiterService;
 
     @Value("${app.frontend-url:http://localhost:3000}")
     private String frontendUrl;
 
     public EmailVerificationController(
             EmailVerificationService emailVerificationService,
-            RegistrationService registrationService) {
+            RegistrationService registrationService,
+            RateLimiterService rateLimiterService) {
         this.emailVerificationService = emailVerificationService;
         this.registrationService = registrationService;
+        this.rateLimiterService = rateLimiterService;
     }
 
     /**
      * Verifies email and completes registration.
      * This endpoint handles both new registrations and existing user email changes.
+     *
+     * Flow:
+     * 1. Try new user registration completion (PendingRegistration token)
+     * 2. If that fails, try existing user email verification (VerificationToken token)
+     * 3. If both fail, return the error from step 2
+     *
+     * This avoids a false-negative "error" when a user clicks a valid link twice —
+     * the first click consumes the PendingRegistration, the second gracefully
+     * falls through to verification (which may also fail since it's not a
+     * VerificationToken), and the error message is informative.
      */
     @GetMapping("/verify-email")
-    public ResponseEntity<Void> verifyEmail(@RequestParam("token") String token) {
+    public ResponseEntity<Void> verifyEmail(
+            @RequestParam("token") String token,
+            HttpServletRequest httpRequest) {
         logger.info("Email verification request received");
 
+        // Rate limit: 5 verification attempts per 1 minute per IP (JLabs3 pattern)
+        rateLimiterService.checkEmailVerification(httpRequest.getRemoteAddr());
+
+        // Step 1: Try new user registration completion (pending registration flow)
+        Optional<User> newUser = tryCompleteRegistration(token);
+        if (newUser.isPresent()) {
+            logger.info("Registration completed successfully for user: {}", newUser.get().getUsername());
+            return redirectToFrontend("success",
+                    "Email verified successfully! You can now log in.");
+        }
+
+        // Step 2: Try existing user email verification (VerificationToken flow)
         try {
-            // Try to complete registration first (new user flow)
-            try {
-                User user = registrationService.completeRegistration(token);
-                logger.info("Registration completed successfully for user: {}", user.getUsername());
-                return redirectToFrontend("success", 
-                        "Email verified successfully! You can now log in.");
-            } catch (IllegalArgumentException e) {
-                // If not a pending registration, try existing user verification
-                emailVerificationService.verifyEmail(token);
-                logger.info("Email verified successfully for existing user");
-                return redirectToFrontend("success", "Email verified successfully");
-            }
+            emailVerificationService.verifyEmail(token);
+            logger.info("Email verified successfully for existing user");
+            return redirectToFrontend("success", "Email verified successfully");
         } catch (IllegalArgumentException e) {
             logger.warn("Email verification failed: {}", e.getMessage());
             return redirectToFrontend("error", e.getMessage());
+        }
+    }
+
+    /**
+     * Attempts to complete a new user registration with the given token.
+     * Returns empty if the token does not correspond to a pending registration
+     * (the token may be a VerificationToken, or already consumed).
+     */
+    private Optional<User> tryCompleteRegistration(String token) {
+        try {
+            return Optional.of(registrationService.completeRegistration(token));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
         }
     }
 
@@ -75,6 +109,9 @@ public class EmailVerificationController {
     public ResponseEntity<Map<String, String>> resendVerification(
             @Valid @RequestBody ResendVerificationRequest request) {
         logger.info("Resend verification request for email: {}", request.getEmail());
+
+        // Rate limit: 1 resend per 1 minute per email (JLabs3 pattern)
+        rateLimiterService.checkResendVerification(request.getEmail());
 
         try {
             // Try pending registration first
