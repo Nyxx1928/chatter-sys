@@ -45,10 +45,10 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
   if (!isClient || isChecking || !isInitialized || !isAuthenticated || !user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-kiro-ink-950">
+      <div className="flex items-center justify-center min-h-screen bg-slack-surface-primary">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-kiro-purple-400 mb-4" />
-          <p className="text-kiro-slate-400">Loading...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-slack-primary mb-4" />
+          <p className="text-slack-text-secondary">Loading...</p>
         </div>
       </div>
     );
@@ -60,16 +60,16 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   const isProfileActive  = pathname.startsWith('/chat/profile');
 
   return (
-    <div className="flex h-[100dvh] bg-[#13131f] overflow-hidden">
+    <div className="flex h-[100dvh] bg-slack-surface-secondary overflow-hidden">
 
       {/* ── Desktop: slim icon-only left nav (hidden on mobile) ── */}
       <nav
-        className="hidden md:flex flex-col items-center w-16 shrink-0 bg-[#0e0e1a] border-r border-white/5 py-4 gap-1"
+        className="hidden md:flex flex-col items-center w-16 shrink-0 bg-slack-surface-secondary border-r border-slack-border py-4 gap-1"
         aria-label="Main navigation"
       >
         {/* Logo */}
         <div className="mb-4 flex items-center justify-center w-10 h-10">
-          <Image src="/logo1.png" alt="Chatter" width={32} height={32} className="brightness-0 invert" />
+          <Image src="/logo1.png" alt="Chatter" width={32} height={32} className="rounded-lg" />
         </div>
 
         <NavIcon href="/chat" label="Home" active={isChatsActive}>
@@ -101,14 +101,14 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
         {/* Connection dot */}
         <div
-          className={`w-2.5 h-2.5 rounded-full mb-2 ${connected ? 'bg-green-500' : connecting ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}
+          className={`w-2.5 h-2.5 rounded-full mb-2 ${connected ? 'bg-slack-accent-green' : connecting ? 'bg-slack-accent-yellow animate-pulse' : 'bg-slack-accent-red'}`}
           title={connected ? 'Connected' : connecting ? 'Connecting…' : 'Disconnected'}
           aria-label={connected ? 'Connected' : connecting ? 'Connecting' : 'Disconnected'}
         />
 
         <button
           onClick={() => { useAuthStore.getState().logout(); router.push('/'); }}
-          className="mt-3 w-9 h-9 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-kiro-purple-400 transition-all focus:outline-none focus:ring-2 focus:ring-kiro-purple-400"
+          className="mt-3 w-9 h-9 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-sm hover:ring-2 hover:ring-slack-primary transition-all focus:outline-none focus:ring-2 focus:ring-slack-primary"
           title={`Logout (${user.displayName})`}
           aria-label="Logout"
         >
@@ -120,13 +120,13 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
       <div className="flex flex-col flex-1 min-w-0 min-h-0">
         {/* Connection error banner */}
         {error && (
-          <div className="bg-red-950/60 border-b border-red-800/50 px-4 py-2" role="alert">
+          <div className="bg-slack-accent-red/20 border-b border-slack-accent-red/30 px-4 py-2" role="alert">
             <div className="flex items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-red-400 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-slack-accent-red shrink-0">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
               </svg>
-              <p className="text-sm text-red-300 flex-1">Connection error: {error}</p>
-              <button onClick={() => connect(token)} className="text-xs text-red-300 hover:text-red-100 underline focus:outline-none">
+              <p className="text-sm text-slack-accent-red flex-1">Connection error: {error}</p>
+              <button onClick={() => connect(token)} className="text-xs text-slack-accent-red hover:text-slack-accent-red/80 underline focus:outline-none">
                 Retry
               </button>
             </div>
@@ -140,7 +140,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
         {/* ── Mobile bottom tab bar (hidden on md+) ── */}
         <nav
-          className="md:hidden flex items-center justify-around bg-[#0e0e1a] border-t border-white/5 shrink-0 safe-area-bottom"
+          className="md:hidden flex items-center justify-around bg-slack-surface-secondary border-t border-slack-border shrink-0 safe-area-bottom"
           aria-label="Mobile navigation"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
@@ -163,7 +163,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
           </MobileTab>
 
           <MobileTab href="/chat/profile" label="Profile" active={isProfileActive}>
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-xs">
+            <div className="w-6 h-6 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-xs">
               {user.displayName.charAt(0).toUpperCase()}
             </div>
           </MobileTab>
@@ -180,11 +180,11 @@ function NavIcon({ href, label, active, children }: { href: string; label: strin
       href={href}
       aria-label={label}
       title={label}
-      className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-kiro-purple-400 ${
-        active ? 'bg-kiro-purple-600/30 text-kiro-purple-400' : 'text-kiro-slate-500 hover:bg-white/5 hover:text-kiro-slate-200'
+      className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-slack-primary ${
+        active ? 'bg-slack-primary/30 text-slack-primary' : 'text-slack-text-secondary hover:bg-slack-surface-tertiary hover:text-slack-text-primary'
       }`}
     >
-      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-kiro-purple-500 rounded-r-full" aria-hidden="true" />}
+      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-slack-primary rounded-r-full" aria-hidden="true" />}
       {children}
     </Link>
   );
@@ -197,8 +197,8 @@ function MobileTab({ href, label, active, children }: { href: string; label: str
       href={href}
       aria-label={label}
       aria-current={active ? 'page' : undefined}
-      className={`flex flex-col items-center gap-1 py-2 px-4 min-w-[64px] min-h-[44px] justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-kiro-purple-400 rounded-lg ${
-        active ? 'text-kiro-purple-400' : 'text-kiro-slate-500'
+      className={`flex flex-col items-center gap-1 py-2 px-4 min-w-[64px] min-h-[44px] justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-slack-primary rounded-lg ${
+        active ? 'text-slack-primary' : 'text-slack-text-secondary'
       }`}
     >
       {children}

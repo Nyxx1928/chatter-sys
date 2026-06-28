@@ -147,11 +147,11 @@ export default function ChatDemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slack-surface-secondary">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
-        <h1 className="text-xl font-bold text-gray-900">Chat Components Demo</h1>
-        <p className="text-sm text-gray-600 mt-1">
+      <header className="bg-slack-surface-primary border-b border-slack-border px-4 py-3">
+        <h1 className="text-xl font-bold text-slack-text-primary">Chat Components Demo</h1>
+        <p className="text-sm text-slack-text-secondary mt-1">
           Demonstrating MessageList, MessageInput, UserList, and RoomSelector
         </p>
       </header>
@@ -160,7 +160,7 @@ export default function ChatDemoPage() {
       <div className="container mx-auto p-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-120px)]">
           {/* Room Selector - Left sidebar on desktop, top on mobile */}
-          <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="lg:col-span-1 bg-slack-surface-primary rounded-2xl shadow-slack-lg border border-slack-border overflow-hidden">
             <RoomSelector
               rooms={rooms}
               currentRoomId={currentRoomId}
@@ -169,20 +169,20 @@ export default function ChatDemoPage() {
           </div>
 
           {/* Chat Area - Center */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+          <div className="lg:col-span-2 bg-slack-surface-primary rounded-2xl shadow-slack-lg border border-slack-border flex flex-col overflow-hidden">
             {/* Messages */}
             <div className="flex-1 overflow-hidden">
               <MessageList messages={messages} currentUserId={currentUserId} />
             </div>
 
             {/* Input */}
-            <div className="border-t border-gray-200 p-4">
+            <div className="border-t border-slack-border p-4">
               <MessageInput onSend={handleSendMessage} />
             </div>
           </div>
 
           {/* User List - Right sidebar on desktop, bottom on mobile */}
-          <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="lg:col-span-1 bg-slack-surface-primary rounded-2xl shadow-slack-lg border border-slack-border overflow-hidden">
             <UserList users={users} currentUserId={currentUserId} />
           </div>
         </div>
