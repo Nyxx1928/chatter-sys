@@ -8,21 +8,20 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
   
-  /* Kiro Purple Color Palette */
-  --color-kiro-purple-400: #9b7cff;
-  --color-kiro-purple-500: #6f42c1;
-  --color-kiro-purple-600: #5b3fe6;
-  --color-kiro-purple-700: #4329b3;
-  
-  /* Kiro Dark/Ink Colors */
-  --color-kiro-ink-900: #0b0b12;
-  --color-kiro-ink-950: #06060a;
-  
-  /* Kiro Slate/Text Colors */
-  --color-kiro-slate-100: #f1f1f8;
-  --color-kiro-slate-200: #d9d9e6;
-  --color-kiro-slate-400: #a1a1aa;
-  --color-kiro-slate-500: #8b8b9e;
+  /* Slack Color Palette */
+  --color-slack-primary: var(--slack-primary);
+  --color-slack-primary-light: var(--slack-primary-light);
+  --color-slack-accent-green: var(--slack-accent-green);
+  --color-slack-accent-blue: var(--slack-accent-blue);
+  --color-slack-accent-yellow: var(--slack-accent-yellow);
+  --color-slack-accent-red: var(--slack-accent-red);
+  --color-slack-surface-primary: var(--slack-surface-primary);
+  --color-slack-surface-secondary: var(--slack-surface-secondary);
+  --color-slack-surface-tertiary: var(--slack-surface-tertiary);
+  --color-slack-text-primary: var(--slack-text-primary);
+  --color-slack-text-secondary: var(--slack-text-secondary);
+  --color-slack-text-inverse: var(--slack-text-inverse);
+  --color-slack-border: var(--slack-border);
   
   /* Custom Animations */
   --animate-fade-in: fadeIn 0.45s ease-out;
@@ -96,21 +95,39 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --slack-primary: #4A154B;
+  --slack-primary-light: #7C2382;
+  --slack-accent-green: #2EB67D;
+  --slack-accent-blue: #36C5F0;
+  --slack-accent-yellow: #ECB22E;
+  --slack-accent-red: #E01E5A;
+  --slack-surface-primary: #FFFFFF;
+  --slack-surface-secondary: #F4EDE4;
+  --slack-surface-tertiary: #E8E0D5;
+  --slack-text-primary: #1D1C1D;
+  --slack-text-secondary: #616061;
+  --slack-text-inverse: #FFFFFF;
+  --slack-border: #DDD9D4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --slack-primary: #611F69;
+    --slack-primary-light: #7C2382;
+    --slack-surface-primary: #1A1D21;
+    --slack-surface-secondary: #222529;
+    --slack-surface-tertiary: #2D2F33;
+    --slack-text-primary: #D1D2D3;
+    --slack-text-secondary: #9D9EA0;
+    --slack-text-inverse: #1D1C1D;
+    --slack-border: #424448;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), "Geist", sans-serif;
+  background: var(--slack-surface-primary);
+  color: var(--slack-text-primary);
+  font-family: var(--font-noto-sans), "Noto Sans", sans-serif;
 }
 
 
