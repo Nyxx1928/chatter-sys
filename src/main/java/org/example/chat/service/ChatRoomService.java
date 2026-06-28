@@ -17,8 +17,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +31,9 @@ import java.util.stream.Collectors;
 public class ChatRoomService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatRoomService.class);
+
+    @jakarta.persistence.PersistenceContext
+    private EntityManager entityManager; // NOSONAR: used to clear session on concurrent write conflicts
 
     private final ChatRoomRepository chatRoomRepository;
     private final RoomMembershipRepository roomMembershipRepository;
@@ -188,18 +193,31 @@ public class ChatRoomService {
                     return new IllegalArgumentException("User not found");
                 });
 
-        // Return existing membership when user is already a member (idempotent)
-        return roomMembershipRepository.findByUserAndChatRoom(user, room)
-                .orElseGet(() -> {
-                    RoomMembership membership = new RoomMembership();
-                    membership.setUser(user);
-                    membership.setChatRoom(room);
-                    membership.setJoinedAt(LocalDateTime.now());
-                    membership.setRole(role != null ? role : MemberRole.MEMBER);
-                    RoomMembership saved = roomMembershipRepository.save(membership);
-                    logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
-                    return saved;
-                });
+        // Check existing membership first (optimistic path)
+        Optional<RoomMembership> existing = roomMembershipRepository.findByUserAndChatRoom(user, room);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        // Try to create membership, handling concurrent duplicate inserts
+        try {
+            RoomMembership membership = new RoomMembership();
+            membership.setUser(user);
+            membership.setChatRoom(room);
+            membership.setJoinedAt(LocalDateTime.now());
+            membership.setRole(role != null ? role : MemberRole.MEMBER);
+            RoomMembership saved = roomMembershipRepository.save(membership);
+            logger.info("Successfully added user ID: {} to chat room ID: {}", userId, roomId);
+            return saved;
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Concurrent duplicate insert — another thread created the membership first.
+            // Clear the EntityManager to reset session state after the failed insert.
+            entityManager.clear();
+            logger.warn("Concurrent addMember detected for user {} in room {}, fetching existing", userId, roomId);
+            return roomMembershipRepository.findByUserAndChatRoom(user, room)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Membership creation failed due to concurrent access", e));
+        }
     }
 
     /**
