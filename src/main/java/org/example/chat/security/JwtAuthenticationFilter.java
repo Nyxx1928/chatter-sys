@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.chat.repository.UserRepository;
+import org.example.chat.repository.TokenBlacklistRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
@@ -31,10 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil,
+                                    UserDetailsService userDetailsService,
+                                    TokenBlacklistRepository tokenBlacklistRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.tokenBlacklistRepository = tokenBlacklistRepository;
     }
 
     @Override
@@ -49,6 +53,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = extractJwtFromRequest(request);
 
             if (jwt != null && jwtUtil.validateToken(jwt)) {
+                // Check if the token has been revoked (session management)
+                String jti = jwtUtil.getTokenId(jwt);
+                if (tokenBlacklistRepository.existsByTokenJti(jti)) {
+                    logger.warn("Rejected revoked JWT token: jti={}", jti);
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 // Extract username from token
                 String username = jwtUtil.getUsernameFromToken(jwt);
 

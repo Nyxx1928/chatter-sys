@@ -14,6 +14,8 @@ public interface RoomMembershipRepository extends JpaRepository<RoomMembership, 
     
     List<RoomMembership> findByChatRoom(ChatRoom room);
     
+    List<RoomMembership> findByChatRoomId(Long roomId);
+    
     List<RoomMembership> findByUser(User user);
     
     Optional<RoomMembership> findByUserAndChatRoom(User user, ChatRoom room);
