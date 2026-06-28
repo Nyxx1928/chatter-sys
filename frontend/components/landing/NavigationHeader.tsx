@@ -109,12 +109,12 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl ${className}`.trim()}
+      className={`sticky top-0 z-40 w-full border-b border-slack-border bg-slack-surface-primary/80 backdrop-blur-xl ${className}`.trim()}
     >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-kiro-purple-600 sm:h-9 sm:w-9">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slack-primary sm:h-9 sm:w-9">
             <Image
               src="/logo1.png"
               alt="Chatter logo"
@@ -123,7 +123,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
               className="brightness-0 invert"
             />
           </div>
-          <span className="text-base font-bold text-white sm:text-lg">Chatter</span>
+          <span className="text-base font-bold text-slack-text-primary sm:text-lg">Chatter</span>
         </div>
 
         {/* Desktop nav */}
@@ -133,10 +133,10 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
               key={item.id}
               type="button"
               onClick={() => handleItemClick(item.id)}
-              className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f] ${
+              className={`rounded-pill px-4 py-2 text-xs uppercase tracking-[0.18em] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary ${
                 activeSection === item.id
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/60 hover:text-white'
+                  ? 'bg-slack-surface-tertiary text-slack-text-primary'
+                  : 'text-slack-text-secondary hover:text-slack-text-primary'
               }`}
             >
               {item.label}
@@ -148,13 +148,13 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
         <div className="hidden items-center gap-3 lg:flex">
           <Link
             href="/auth/login"
-            className="rounded-full border border-white/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:border-kiro-purple-400/60 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
+            className="rounded-pill border border-slack-border px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slack-text-primary transition-colors hover:bg-slack-surface-tertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary"
           >
             Sign In
           </Link>
           <Link
             href="/auth/register"
-            className="rounded-full bg-gradient-to-r from-kiro-purple-600 via-kiro-purple-500 to-kiro-purple-400 px-6 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-[0_12px_30px_rgba(88,61,196,0.35)] transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]"
+            className="rounded-pill bg-slack-primary px-6 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slack-text-inverse shadow-slack-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary"
           >
             Start Journey
           </Link>
@@ -165,15 +165,15 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
           ref={menuButtonRef}
           type="button"
           onClick={handleMenuToggle}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-slack-border text-slack-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary lg:hidden"
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
         >
           <span className="sr-only">Toggle menu</span>
           <div className="flex flex-col gap-1.5">
-            <span className="h-0.5 w-5 rounded-full bg-white" />
-            <span className="h-0.5 w-5 rounded-full bg-white" />
-            <span className="h-0.5 w-5 rounded-full bg-white" />
+            <span className="h-0.5 w-5 rounded-full bg-slack-text-primary" />
+            <span className="h-0.5 w-5 rounded-full bg-slack-text-primary" />
+            <span className="h-0.5 w-5 rounded-full bg-slack-text-primary" />
           </div>
         </button>
       </div>
@@ -182,7 +182,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
       {isMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="border-t border-white/5 bg-[#0a0a0f] px-6 py-4 lg:hidden"
+          className="border-t border-slack-border bg-slack-surface-primary px-6 py-4 lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation menu"
@@ -194,8 +194,8 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
                 ref={index === 0 ? firstFocusableRef : null}
                 type="button"
                 onClick={() => handleItemClick(item.id)}
-                className={`block w-full rounded-xl px-4 py-3 text-left text-xs uppercase tracking-[0.18em] transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset ${
-                  activeSection === item.id ? 'text-white' : 'text-white/60 hover:text-white'
+                className={`block w-full rounded-xl px-4 py-3 text-left text-xs uppercase tracking-[0.18em] transition-colors hover:bg-slack-surface-tertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-inset ${
+                  activeSection === item.id ? 'text-slack-text-primary' : 'text-slack-text-secondary hover:text-slack-text-primary'
                 }`}
               >
                 {item.label}
@@ -204,13 +204,13 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
             <div className="flex flex-col gap-2 pt-3">
               <Link
                 href="/auth/login"
-                className="block rounded-full border border-white/15 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
+                className="block rounded-pill border border-slack-border px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slack-text-primary hover:bg-slack-surface-tertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-inset"
               >
                 Sign In
               </Link>
               <Link
                 href="/auth/register"
-                className="block rounded-full bg-gradient-to-r from-kiro-purple-600 via-kiro-purple-500 to-kiro-purple-400 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 focus-visible:ring-inset"
+                className="block rounded-pill bg-slack-primary px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slack-text-inverse hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-inset"
               >
                 Start Journey
               </Link>
