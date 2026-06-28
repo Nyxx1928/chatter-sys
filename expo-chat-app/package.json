@@ -3,6 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@expo-google-fonts/noto-sans": "^0.4.2",
+    "@expo-google-fonts/noto-sans-display": "^0.4.2",
     "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/netinfo": "^12.0.1",
@@ -12,6 +14,7 @@
     "expo-constants": "~56.0.18",
     "expo-device": "^56.0.4",
     "expo-font": "~56.0.6",
+    "expo-linear-gradient": "~56.0.4",
     "expo-linking": "~56.0.14",
     "expo-notifications": "^56.0.17",
     "expo-router": "~56.2.10",
