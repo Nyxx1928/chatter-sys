@@ -86,7 +86,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         <div className="mb-4 rounded-lg border border-slack-accent-green/30 bg-slack-accent-green/10 p-4 text-sm text-slack-accent-green">
           Your password has been reset successfully!
         </div>
-        <p className="text-sm text-kiro-slate-500">
+        <p className="text-sm text-slack-text-secondary">
           Redirecting you to the login page...
         </p>
       </div>
@@ -95,7 +95,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md" noValidate>
-      <p className="text-sm text-kiro-slate-400">
+      <p className="text-sm text-slack-text-secondary">
         Enter your new password below.
       </p>
 
@@ -132,7 +132,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       {errors.general && (
         <div
           role="alert"
-          className="p-3 text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg"
+          className="p-3 text-sm text-slack-accent-red bg-slack-accent-red/10 border border-slack-accent-red/30 rounded-lg"
         >
           {errors.general}
         </div>
