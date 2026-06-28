@@ -4,9 +4,16 @@ import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { useAuthStore } from '@/src/stores/authStore';
 import { createRoom } from '@/src/api/rooms';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function CreateChannelScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const token = useAuthStore((s) => s.token);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -38,18 +45,18 @@ export default function CreateChannelScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.inner}>
-        <Text style={styles.title}>Create Channel</Text>
+      <View style={[styles.inner, { backgroundColor: colors.surfacePrimary }]}>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Create Channel</Text>
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        {error && <Text style={[styles.error, { color: colors.accentRed }]}>{error}</Text>}
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Channel name"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.textSecondary}
           value={name}
           onChangeText={setName}
           editable={!loading}
@@ -57,9 +64,9 @@ export default function CreateChannelScreen() {
         />
 
         <TextInput
-          style={[styles.input, styles.descriptionInput]}
+          style={[styles.input, styles.descriptionInput, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Description (optional)"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.textSecondary}
           value={description}
           onChangeText={setDescription}
           editable={!loading}
@@ -68,19 +75,19 @@ export default function CreateChannelScreen() {
         />
 
         <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: colors.primary }, loading && styles.buttonDisabled]}
           onPress={handleCreate}
           disabled={loading || !name.trim()}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.textInverse} />
           ) : (
-            <Text style={styles.buttonText}>Create</Text>
+            <Text style={[styles.buttonText, { color: colors.textInverse }]}>Create</Text>
           )}
         </Pressable>
 
         <Pressable onPress={() => router.back()} disabled={loading}>
-          <Text style={styles.cancel}>Cancel</Text>
+          <Text style={[styles.cancel, { color: colors.textSecondary }]}>Cancel</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -91,56 +98,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   inner: {
-    backgroundColor: '#fff',
-    marginHorizontal: 24,
-    borderRadius: 16,
-    padding: 24,
-    gap: 16,
+    marginHorizontal: SlackSpacing['2xl'],
+    borderRadius: SlackBorderRadius.lg,
+    padding: SlackSpacing['2xl'],
+    gap: SlackSpacing.lg,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: SlackTypography.displayMd.fontSize,
+    fontWeight: SlackTypography.displayMd.fontWeight,
+    fontFamily: SlackTypography.displayMd.fontFamily,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: SlackSpacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#1f2937',
+    borderRadius: SlackBorderRadius.md,
+    paddingHorizontal: SlackSpacing.md,
+    paddingVertical: SlackSpacing.md,
+    fontSize: SlackTypography.bodyLg.fontSize,
   },
   descriptionInput: {
     minHeight: 80,
     textAlignVertical: 'top',
   },
   button: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: SlackBorderRadius.pill,
+    paddingVertical: SlackSpacing.lg,
     alignItems: 'center',
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
   },
   cancel: {
-    color: '#6b7280',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: SlackTypography.bodySm.fontSize,
   },
   error: {
-    color: '#dc2626',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: SlackTypography.bodySm.fontSize,
   },
 });

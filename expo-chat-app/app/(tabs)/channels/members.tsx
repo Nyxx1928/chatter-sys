@@ -8,10 +8,17 @@ import { useAuthStore } from '@/src/stores/authStore';
 import { usePresenceStore } from '@/src/stores/presenceStore';
 import { getRoomMembers, deleteRoom } from '@/src/api/rooms';
 import { User, MemberRole } from '@/src/types/domain';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function MemberListScreen() {
   const { roomId } = useLocalSearchParams<{ roomId: string }>();
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const roomIdNum = parseInt(roomId!, 10);
   const token = useAuthStore((s) => s.token);
   const currentUser = useAuthStore((s) => s.user);
@@ -75,47 +82,47 @@ export default function MemberListScreen() {
       const online = usePresenceStore.getState().isOnline(item.id);
       const initial = item.displayName.charAt(0).toUpperCase();
       return (
-        <View style={styles.memberRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initial}</Text>
+        <View style={[styles.memberRow, { borderBottomColor: colors.border }]}>
+          <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.avatarText, { color: colors.textInverse }]}>{initial}</Text>
           </View>
           <View style={styles.memberInfo}>
-            <Text style={styles.memberName}>{item.displayName}</Text>
-            <Text style={styles.memberUsername}>@{item.username}</Text>
+            <Text style={[styles.memberName, { color: colors.textPrimary }]}>{item.displayName}</Text>
+            <Text style={[styles.memberUsername, { color: colors.textSecondary }]}>@{item.username}</Text>
           </View>
           <PresenceDot online={online ?? false} size={10} />
         </View>
       );
     },
-    []
+    [colors]
   );
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2f95dc" />
+      <View style={[styles.center, { backgroundColor: colors.surfacePrimary }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Pressable style={styles.retryButton} onPress={loadMembers}>
-          <Text style={styles.retryText}>Retry</Text>
+      <View style={[styles.center, { backgroundColor: colors.surfacePrimary }]}>
+        <Text style={[styles.errorText, { color: colors.accentRed }]}>{error}</Text>
+        <Pressable style={[styles.retryButton, { backgroundColor: colors.primary }]} onPress={loadMembers}>
+          <Text style={[styles.retryText, { color: colors.textInverse }]}>Retry</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.surfacePrimary }]}>
+      <View style={[styles.header, { backgroundColor: colors.surfacePrimary, borderBottomColor: colors.border }]}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>Back</Text>
+          <Text style={[styles.backText, { color: colors.primary }]}>Back</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Members ({members.length})</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Members ({members.length})</Text>
         <View style={styles.headerRight} />
       </View>
 
@@ -126,19 +133,19 @@ export default function MemberListScreen() {
         contentContainerStyle={styles.listContent}
       />
 
-      <View style={styles.actions}>
-        <Pressable style={styles.inviteButton}>
-          <Text style={styles.inviteText}>Invite</Text>
+      <View style={[styles.actions, { borderTopColor: colors.border }]}>
+        <Pressable style={[styles.inviteButton, { borderColor: colors.primary }]}>
+          <Text style={[styles.inviteText, { color: colors.primary }]}>Invite</Text>
         </Pressable>
         <Pressable
-          style={[styles.deleteButton, deleting && styles.buttonDisabled]}
+          style={[styles.deleteButton, { backgroundColor: colors.accentRed }, deleting && styles.buttonDisabled]}
           onPress={handleDeleteChannel}
           disabled={deleting}
         >
           {deleting ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={styles.deleteText}>Delete Channel</Text>
+            <Text style={[styles.deleteText, { color: colors.textInverse }]}>Delete Channel</Text>
           )}
         </Pressable>
       </View>
@@ -154,28 +161,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: SlackSpacing['2xl'],
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: SlackSpacing.lg,
     paddingTop: 56,
-    paddingBottom: 12,
-    backgroundColor: '#fff',
+    paddingBottom: SlackSpacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
   },
   backButton: {
-    paddingRight: 12,
+    paddingRight: SlackSpacing.md,
   },
   backText: {
-    color: '#2f95dc',
-    fontSize: 17,
+    fontSize: SlackTypography.bodyLg.fontSize,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -183,25 +187,24 @@ const styles = StyleSheet.create({
     width: 50,
   },
   listContent: {
-    paddingVertical: 8,
+    paddingVertical: SlackSpacing.sm,
   },
   memberRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: SlackSpacing.lg,
+    paddingVertical: SlackSpacing.sm,
+    borderBottomWidth: 1,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#2f95dc',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: SlackSpacing.md,
   },
   avatarText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -209,61 +212,52 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '500',
   },
   memberUsername: {
-    fontSize: 13,
-    color: '#9ca3af',
+    fontSize: SlackTypography.bodySm.fontSize,
     marginTop: 1,
   },
   actions: {
-    padding: 16,
-    gap: 12,
+    padding: SlackSpacing.lg,
+    gap: SlackSpacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
   },
   inviteButton: {
     borderWidth: 1,
-    borderColor: '#2f95dc',
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: SlackBorderRadius.pill,
+    paddingVertical: SlackSpacing.md,
     alignItems: 'center',
   },
   inviteText: {
-    color: '#2f95dc',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
   },
   deleteButton: {
-    backgroundColor: '#ef4444',
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: SlackBorderRadius.pill,
+    paddingVertical: SlackSpacing.md,
     alignItems: 'center',
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   deleteText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
   },
   errorText: {
-    color: '#dc2626',
-    fontSize: 16,
-    marginBottom: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
+    marginBottom: SlackSpacing.lg,
     textAlign: 'center',
   },
   retryButton: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    borderRadius: SlackBorderRadius.pill,
+    paddingHorizontal: SlackSpacing['2xl'],
+    paddingVertical: SlackSpacing.md,
   },
   retryText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
   },
 });

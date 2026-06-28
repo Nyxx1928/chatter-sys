@@ -13,10 +13,17 @@ import { getMessageHistory } from '@/src/api/messages';
 import { getRoomDetails } from '@/src/api/rooms';
 import { ChatRoom, Message, MessageType } from '@/src/types/domain';
 import { RoomMessagePayload, PresencePayload } from '@/src/types/stomp';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function ChatRoomScreen() {
   const { roomId } = useLocalSearchParams<{ roomId: string }>();
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const roomIdNum = parseInt(roomId!, 10);
   const token = useAuthStore((s) => s.token);
   const currentUser = useAuthStore((s) => s.user);
@@ -115,18 +122,18 @@ export default function ChatRoomScreen() {
 
   if (loading && room === null) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2f95dc" />
+      <View style={[styles.center, { backgroundColor: colors.surfacePrimary }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (error && room === null) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Pressable style={styles.retryButton} onPress={loadInitialData}>
-          <Text style={styles.retryText}>Retry</Text>
+      <View style={[styles.center, { backgroundColor: colors.surfacePrimary }]}>
+        <Text style={[styles.errorText, { color: colors.accentRed }]}>{error}</Text>
+        <Pressable style={[styles.retryButton, { backgroundColor: colors.primary }]} onPress={loadInitialData}>
+          <Text style={[styles.retryText, { color: colors.textInverse }]}>Retry</Text>
         </Pressable>
       </View>
     );
@@ -135,12 +142,12 @@ export default function ChatRoomScreen() {
   const headerName = room?.otherParticipant?.displayName ?? room?.name ?? 'Chat';
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.surfacePrimary }]}>
+      <View style={[styles.header, { backgroundColor: colors.surfacePrimary, borderBottomColor: colors.border }]}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>Back</Text>
+          <Text style={[styles.backText, { color: colors.primary }]}>Back</Text>
         </Pressable>
-        <Text style={styles.headerTitle} numberOfLines={1}>{headerName}</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>{headerName}</Text>
         <View style={styles.headerRight} />
       </View>
       <ConnectionBanner />
@@ -151,7 +158,7 @@ export default function ChatRoomScreen() {
           onRetry={handleRetry}
           ListEmptyComponent={
             <View style={styles.emptyMessages}>
-              <Text style={styles.emptyText}>No messages yet. Say hello!</Text>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No messages yet. Say hello!</Text>
             </View>
           }
         />
@@ -169,28 +176,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: SlackSpacing['2xl'],
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: SlackSpacing.lg,
     paddingTop: 56,
-    paddingBottom: 12,
-    backgroundColor: '#fff',
+    paddingBottom: SlackSpacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
   },
   backButton: {
-    paddingRight: 12,
+    paddingRight: SlackSpacing.md,
   },
   backText: {
-    color: '#2f95dc',
-    fontSize: 17,
+    fontSize: SlackTypography.bodyLg.fontSize,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 17,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -207,24 +211,20 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#9ca3af',
+    fontSize: SlackTypography.bodyLg.fontSize,
   },
   errorText: {
-    color: '#dc2626',
-    fontSize: 16,
-    marginBottom: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
+    marginBottom: SlackSpacing.lg,
     textAlign: 'center',
   },
   retryButton: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    borderRadius: SlackBorderRadius.pill,
+    paddingHorizontal: SlackSpacing['2xl'],
+    paddingVertical: SlackSpacing.md,
   },
   retryText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
   },
 });

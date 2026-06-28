@@ -11,9 +11,16 @@ import { useStompSubscription } from '@/src/stomp/hooks';
 import { listRooms } from '@/src/api/rooms';
 import { ChatRoom } from '@/src/types/domain';
 import { RoomMessagePayload } from '@/src/types/stomp';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function ChannelsScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const token = useAuthStore((s) => s.token);
   const rooms = useChatStore((s) => s.rooms);
   const setRooms = useChatStore((s) => s.setRooms);
@@ -55,54 +62,54 @@ export default function ChannelsScreen() {
   const renderItem = useCallback(
     ({ item }: { item: ChatRoom & { latestMessage?: string } }) => (
       <Pressable
-        style={styles.channelRow}
+        style={[styles.channelRow, { borderBottomColor: colors.border }]}
         onPress={() => router.push(`/(tabs)/channels/${item.id}`)}
       >
-        <View style={styles.channelIcon}>
-          <Ionicons name={"hash" as any} size={24} color="#fff" />
+        <View style={[styles.channelIcon, { backgroundColor: colors.primary }]}>
+          <Ionicons name={"hash" as any} size={24} color={colors.textInverse} />
         </View>
         <View style={styles.channelContent}>
-          <Text style={styles.channelName}>{item.name}</Text>
+          <Text style={[styles.channelName, { color: colors.textPrimary }]}>{item.name}</Text>
           {item.latestMessage && (
-            <Text style={styles.channelPreview} numberOfLines={1}>
+            <Text style={[styles.channelPreview, { color: colors.textSecondary }]} numberOfLines={1}>
               {item.latestMessage}
             </Text>
           )}
         </View>
       </Pressable>
     ),
-    [router]
+    [router, colors]
   );
 
   if (loading && groupRooms.length === 0) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2f95dc" />
+      <View style={[styles.center, { backgroundColor: colors.surfaceSecondary }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (error && groupRooms.length === 0) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Pressable style={styles.retryButton} onPress={loadChannels}>
-          <Text style={styles.retryText}>Retry</Text>
+      <View style={[styles.center, { backgroundColor: colors.surfaceSecondary }]}>
+        <Text style={[styles.errorText, { color: colors.accentRed }]}>{error}</Text>
+        <Pressable style={[styles.retryButton, { backgroundColor: colors.primary }]} onPress={loadChannels}>
+          <Text style={[styles.retryText, { color: colors.textInverse }]}>Retry</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary }]}>
       <ConnectionBanner />
       <View style={styles.headerRow}>
-        <Text style={styles.headerTitle}>Channels</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Channels</Text>
         <Pressable
-          style={styles.createButton}
+          style={[styles.createButton, { backgroundColor: colors.primary }]}
           onPress={() => router.push('/(tabs)/channels/create')}
         >
-          <Ionicons name="add" size={24} color="#fff" />
+          <Ionicons name="add" size={24} color={colors.textInverse} />
         </Pressable>
       </View>
       <FlashList
@@ -113,8 +120,8 @@ export default function ChannelsScreen() {
         refreshing={loading}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>No channels yet</Text>
-            <Text style={styles.emptySubtitle}>Create one!</Text>
+            <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No channels yet</Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>Create one!</Text>
           </View>
         }
       />
@@ -130,83 +137,77 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: SlackSpacing['2xl'],
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: SlackSpacing.lg,
+    paddingVertical: SlackSpacing.md,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: SlackTypography.displayXl.fontSize,
+    fontWeight: SlackTypography.displayXl.fontWeight,
+    fontFamily: SlackTypography.displayXl.fontFamily,
   },
   createButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#2f95dc',
     justifyContent: 'center',
     alignItems: 'center',
   },
   channelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: SlackSpacing.lg,
+    paddingVertical: SlackSpacing.md,
+    borderBottomWidth: 1,
   },
   channelIcon: {
     width: 44,
     height: 44,
-    borderRadius: 10,
-    backgroundColor: '#6b7280',
+    borderRadius: SlackBorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: SlackSpacing.md,
   },
   channelContent: {
     flex: 1,
   },
   channelName: {
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
     marginBottom: 2,
   },
   channelPreview: {
-    fontSize: 14,
-    color: '#6b7280',
+    fontSize: SlackTypography.bodySm.fontSize,
   },
   emptyState: {
     padding: 40,
     alignItems: 'center',
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
-    color: '#6b7280',
-    marginBottom: 8,
+    marginBottom: SlackSpacing.sm,
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: SlackTypography.bodySm.fontSize,
   },
   errorText: {
-    color: '#dc2626',
-    fontSize: 16,
-    marginBottom: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
+    marginBottom: SlackSpacing.lg,
     textAlign: 'center',
   },
   retryButton: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    borderRadius: SlackBorderRadius.pill,
+    paddingHorizontal: SlackSpacing['2xl'],
+    paddingVertical: SlackSpacing.md,
   },
   retryText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyLg.fontSize,
     fontWeight: '600',
   },
 });
