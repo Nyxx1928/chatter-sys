@@ -10,6 +10,7 @@ on:
       - ".gitignore"
   schedule:
     - cron: "0 2 * * *"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +34,7 @@ jobs:
     outputs:
       deps_changed: ${{ steps.final.outputs.deps_changed }}
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Detect dependency file changes (PRs only)
         if: github.event_name == 'pull_request'
@@ -62,10 +63,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Java
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -109,10 +110,10 @@ jobs:
     timeout-minutes: 15
     needs: [phase1-lint-validate]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Java
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -151,17 +152,17 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Java
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
       - name: Run backend integration tests
-        run: mvn failsafe:integration-test failsafe:verify -Dit.test="*IntegrationTest" 2>&1 | tee mvn-build.log
+        run: mvn test-compile failsafe:integration-test failsafe:verify -Dit.test="*IT" 2>&1 | tee mvn-build.log
 
       - name: Upload test reports
         if: always()
@@ -180,7 +181,7 @@ jobs:
     timeout-minutes: 30
     needs: [phase1-lint-validate]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Detect Playwright config
         id: playwright
@@ -230,7 +231,7 @@ jobs:
     timeout-minutes: 15
     needs: [phase1-lint-validate]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.4.0
@@ -261,12 +262,17 @@ jobs:
     timeout-minutes: 5
     needs: [phase1-lint-validate]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Scan for secrets
         id: secrets-scan
         continue-on-error: true
         run: |
+          # Ensure ripgrep is available (not pre-installed on ubuntu-latest runners)
+          if ! command -v rg &> /dev/null; then
+            echo "rg not found, installing ripgrep..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+          fi
           had_findings=false
           : > secrets-scan-results.txt
           for pattern in \
@@ -307,7 +313,7 @@ jobs:
       frontend_image: ${{ steps.images.outputs.frontend_image }}
       images_pushed: ${{ steps.images.outputs.images_pushed }}
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Detect Dockerfiles
         id: dockerfiles
@@ -341,18 +347,18 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.dockerfiles.outputs.backend == 'true' || steps.dockerfiles.outputs.frontend == 'true'
-        uses: docker/setup-buildx-action@v4.0.0
+        uses: docker/setup-buildx-action@v4.1.0
 
       - name: Log in to Docker Hub
         if: (steps.dockerfiles.outputs.backend == 'true' || steps.dockerfiles.outputs.frontend == 'true') && steps.images.outputs.images_pushed == 'true'
-        uses: docker/login-action@v4.1.0
+        uses: docker/login-action@v4.2.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build backend image
         if: steps.dockerfiles.outputs.backend == 'true'
-        uses: docker/build-push-action@v7.1.0
+        uses: docker/build-push-action@v7.2.0
         with:
           context: .
           file: Dockerfile
@@ -362,7 +368,7 @@ jobs:
 
       - name: Build frontend image
         if: steps.dockerfiles.outputs.frontend == 'true'
-        uses: docker/build-push-action@v7.1.0
+        uses: docker/build-push-action@v7.2.0
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -424,11 +430,11 @@ jobs:
     timeout-minutes: 10
     needs: [phase7-build-docker, changes]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Install Cosign
         if: needs.phase7-build-docker.outputs.images_pushed == 'true'
-        uses: sigstore/cosign-installer@v4.1.1
+        uses: sigstore/cosign-installer@v4.1.2
 
       - name: Sign backend image
         if: needs.phase7-build-docker.outputs.backend_built == 'true' && needs.phase7-build-docker.outputs.images_pushed == 'true'
@@ -456,9 +462,9 @@ jobs:
     name: phase 9 - dependency audit
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [phase1-lint-validate]
+    needs: [phase1-lint-validate, changes]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.4.0
@@ -479,7 +485,7 @@ jobs:
 
       - name: Set up Java
         if: github.event_name == 'schedule'
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -497,7 +503,7 @@ jobs:
       - name: Maven dependency audit (weekly only)
         if: github.event_name == 'schedule'
         continue-on-error: true
-        run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 -DnvdDatafeedUrl=https://www.nist.gov/feeds -DautoUpdate=false -Dformat=ALL 2>&1 | tee owasp-dependency-check.log
+        run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 -DautoUpdate=false -Dformat=ALL 2>&1 | tee owasp-dependency-check.log
 
       - name: Upload dependency audit reports
         if: always()
@@ -527,7 +533,7 @@ jobs:
       - phase8-security-scan
       - phase9-dependency-audit
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Download all debug artifacts
         uses: actions/download-artifact@v4
@@ -641,7 +647,7 @@ jobs:
             echo "### Debug Artifacts Inventory"
             echo ""
             echo '```'
-            find . -maxdepth 2 -type d -name "debug-*" -o -type d -name "summary-*" 2>/dev/null | sort
+            find . -maxdepth 2 \( -type d -name "debug-*" -o -type d -name "summary-*" \) 2>/dev/null | sort
             find . -type f -not -path './.git/*' 2>/dev/null | head -60
             echo '```'
             echo ""
@@ -669,5 +675,4 @@ jobs:
             **/*.json
             **/*.log
             **/*.xml
-            **/*.spdx.json
           if-no-files-found: ignore
