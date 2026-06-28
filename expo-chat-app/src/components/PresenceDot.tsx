@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SlackColors } from '@/constants/Colors';
 
@@ -6,7 +7,7 @@ type Props = {
   size?: number;
 };
 
-export default function PresenceDot({ online, size = 10 }: Props) {
+const PresenceDot = memo(function PresenceDot({ online, size = 10 }: Props) {
   return (
     <View
       style={[
@@ -14,9 +15,11 @@ export default function PresenceDot({ online, size = 10 }: Props) {
         { width: size, height: size, borderRadius: size / 2 },
         online ? styles.online : styles.offline,
       ]}
+      accessibilityLabel={online ? 'Online' : 'Offline'}
+      accessibilityRole="image"
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   dot: {
@@ -30,3 +33,5 @@ const styles = StyleSheet.create({
     backgroundColor: SlackColors.light.textSecondary,
   },
 });
+
+export default PresenceDot;

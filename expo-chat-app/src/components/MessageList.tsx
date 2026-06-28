@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import MessageBubble from './MessageBubble';
@@ -43,7 +43,7 @@ const groupMessagesByDate = (messages: MessageWithStatus[]): Section[] => {
   return sections;
 };
 
-export default function MessageList({ messages, onEndReached, onRetry, ListEmptyComponent }: Props) {
+const MessageList = memo(function MessageList({ messages, onEndReached, onRetry, ListEmptyComponent }: Props) {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const currentUserId = useAuthStore((s) => s.user?.id);
@@ -93,9 +93,11 @@ export default function MessageList({ messages, onEndReached, onRetry, ListEmpty
           </View>
         ) : null
       }
+      accessibilityLabel="Message list"
+      accessibilityRole="list"
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   listContent: {
@@ -120,3 +122,5 @@ const styles = StyleSheet.create({
     fontSize: SlackTypography.caption.fontSize,
   },
 });
+
+export default MessageList;

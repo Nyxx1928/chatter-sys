@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SlackColors } from '@/constants/Colors';
@@ -12,7 +12,7 @@ type Props = {
   disabled?: boolean;
 };
 
-export default function MessageInput({ onSend, disabled }: Props) {
+const MessageInput = memo(function MessageInput({ onSend, disabled }: Props) {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const [text, setText] = useState('');
@@ -39,11 +39,15 @@ export default function MessageInput({ onSend, disabled }: Props) {
           multiline
           maxLength={2000}
           editable={!disabled}
+          accessibilityLabel="Message input"
+          accessibilityRole="text"
         />
         <Pressable
           style={[styles.sendButton, { backgroundColor: (!text.trim() || disabled) ? colors.surfaceTertiary : colors.primary }]}
           onPress={handleSend}
           disabled={!text.trim() || disabled}
+          accessibilityLabel="Send message"
+          accessibilityRole="button"
         >
           <Ionicons
             name="send"
@@ -54,7 +58,7 @@ export default function MessageInput({ onSend, disabled }: Props) {
       </View>
     </KeyboardAvoidingView>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -82,3 +86,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default MessageInput;

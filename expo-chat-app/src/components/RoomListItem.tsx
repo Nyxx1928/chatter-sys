@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import PresenceDot from './PresenceDot';
@@ -17,7 +18,7 @@ type Props = {
   onPress: () => void;
 };
 
-export default function RoomListItem({ room, latestMessage, latestMessageTimestamp, onPress }: Props) {
+const RoomListItem = memo(function RoomListItem({ room, latestMessage, latestMessageTimestamp, onPress }: Props) {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const isOnline = usePresenceStore((s) =>
@@ -27,7 +28,12 @@ export default function RoomListItem({ room, latestMessage, latestMessageTimesta
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <Pressable style={[styles.container, { borderBottomColor: colors.border }]} onPress={onPress}>
+    <Pressable
+      style={[styles.container, { borderBottomColor: colors.border }]}
+      onPress={onPress}
+      accessibilityLabel={`Chat with ${displayName}`}
+      accessibilityRole="button"
+    >
       <View style={styles.avatarContainer}>
         <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
           <Text style={[styles.avatarText, { color: colors.textInverse }]}>{initial}</Text>
@@ -55,7 +61,7 @@ export default function RoomListItem({ room, latestMessage, latestMessageTimesta
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -107,3 +113,5 @@ const styles = StyleSheet.create({
     fontSize: SlackTypography.bodySm.fontSize,
   },
 });
+
+export default RoomListItem;

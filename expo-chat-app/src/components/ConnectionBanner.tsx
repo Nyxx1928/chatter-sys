@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import { Text } from '@/components/Themed';
 import { useConnectionStore } from '@/src/stores/connectionStore';
 import { SlackColors } from '@/constants/Colors';
 import SlackTypography from '@/constants/Typography';
 
-export default function ConnectionBanner() {
+const ConnectionBanner = memo(function ConnectionBanner() {
   const connected = useConnectionStore((s) => s.connected);
   const connecting = useConnectionStore((s) => s.connecting);
   const error = useConnectionStore((s) => s.error);
@@ -31,11 +31,15 @@ export default function ConnectionBanner() {
   }
 
   return (
-    <Animated.View style={[styles.banner, { backgroundColor: bgColor, transform: [{ translateY }] }]}>
+    <Animated.View
+      style={[styles.banner, { backgroundColor: bgColor, transform: [{ translateY }] }]}
+      accessibilityLabel={message}
+      accessibilityRole="alert"
+    >
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   banner: {
@@ -54,3 +58,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default ConnectionBanner;

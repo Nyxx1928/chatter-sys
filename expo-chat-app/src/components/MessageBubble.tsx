@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import { MessageType } from '@/src/types/domain';
@@ -15,7 +16,7 @@ type Props = {
   onRetry?: () => void;
 };
 
-export default function MessageBubble({ message, isOwn, onRetry }: Props) {
+const MessageBubble = memo(function MessageBubble({ message, isOwn, onRetry }: Props) {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
 
@@ -30,6 +31,8 @@ export default function MessageBubble({ message, isOwn, onRetry }: Props) {
   const isFailed = message._status === 'failed';
   const isSending = message._status === 'sending';
 
+  const retryLabel = isFailed ? 'Tap to retry sending message' : undefined;
+
   return (
     <Pressable
       style={[
@@ -38,6 +41,8 @@ export default function MessageBubble({ message, isOwn, onRetry }: Props) {
         isSending && styles.sending,
       ]}
       onPress={isFailed ? onRetry : undefined}
+      accessibilityLabel={retryLabel}
+      accessibilityRole={isFailed ? 'button' : 'text'}
     >
       <View
         style={[
@@ -114,3 +119,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default MessageBubble;
