@@ -30,7 +30,7 @@ class SecurityConfigTest {
         // Expecting 201 Created with valid data
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"testuser1\",\"email\":\"testuser1@example.com\",\"password\":\"password123\",\"displayName\":\"Test User\"}"))
+                .content("{\"username\":\"testuser1\",\"email\":\"testuser1@example.com\",\"password\":\"TestP@ss1\",\"displayName\":\"Test User\"}"))
                 .andExpect(status().isCreated()); // Should succeed with valid data
 
         // POST /api/auth/login should be accessible without authentication
