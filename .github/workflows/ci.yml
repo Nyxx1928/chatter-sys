@@ -72,7 +72,7 @@ jobs:
           cache: maven
 
       - name: Validate backend
-        run: mvn -DskipTests=true validate
+        run: mvn -DskipTests=true validate 2>&1 | tee mvn-validate.log
 
       - name: Generate Maven dependency tree
         run: mvn dependency:tree -DoutputType=text -DoutputFile=maven-dependency-tree.txt
@@ -100,6 +100,7 @@ jobs:
           name: debug-phase1-lint-validate
           path: |
             maven-dependency-tree.txt
+            mvn-validate.log
           if-no-files-found: ignore
 
   phase2-unit-tests:
@@ -118,7 +119,7 @@ jobs:
           cache: maven
 
       - name: Run backend unit tests
-        run: mvn -Dtest="*Test" -DfailIfNoTests=false test
+        run: mvn -Dtest="*Test" -DfailIfNoTests=false test 2>&1 | tee mvn-build.log
 
       - name: Upload test reports
         if: always()
@@ -127,6 +128,7 @@ jobs:
           name: debug-phase2-unit-tests
           path: |
             target/surefire-reports/
+            mvn-build.log
           if-no-files-found: ignore
 
   phase3-integration-tests:
@@ -159,7 +161,7 @@ jobs:
           cache: maven
 
       - name: Run backend integration tests
-        run: mvn failsafe:integration-test failsafe:verify -Dit.test="*IntegrationTest"
+        run: mvn failsafe:integration-test failsafe:verify -Dit.test="*IntegrationTest" 2>&1 | tee mvn-build.log
 
       - name: Upload test reports
         if: always()
@@ -169,6 +171,7 @@ jobs:
           path: |
             target/failsafe-reports/
             target/surefire-reports/
+            mvn-build.log
           if-no-files-found: ignore
 
   phase4-e2e-playwright:
@@ -561,9 +564,13 @@ jobs:
       - name: Extract test failure details
         run: |
           for artifact_dir in debug-phase2-unit-tests debug-phase3-integration-tests; do
-            if [ -d "$artifact_dir" ]; then
-              find "$artifact_dir" -type f \( -name "*.txt" -o -name "*.xml" \) \
-                \( -path "*/surefire-reports/*" -o -path "*/failsafe-reports/*" \) 2>/dev/null | head -10 | while read -r report; do
+            if [ ! -d "$artifact_dir" ]; then
+              continue
+            fi
+            reports=$(find "$artifact_dir" -type f \( -name "*.txt" -o -name "*.xml" \) \
+              \( -path "*/surefire-reports/*" -o -path "*/failsafe-reports/*" \) 2>/dev/null | head -5)
+            if [ -n "$reports" ]; then
+              echo "$reports" | while IFS= read -r report; do
                 if grep -qi "FAILURE\|ERROR\|Exception\|Tests run:.*Failures: [1-9]\|BUILD FAIL" "$report" 2>/dev/null; then
                   {
                     echo "#### ❌ Test Failure: \`$(basename "$report")\`"
@@ -575,6 +582,15 @@ jobs:
                   } >> $GITHUB_STEP_SUMMARY
                 fi
               done
+            elif [ -f "$artifact_dir/mvn-build.log" ]; then
+              {
+                echo "#### ❌ Build Failure (no test reports — see mvn-build.log)"
+                echo ""
+                echo '```'
+                grep -E "ERROR|FAILURE|BUILD FAIL|Compilation failure|Exception" "$artifact_dir/mvn-build.log" | head -30
+                echo '```'
+                echo ""
+              } >> $GITHUB_STEP_SUMMARY
             fi
           done
 
