@@ -70,15 +70,15 @@ export function RoomSelector({
         <button
           onClick={() => onRoomSelect(room)}
           className={`w-full min-h-[44px] text-left px-3 py-2.5 rounded-xl transition-colors flex items-center gap-3 ${
-            isActive
-              ? 'bg-kiro-purple-600/20 border border-kiro-purple-600/40'
-              : 'hover:bg-white/5 border border-transparent'
+              isActive
+                ? 'bg-slack-primary/20 border border-slack-primary/40'
+                : 'hover:bg-slack-surface-tertiary border border-transparent'
           }`}
           aria-current={isActive ? 'page' : undefined}
           aria-label={isDirect ? `Direct message with ${room.otherParticipant?.displayName ?? room.name}` : undefined}
         >
           {/* Room avatar */}
-          <div className="shrink-0 w-11 h-11 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm relative">
+          <div className="shrink-0 w-11 h-11 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-sm relative">
             {isDirect ? (
               /* Person icon for DM rooms */
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5" aria-hidden="true">
@@ -89,18 +89,18 @@ export function RoomSelector({
             )}
             {/* Online indicator if there's activity */}
             {latest && (
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-[#16162a]" aria-hidden="true" />
+              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-slack-accent-green border-2 border-slack-surface-secondary" aria-hidden="true" />
             )}
           </div>
 
           {/* Room info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2 mb-0.5 min-w-0">
-              <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-kiro-purple-300' : 'text-kiro-slate-100'}`}>
+              <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-slack-primary' : 'text-slack-text-primary'}`}>
                 {roomLabel}
               </h3>
               {latest && (
-                <time className="text-xs text-kiro-slate-500 shrink-0">
+                <time className="text-xs text-slack-text-secondary shrink-0">
                   {formatDate(latest.timestamp)}
                 </time>
               )}
@@ -108,13 +108,13 @@ export function RoomSelector({
 
             {/* Latest message or description */}
             {latest ? (
-              <p className="text-xs text-kiro-slate-400 line-clamp-1">
-                <span className="font-medium text-kiro-slate-300">{latest.senderDisplayName}:</span> {latest.content}
+              <p className="text-xs text-slack-text-secondary line-clamp-1">
+                <span className="font-medium text-slack-text-primary">{latest.senderDisplayName}:</span> {latest.content}
               </p>
             ) : room.description ? (
-              <p className="text-xs text-kiro-slate-500 line-clamp-1 italic">{room.description}</p>
+              <p className="text-xs text-slack-text-secondary line-clamp-1 italic">{room.description}</p>
             ) : (
-              <p className="text-xs text-kiro-slate-500 line-clamp-1 italic">No messages yet</p>
+              <p className="text-xs text-slack-text-secondary line-clamp-1 italic">No messages yet</p>
             )}
           </div>
 
@@ -130,7 +130,7 @@ export function RoomSelector({
               e.stopPropagation();
               onRoomDelete?.(room);
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 shrink-0 p-1.5 text-kiro-slate-500 hover:bg-red-900/30 hover:text-red-400 rounded-lg transition-colors z-10"
+            className="absolute right-3 top-1/2 -translate-y-1/2 shrink-0 p-1.5 text-slack-text-secondary hover:bg-slack-accent-red/30 hover:text-slack-accent-red rounded-lg transition-colors z-10"
             aria-label={`Delete ${room.name}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -146,7 +146,7 @@ export function RoomSelector({
   if (rooms.length === 0) {
     return (
       <div
-        className={`flex items-center justify-center h-full p-4 bg-[#16162a] ${className}`}
+        className={`flex items-center justify-center h-full p-4 bg-slack-surface-secondary ${className}`}
         role="status"
       >
         <div className="text-center">
@@ -156,7 +156,7 @@ export function RoomSelector({
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-12 h-12 mx-auto text-kiro-slate-500 mb-3"
+            className="w-12 h-12 mx-auto text-slack-text-secondary mb-3"
             aria-hidden="true"
           >
             <path
@@ -165,15 +165,15 @@ export function RoomSelector({
               d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
             />
           </svg>
-          <p className="text-kiro-slate-400 text-sm font-medium mb-1">{emptyStateTitle}</p>
-          <p className="text-kiro-slate-500 text-xs">{emptyStateDescription}</p>
+          <p className="text-slack-text-secondary text-sm font-medium mb-1">{emptyStateTitle}</p>
+          <p className="text-slack-text-secondary text-xs">{emptyStateDescription}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`flex flex-col h-full bg-[#16162a] ${className}`}>
+    <div className={`flex flex-col h-full bg-slack-surface-secondary ${className}`}>
       {/* Rooms list */}
       <div className="flex-1 overflow-y-auto p-2">
         <ul className="space-y-1" role="list" aria-label="Chat rooms">

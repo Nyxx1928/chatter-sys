@@ -62,7 +62,7 @@ export function MessageInput({
       {isNearLimit && (
         <div className="flex justify-end px-1">
           <span
-            className={`text-xs ${isOverLimit ? 'text-red-400 font-medium' : 'text-kiro-slate-500'}`}
+            className={`text-xs ${isOverLimit ? 'text-slack-accent-red font-medium' : 'text-slack-text-secondary'}`}
             role="status"
             aria-live="polite"
           >
@@ -72,7 +72,7 @@ export function MessageInput({
       )}
 
       {/* Input row */}
-      <div className="flex items-center gap-2 bg-[#1e1e30] rounded-2xl px-3 py-2 border border-white/5 focus-within:border-kiro-purple-600/50 transition-colors">
+      <div className="flex items-center gap-2 bg-slack-surface-tertiary rounded-pill px-3 py-2 border border-slack-border focus-within:border-slack-primary/50 transition-colors">
         {/* Attachment icon — hidden below 480px */}
         <span className="[@media(max-width:479px)]:hidden contents">
           <InputIconBtn label="Attach file" disabled={disabled}>
@@ -92,7 +92,7 @@ export function MessageInput({
           disabled={disabled}
           maxLength={maxLength}
           rows={1}
-          className="flex-1 bg-transparent text-sm text-kiro-slate-100 placeholder-kiro-slate-500 resize-none focus:outline-none min-h-[44px] max-h-[150px] leading-6 py-0.5"
+          className="flex-1 bg-transparent text-sm text-slack-text-primary placeholder-slack-text-secondary resize-none focus:outline-none min-h-[44px] max-h-[150px] leading-6 py-0.5"
           aria-label="Message input"
           aria-describedby="msg-input-hint"
         />
@@ -130,7 +130,7 @@ export function MessageInput({
           type="button"
           onClick={handleSend}
           disabled={!canSend}
-          className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-kiro-purple-600 text-white hover:bg-kiro-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-kiro-purple-400 focus:ring-offset-2 focus:ring-offset-[#1e1e30]"
+          className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-slack-primary text-slack-text-inverse hover:bg-slack-primary-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-slack-primary focus:ring-offset-2 focus:ring-offset-slack-surface-tertiary"
           aria-label="Send message"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 translate-x-0.5" aria-hidden="true">
@@ -141,7 +141,7 @@ export function MessageInput({
 
       {/* Disconnected warning */}
       {disabled && (
-        <p className="text-xs text-red-400 px-1" role="alert">
+        <p className="text-xs text-slack-accent-red px-1" role="alert">
           Cannot send messages while disconnected
         </p>
       )}
@@ -165,7 +165,7 @@ function InputIconBtn({
       aria-label={label}
       title={label}
       disabled={disabled}
-      className="shrink-0 p-1 text-kiro-slate-500 hover:text-kiro-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-1 focus:ring-kiro-purple-400 rounded"
+      className="shrink-0 p-1 text-slack-text-secondary hover:text-slack-text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-1 focus:ring-slack-primary rounded"
     >
       {children}
     </button>
