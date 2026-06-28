@@ -136,6 +136,18 @@ public class UserPresenceService {
     }
 
     /**
+     * Checks if a user is currently online.
+     *
+     * @param userId the ID of the user to check
+     * @return true if the user is online, false otherwise
+     */
+    public boolean isOnline(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::getOnline)
+                .orElse(false);
+    }
+
+    /**
      * Private helper method to publish presence updates to all rooms.
      * This is called by markUserOnline and markUserOffline.
      *

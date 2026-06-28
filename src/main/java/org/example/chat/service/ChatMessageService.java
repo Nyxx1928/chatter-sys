@@ -40,6 +40,7 @@ public class ChatMessageService {
     private final SimpMessagingTemplate messagingTemplate;
     private final HtmlSanitizer htmlSanitizer;
     private final SecurityAuditLogger securityAuditLogger;
+    private final PushNotificationService pushNotificationService;
 
     public ChatMessageService(MessageRepository messageRepository,
             ChatRoomRepository chatRoomRepository,
@@ -47,7 +48,8 @@ public class ChatMessageService {
             RoomMembershipRepository roomMembershipRepository,
             SimpMessagingTemplate messagingTemplate,
             HtmlSanitizer htmlSanitizer,
-            SecurityAuditLogger securityAuditLogger) {
+            SecurityAuditLogger securityAuditLogger,
+            PushNotificationService pushNotificationService) {
         this.messageRepository = messageRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.userRepository = userRepository;
@@ -55,6 +57,7 @@ public class ChatMessageService {
         this.messagingTemplate = messagingTemplate;
         this.htmlSanitizer = htmlSanitizer;
         this.securityAuditLogger = securityAuditLogger;
+        this.pushNotificationService = pushNotificationService;
     }
 
     /**
@@ -115,6 +118,13 @@ public class ChatMessageService {
 
         // Broadcast message to STOMP topic
         broadcastMessage(savedMessage);
+
+        // Send push notifications to offline members (must not interrupt delivery)
+        try {
+            pushNotificationService.sendPushIfOffline(savedMessage, roomId);
+        } catch (Exception e) {
+            logger.warn("Failed to send push notification for message {} in room {}", savedMessage.getId(), roomId, e);
+        }
 
         return savedMessage;
     }
