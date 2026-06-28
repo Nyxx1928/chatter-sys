@@ -1,4 +1,5 @@
 import { View, StyleSheet } from 'react-native';
+import { SlackColors } from '@/constants/Colors';
 
 type Props = {
   online: boolean;
@@ -23,9 +24,9 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   online: {
-    backgroundColor: '#22c55e',
+    backgroundColor: SlackColors.light.accentGreen,
   },
   offline: {
-    backgroundColor: '#6b7280',
+    backgroundColor: SlackColors.light.textSecondary,
   },
 });

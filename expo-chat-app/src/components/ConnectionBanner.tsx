@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import { Text } from '@/components/Themed';
 import { useConnectionStore } from '@/src/stores/connectionStore';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
 
 export default function ConnectionBanner() {
   const connected = useConnectionStore((s) => s.connected);
@@ -20,11 +22,11 @@ export default function ConnectionBanner() {
     }).start();
   }, [show, translateY]);
 
-  let bgColor = '#ef4444';
+  let bgColor = SlackColors.light.accentRed;
   let message = error || 'No Connection';
 
   if (connecting) {
-    bgColor = '#f59e0b';
+    bgColor = SlackColors.light.accentYellow;
     message = 'Reconnecting...';
   }
 
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: SlackTypography.bodySm.fontSize,
     fontWeight: '600',
   },
 });

@@ -5,6 +5,11 @@ import MessageBubble from './MessageBubble';
 import { MessageWithStatus } from '@/src/stores/chatStore';
 import { formatDateSeparator, isSameDay } from '@/src/utils/date';
 import { useAuthStore } from '@/src/stores/authStore';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 type Props = {
   messages: MessageWithStatus[];
@@ -39,6 +44,8 @@ const groupMessagesByDate = (messages: MessageWithStatus[]): Section[] => {
 };
 
 export default function MessageList({ messages, onEndReached, onRetry, ListEmptyComponent }: Props) {
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
   const currentUserId = useAuthStore((s) => s.user?.id);
   const listRef = useRef<FlatList>(null);
   const sections = groupMessagesByDate(messages);
@@ -57,10 +64,10 @@ export default function MessageList({ messages, onEndReached, onRetry, ListEmpty
   const renderSectionHeader = useCallback(
     ({ section }: { section: Section }) => (
       <View style={styles.dateSeparator}>
-        <Text style={styles.dateText}>{section.date}</Text>
+        <Text style={[styles.dateText, { color: colors.textSecondary, backgroundColor: colors.surfaceTertiary }]}>{section.date}</Text>
       </View>
     ),
-    []
+    [colors]
   );
 
   if (messages.length === 0 && ListEmptyComponent) {
@@ -80,7 +87,7 @@ export default function MessageList({ messages, onEndReached, onRetry, ListEmpty
       ListFooterComponent={
         messages.length > 0 ? (
           <View style={styles.footer}>
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>
               {formatDateSeparator(messages[messages.length - 1].timestamp)}
             </Text>
           </View>
@@ -92,27 +99,24 @@ export default function MessageList({ messages, onEndReached, onRetry, ListEmpty
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingVertical: 8,
+    paddingVertical: SlackSpacing.sm,
   },
   dateSeparator: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: SlackSpacing.md,
   },
   dateText: {
-    fontSize: 12,
-    color: '#9ca3af',
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 10,
+    fontSize: SlackTypography.caption.fontSize,
+    paddingHorizontal: SlackSpacing.md,
+    paddingVertical: SlackSpacing.xs,
+    borderRadius: SlackBorderRadius.pill,
     overflow: 'hidden',
   },
   footer: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: SlackSpacing.md,
   },
   footerText: {
-    fontSize: 12,
-    color: '#9ca3af',
+    fontSize: SlackTypography.caption.fontSize,
   },
 });
