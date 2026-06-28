@@ -83,7 +83,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   if (isSuccess) {
     return (
       <div className="text-center">
-        <div className="mb-4 rounded-lg border border-emerald-900/60 bg-emerald-950/40 p-4 text-sm text-emerald-200">
+        <div className="mb-4 rounded-lg border border-slack-accent-green/30 bg-slack-accent-green/10 p-4 text-sm text-slack-accent-green">
           Your password has been reset successfully!
         </div>
         <p className="text-sm text-kiro-slate-500">

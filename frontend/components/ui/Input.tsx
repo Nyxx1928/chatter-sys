@@ -43,12 +43,12 @@ export function Input({
   
   // Base input styles - mobile-first with minimum 44px height for touch targets
   // Add right padding when toggle button is present to avoid text overlapping the button
-  const baseInputStyles = `min-h-[44px] px-4 py-3 text-base rounded-lg border bg-kiro-ink-950 text-kiro-slate-100 placeholder-kiro-slate-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-kiro-ink-950 disabled:opacity-50 disabled:cursor-not-allowed${isPasswordField && showPasswordToggle ? ' pr-12' : ''}`;
+  const baseInputStyles = `min-h-[44px] px-4 py-3 text-base rounded-lg border bg-slack-surface-tertiary text-slack-text-primary placeholder-slack-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed${isPasswordField && showPasswordToggle ? ' pr-12' : ''}`;
   
   // State-dependent styles with proper contrast (WCAG AA)
   const stateStyles = error
-    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-    : 'border-kiro-ink-900 focus:border-kiro-purple-400 focus:ring-kiro-purple-400';
+    ? 'border-slack-accent-red focus:border-slack-accent-red focus:ring-slack-accent-red'
+    : 'border-slack-border focus:border-slack-accent-blue focus:ring-slack-accent-blue';
   
   // Width styles
   const widthStyles = fullWidth ? 'w-full' : '';
@@ -60,10 +60,10 @@ export function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-kiro-slate-200"
+          className="text-sm font-medium text-slack-text-primary"
         >
           {label}
-          {required && <span className="text-red-400 ml-1" aria-label="required">*</span>}
+          {required && <span className="text-slack-accent-red ml-1" aria-label="required">*</span>}
         </label>
       )}
 
@@ -88,7 +88,7 @@ export function Input({
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
             disabled={disabled}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-kiro-slate-500 hover:text-kiro-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-kiro-purple-400 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slack-text-secondary hover:text-slack-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-accent-blue rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             tabIndex={0}
           >
@@ -111,7 +111,7 @@ export function Input({
       {error && (
         <p
           id={`${inputId}-error`}
-          className="text-sm text-red-400"
+          className="text-sm text-slack-accent-red"
           role="alert"
         >
           {error}
@@ -121,7 +121,7 @@ export function Input({
       {helperText && !error && (
         <p
           id={`${inputId}-helper`}
-          className="text-sm text-kiro-slate-500"
+          className="text-sm text-slack-text-secondary"
         >
           {helperText}
         </p>
@@ -160,12 +160,12 @@ export function TextArea({
   const textareaId = id || `textarea-${generatedTextareaId}`;
   
   // Base textarea styles - mobile-first with proper touch targets
-  const baseTextareaStyles = 'min-h-[88px] px-4 py-3 text-base rounded-lg border bg-kiro-ink-950 text-kiro-slate-100 placeholder-kiro-slate-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-kiro-ink-950 disabled:opacity-50 disabled:cursor-not-allowed resize-vertical';
+  const baseTextareaStyles = 'min-h-[88px] px-4 py-3 text-base rounded-lg border bg-slack-surface-tertiary text-slack-text-primary placeholder-slack-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed resize-vertical';
   
   // State-dependent styles with proper contrast (WCAG AA)
   const stateStyles = error
-    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-    : 'border-kiro-ink-900 focus:border-kiro-purple-400 focus:ring-kiro-purple-400';
+    ? 'border-slack-accent-red focus:border-slack-accent-red focus:ring-slack-accent-red'
+    : 'border-slack-border focus:border-slack-accent-blue focus:ring-slack-accent-blue';
   
   // Width styles
   const widthStyles = fullWidth ? 'w-full' : '';
@@ -177,10 +177,10 @@ export function TextArea({
       {label && (
         <label
           htmlFor={textareaId}
-          className="text-sm font-medium text-kiro-slate-200"
+          className="text-sm font-medium text-slack-text-primary"
         >
           {label}
-          {required && <span className="text-red-400 ml-1" aria-label="required">*</span>}
+          {required && <span className="text-slack-accent-red ml-1" aria-label="required">*</span>}
         </label>
       )}
       
@@ -200,7 +200,7 @@ export function TextArea({
       {error && (
         <p
           id={`${textareaId}-error`}
-          className="text-sm text-red-400"
+          className="text-sm text-slack-accent-red"
           role="alert"
         >
           {error}
@@ -210,7 +210,7 @@ export function TextArea({
       {helperText && !error && (
         <p
           id={`${textareaId}-helper`}
-          className="text-sm text-kiro-slate-500"
+          className="text-sm text-slack-text-secondary"
         >
           {helperText}
         </p>

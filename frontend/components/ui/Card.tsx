@@ -26,9 +26,9 @@ export function Card({
   
   // Variant styles with proper shadows and borders
   const variantStyles = {
-    default: 'bg-white border border-gray-200',
-    outlined: 'bg-white border-2 border-gray-300',
-    elevated: 'bg-white shadow-md hover:shadow-lg',
+    default: 'bg-slack-surface-primary border border-slack-border',
+    outlined: 'bg-slack-surface-primary border-2 border-slack-border',
+    elevated: 'bg-slack-surface-primary shadow-slack-md hover:shadow-slack-lg',
   };
   
   // Responsive padding - mobile-first approach
@@ -86,7 +86,7 @@ export function CardTitle({
   ...props
 }: CardTitleProps) {
   // Responsive font sizes - mobile-first
-  const baseStyles = 'font-semibold text-gray-900 text-lg sm:text-xl';
+  const baseStyles = 'font-semibold text-slack-text-primary text-lg sm:text-xl';
   
   return (
     <Component
@@ -112,7 +112,7 @@ export function CardContent({
 }: CardContentProps) {
   return (
     <div
-      className={`text-gray-700 ${className}`.trim()}
+      className={`text-slack-text-secondary ${className}`.trim()}
       {...props}
     >
       {children}
@@ -134,7 +134,7 @@ export function CardFooter({
 }: CardFooterProps) {
   return (
     <div
-      className={`mt-4 pt-4 border-t border-gray-200 ${className}`.trim()}
+      className={`mt-4 pt-4 border-t border-slack-border ${className}`.trim()}
       {...props}
     >
       {children}

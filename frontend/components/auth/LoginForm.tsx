@@ -109,7 +109,7 @@ export function LoginForm() {
       {errors.general && (
         <div
           role="alert"
-          className="p-3 text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg"
+          className="p-3 text-sm text-slack-accent-red bg-slack-accent-red/10 border border-slack-accent-red/30 rounded-lg"
         >
           {errors.general}
         </div>
@@ -128,7 +128,7 @@ export function LoginForm() {
       <div className="text-center text-xs">
         <Link
           href="/auth/forgot-password"
-          className="text-kiro-slate-500 hover:text-kiro-purple-400 focus:outline-none focus:underline"
+          className="text-slack-text-secondary hover:text-slack-accent-blue focus:outline-none focus:underline"
         >
           Forgot Password?
         </Link>

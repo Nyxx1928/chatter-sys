@@ -232,7 +232,7 @@ export function RegisterForm() {
       {errors.general && (
         <div
           role="alert"
-          className="p-3 text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg"
+          className="p-3 text-sm text-slack-accent-red bg-slack-accent-red/10 border border-slack-accent-red/30 rounded-lg"
         >
           {errors.general}
         </div>
