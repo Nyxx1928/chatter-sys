@@ -222,14 +222,12 @@ class ChatRoomIT extends BaseIntegrationTest {
         membership.setJoinedAt(LocalDateTime.now());
         roomMembershipRepository.save(membership);
 
-        // Access room as non-member (auto-joins)
+        // Access room as non-member — should be forbidden (no auto-join)
         mockMvc.perform(get("/api/rooms/" + room.getId())
                 .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(room.getId()))
-                .andExpect(jsonPath("$.name").value("Private Room"));
+                .andExpect(status().isForbidden());
 
-        assertTrue(roomMembershipRepository.findByUserAndChatRoom(testUser, room).isPresent());
+        assertFalse(roomMembershipRepository.findByUserAndChatRoom(testUser, room).isPresent());
     }
 
     @Test

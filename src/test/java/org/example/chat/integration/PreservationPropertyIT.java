@@ -131,7 +131,9 @@ class PreservationPropertyIT extends BaseIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(toJson(registerRequest)))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.username").value("pub_user_" + i));
+                    .andExpect(jsonPath("$.message").exists())
+                    .andExpect(jsonPath("$.emailSent").isBoolean())
+                    .andExpect(jsonPath("$.verificationUrl").exists());
         }
     }
 

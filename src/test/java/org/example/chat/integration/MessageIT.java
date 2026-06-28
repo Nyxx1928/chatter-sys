@@ -158,13 +158,12 @@ class MessageIT extends BaseIntegrationTest {
 
         String otherToken = jwtUtil.generateToken(otherUser.getUsername());
 
-        // Get messages as non-member (auto-joins)
+        // Get messages as non-member — should be forbidden (no auto-join)
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + otherToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(0)));
+                .andExpect(status().isForbidden());
 
-        assertTrue(roomMembershipRepository.findByUserAndChatRoom(otherUser, testRoom).isPresent());
+        assertFalse(roomMembershipRepository.findByUserAndChatRoom(otherUser, testRoom).isPresent());
     }
 
     @Test
