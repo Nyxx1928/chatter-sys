@@ -274,11 +274,11 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Build the complete social layer — friend list, user search, friend requests, and accept/decline flow.
 
-- [ ] **5.1** Build Contacts stack layout (`app/(tabs)/contacts/_layout.tsx`)
+- [x] **5.1** Build Contacts stack layout (`app/(tabs)/contacts/_layout.tsx`)
   - Stack navigator: index (friend list) → add (search users) → requests (pending requests)
   - _Requirements: 12.3_
 
-- [ ] **5.2** Build friends list screen (`app/(tabs)/contacts/index.tsx`)
+- [x] **5.2** Build friends list screen (`app/(tabs)/contacts/index.tsx`)
   - On mount: `GET /api/friends` → render in FlashList
   - Each row: friend avatar + display name + presence dot + "Chat" button
   - "Chat" → navigate to DM room (use `dmRoomId` from `Friendship` response)
@@ -287,7 +287,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Empty state: "No friends yet. Search for users to add!"
   - _Requirements: 6.1, 6.2, 6.9_
 
-- [ ] **5.3** Build add friend screen (`app/(tabs)/contacts/add.tsx`)
+- [x] **5.3** Build add friend screen (`app/(tabs)/contacts/add.tsx`)
   - Search input with 300ms debounce
   - On query: `GET /api/users/search?q=` → render `UserSearchResult` items
   - Each result shows: avatar + display name + username + action button
@@ -299,7 +299,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Empty state when no query: "Search for users by name or username"
   - _Requirements: 6.3, 6.4_
 
-- [ ] **5.4** Build friend requests screen (`app/(tabs)/contacts/requests.tsx`)
+- [x] **5.4** Build friend requests screen (`app/(tabs)/contacts/requests.tsx`)
   - On mount: `GET /api/friends/requests` → separate into incoming/outgoing sections
   - Incoming: each row shows requester name + "Accept" + "Decline" buttons
     - Accept → `POST /api/friends/requests/{id}/accept` → move row to "Accepted" (briefly) → remove from list
@@ -308,17 +308,17 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Empty state (no requests): "No pending requests"
   - _Requirements: 6.5, 6.6, 6.7_
 
-- [ ] **5.5** Implement remove friend (from contacts index or long-press)
+- [x] **5.5** Implement remove friend (from contacts index or long-press)
   - Swipe-to-delete or long-press menu → "Remove Friend"
   - Confirmation dialog → `DELETE /api/friends/{friendId}` → update list
   - _Requirements: 6.8_
 
-- [ ] **5.6** Connect user presence to contacts
+- [x] **5.6** Connect user presence to contacts
   - `presenceStore` tracks `Map<userId, {online, lastSeen}>` from STOMP `/topic/presence/*`
   - `ContactCard` renders `PresenceDot` based on `presenceStore.presence.get(friend.id)?.online`
   - _Requirements: 7.1, 7.3_
 
-- [ ] **5.7** Checkpoint — Contacts Validation
+- [x] **5.7** Checkpoint — Contacts Validation
   - Friends list loads with presence indicators
   - Search users → results shown with correct relationship status
   - Send friend request → status changes to "Pending"
@@ -334,11 +334,11 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Build the profile screen with view/edit, logout, and account deletion.
 
-- [ ] **6.1** Build Profile stack layout (`app/(tabs)/profile/_layout.tsx`)
+- [x] **6.1** Build Profile stack layout (`app/(tabs)/profile/_layout.tsx`)
   - Stack navigator: index only (single screen)
   - _Requirements: 12.3_
 
-- [ ] **6.2** Build profile screen (`app/(tabs)/profile/index.tsx`)
+- [x] **6.2** Build profile screen (`app/(tabs)/profile/index.tsx`)
   - Display: avatar (initials), display name (editable), email (editable)
   - Edit fields: `TextInput` pre-filled with current values
   - "Save Changes" button → `PUT /api/users/me` → on success update local state
@@ -352,7 +352,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Error state on save: inline error with retry
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] **6.3** Checkpoint — Profile Validation
+- [x] **6.3** Checkpoint — Profile Validation
   - Profile loads current user data
   - Edit display name → save → reflects in UI
   - Edit email → save → reflects in UI
@@ -368,33 +368,33 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 #### Backend Tasks
 
-- [ ] **7.1** Create `PushToken` entity (`src/main/java/org/example/chat/entity/PushToken.java`)
+- [x] **7.1** Create `PushToken` entity (`src/main/java/org/example/chat/entity/PushToken.java`)
   - Fields: `id` (Long, PK, auto), `user` (ManyToOne → User), `pushToken` (String, unique), `platform` (String), `createdAt`/`updatedAt` (LocalDateTime)
   - Use Lombok `@Data`, `@Entity`, `@Table(name = "push_tokens")`
   - _Requirements: 10.3_
 
-- [ ] **7.2** Create `PushTokenRepository`
+- [x] **7.2** Create `PushTokenRepository`
   - `findByUserId(Long userId): List<PushToken>`
   - `findByPushToken(String pushToken): Optional<PushToken>`
   - `deleteByPushToken(String pushToken): void`
   - _Requirements: 10.3_
 
-- [ ] **7.3** Create `RegisterPushTokenRequest` DTO
+- [x] **7.3** Create `RegisterPushTokenRequest` DTO
   - Fields: `pushToken` (String, @NotBlank), `platform` (String, @NotBlank)
   - _Requirements: 10.1_
 
-- [ ] **7.4** Create `UnregisterPushTokenRequest` DTO
+- [x] **7.4** Create `UnregisterPushTokenRequest` DTO
   - Fields: `pushToken` (String, @NotBlank)
   - _Requirements: 10.2_
 
-- [ ] **7.5** Create `PushNotificationController`
+- [x] **7.5** Create `PushNotificationController`
   - `POST /api/push/register` — authenticated — saves token linked to current user
   - `POST /api/push/unregister` — authenticated — removes token by pushToken
   - Validation: reject blank tokens, invalid platform values
   - Error: duplicate token → upsert (update user_id), not error
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] **7.6** Create `PushNotificationService`
+- [x] **7.6** Create `PushNotificationService`
   - `sendPushIfOffline(Message message, Long roomId)`:
     1. Get room members via `ChatRoomService.getRoomMembers(roomId)`
     2. For each member (excluding message sender):
@@ -416,19 +416,19 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Log push response for debugging (success/failure counts)
   - _Requirements: 9.4, 9.6_
 
-- [ ] **7.7** Modify `ChatMessageService.sendMessage()`
+- [x] **7.7** Modify `ChatMessageService.sendMessage()`
   - After `messageRepository.save(savedMessage)` and `broadcastMessage(savedMessage, roomId)`:
     `pushNotificationService.sendPushIfOffline(savedMessage, roomId)`
   - Wrap in try-catch — push failure must NOT interrupt message delivery
   - _Requirements: 9.4, 9.6_
 
-- [ ] **7.8** Update `SecurityConfig`
+- [x] **7.8** Update `SecurityConfig`
   - Add `POST /api/push/**` to authenticated endpoints permit list
   - _Requirements: 10.1, 10.2_
 
 #### Frontend Tasks
 
-- [ ] **7.9** Create `notificationStore` (`src/stores/notificationStore.ts`)
+- [x] **7.9** Create `notificationStore` (`src/stores/notificationStore.ts`)
   - State: `pushToken: string | null`, `permissionGranted: boolean`, `notification: Notification | null`
   - Actions:
     - `requestPermissionsAndRegister()`:
@@ -439,26 +439,26 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
     - `handleNotificationTap(notification)`: extract `data.roomId` → navigate to `chats/[roomId]`
   - _Requirements: 9.1, 9.2, 9.3, 9.5_
 
-- [ ] **7.10** Create `useNotifications` hook (`src/hooks/useNotifications.ts`)
+- [x] **7.10** Create `useNotifications` hook (`src/hooks/useNotifications.ts`)
   - On app mount (if authenticated):
     1. Call `notificationStore.requestPermissionsAndRegister()`
     2. Set up `Notifications.addNotificationResponseReceivedListener` → `handleNotificationTap`
   - On logout: call `notificationStore.unregisterPushToken()`
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] **7.11** Integrate notification hook into root layout
+- [x] **7.11** Integrate notification hook into root layout
   - In `app/_layout.tsx`, after auth is confirmed, call `useNotifications()` hook
   - Handle notification tap → navigate to correct room via Expo Router
   - _Requirements: 9.5_
 
-- [ ] **7.12** Handle foreground notifications
+- [x] **7.12** Handle foreground notifications
   - Configure `Notifications.setNotificationHandler`:
     - `shouldShowAlert: true` — show banner even when app is foregrounded
     - `shouldPlaySound: true`
     - `shouldSetBadge: false`
   - _Requirements: 9.4_
 
-- [ ] **7.13** Checkpoint — Push Notification Validation
+- [x] **7.13** Checkpoint — Push Notification Validation
   - Backend: `POST /api/push/register` stores token successfully
   - Backend: Send message to offline user → push delivered to device
   - Backend: Send message to online user → NO push delivered
@@ -475,7 +475,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
 
 **Goal:** Handle all edge cases, offline resilience, performance optimization, and visual polish.
 
-- [ ] **8.1** Implement offline message queue
+- [x] **8.1** Implement offline message queue
   - When `connectionStore.connected === false` and user sends a message:
     - Store message in local queue (in-memory + AsyncStorage backup)
     - Show message with "pending" status in chat
@@ -483,14 +483,14 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - On flush failure: retry with exponential backoff (1s, 2s, 4s, 8s, max 30s)
   - _Requirements: 11.3_
 
-- [ ] **8.2** Implement `useNetworkStatus` hook
+- [x] **8.2** Implement `useNetworkStatus` hook
   - Wraps `@react-native-community/netinfo`
   - Exposes `isConnected: boolean`, `connectionType: string`
   - On disconnect: set `connectionStore` disconnected → show banner
   - On reconnect: trigger STOMP reconnect + message queue flush
   - _Requirements: 11.1, 11.2_
 
-- [ ] **8.3** Add empty states for all list screens
+- [x] **8.3** Add empty states for all list screens
   - Chats: "No conversations yet. Add friends to start chatting."
   - Channels: "No channels yet. Create one!"
   - Contacts: "No friends yet. Search for users to add!"
@@ -500,23 +500,23 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Each with relevant icon + optional action button
   - _Requirements: 3.6, 6.1_
 
-- [ ] **8.4** Add loading states for all screens
+- [x] **8.4** Add loading states for all screens
   - Skeleton placeholders for: room list (3 rows), message list (5 bubbles), contacts (3 rows), channel list (3 rows), profile (3 fields)
   - ActivityIndicator for: auth actions, save, delete, create
   - _Requirements: None (quality)_
 
-- [ ] **8.5** Add error states with retry for all data-fetching screens
+- [x] **8.5** Add error states with retry for all data-fetching screens
   - Inline error message + "Retry" button for failed API calls
   - Distinguish network errors ("No internet connection") from server errors ("Something went wrong")
   - _Requirements: 11.4, 11.5, 11.6_
 
-- [ ] **8.6** App icon and splash screen
+- [x] **8.6** App icon and splash screen
   - Create app icon (1024x1024) using existing branding
   - Configure splash screen in `app.json` with dark background + logo
   - Test on both platforms
   - _Requirements: None (quality)_
 
-- [ ] **8.7** Performance optimization
+- [x] **8.7** Performance optimization
   - Verify `FlashList` `estimatedItemSize` is tuned (72px for messages, 64px for list items)
   - Add `keyExtractor` for all lists (use entity `id`)
   - Memoize expensive components with `React.memo`
@@ -524,7 +524,7 @@ Eight implementation phases over ~20-28 days (one developer, full-time). Each ph
   - Test with 1000+ messages in a single room
   - _Requirements: None (quality)_
 
-- [ ] **8.8** Accessibility
+- [x] **8.8** Accessibility
   - All touch targets minimum 44x44pt
   - `accessibilityLabel` on all interactive elements (send button, back button, tab icons)
   - `accessibilityRole` on list items, buttons, inputs

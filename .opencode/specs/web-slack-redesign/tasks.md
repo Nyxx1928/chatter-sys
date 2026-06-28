@@ -79,16 +79,16 @@ Six phases covering token infrastructure, UI base components, auth screens, chat
   - Same gradient background and token replacement as login
   - _Requirements: 2.2, 2.3, 2.4, 2.6_
 
-- [ ] 11. **Redesign `ForgotPasswordForm.tsx`, `ResetPasswordForm.tsx` and their pages**
+- [x] 11. **Redesign `ForgotPasswordForm.tsx`, `ResetPasswordForm.tsx` and their pages**
   - Same token substitution pattern
   - _Requirements: 2.2, 2.3, 2.4_
 
-- [ ] 12. **Redesign verify-email page**
+- [x] 12. **Redesign verify-email page**
   - Replace success/error colors with Slack accent green / accent red
   - Update buttons to `bg-slack-primary rounded-pill`
   - _Requirements: 2.2, 2.5_
 
-- [ ] 13. **Checkpoint — Auth Flow Verified**
+- [x] 13. **Checkpoint — Auth Flow Verified**
   - Walk through: login → register → verify → login → redirect
   - Verify every button, input, and link still works
   - Verify light and dark mode on every auth page
@@ -97,7 +97,7 @@ Six phases covering token infrastructure, UI base components, auth screens, chat
 
 ### Phase 4: Chat Interface
 
-- [ ] 14. **Redesign `chat/layout.tsx` navigation**
+- [x] 14. **Redesign `chat/layout.tsx` navigation**
   - Desktop sidebar: `bg-slack-surface-secondary`
   - Active nav icon: `text-slack-primary`
   - Inactive nav icon: `text-slack-text-secondary`
@@ -108,7 +108,7 @@ Six phases covering token infrastructure, UI base components, auth screens, chat
   - Mobile bottom tab: same token system
   - _Requirements: 3.5_
 
-- [ ] 15. **Redesign DM chat page and `RoomSelector.tsx`**
+- [x] 15. **Redesign DM chat page and `RoomSelector.tsx`**
   - Container: `bg-slack-surface-secondary`
   - Room items: `border-b border-slack-border`, padding using Slack spacing scale
   - Avatars: `bg-slack-primary` with `text-slack-text-inverse` initial
@@ -117,7 +117,7 @@ Six phases covering token infrastructure, UI base components, auth screens, chat
   - Search input: pill-shaped with `bg-slack-surface-tertiary`
   - _Requirements: 3.1_
 
-- [ ] 16. **Redesign `MessageList.tsx`**
+- [x] 16. **Redesign `MessageList.tsx`**
   - Own bubble: `bg-slack-primary text-slack-text-inverse rounded-lg rounded-br-sm`
   - Other bubble: `bg-slack-surface-tertiary text-slack-text-primary rounded-lg rounded-bl-sm`
   - Timestamps: `text-slack-text-secondary text-caption`
@@ -125,21 +125,21 @@ Six phases covering token infrastructure, UI base components, auth screens, chat
   - System messages (JOIN/LEAVE): italic `text-slack-text-secondary`
   - _Requirements: 3.2, 3.3_
 
-- [ ] 17. **Redesign `MessageInput.tsx`**
+- [x] 17. **Redesign `MessageInput.tsx`**
   - Container: `bg-slack-surface-primary border-t border-slack-border`
   - Input field: `bg-slack-surface-tertiary rounded-pill`
   - Send button: `bg-slack-primary rounded-full`
   - Icon buttons: `text-slack-text-secondary`
   - _Requirements: 3.2, 3.3_
 
-- [ ] 18. **Redesign channels page, contacts page, profile page**
+- [x] 18. **Redesign channels page, contacts page, profile page**
   - Apply same patterns: Slack surface backgrounds, Slack text colors, Slack typography
   - `UserList.tsx`, `FriendsPanel.tsx`, `UserSearch.tsx`, `RoomCreateModal.tsx`
   - Friend status badges: accepted → `text-slack-accent-green`, pending → `text-slack-accent-yellow`
   - Logout/delete buttons → `bg-slack-accent-red rounded-pill`
   - _Requirements: 3.4, 3.5_
 
-- [ ] 19. **Checkpoint — Chat Interface Verified**
+- [x] 19. **Checkpoint — Chat Interface Verified**
   - Walk through: browse DMs → open room → send/receive messages
   - Walk through: browse channels → create channel → join → message
   - Walk through: contacts → search → add → accept → DM opens
@@ -150,31 +150,31 @@ Six phases covering token infrastructure, UI base components, auth screens, chat
 
 ### Phase 5: Landing Page & Demo Pages
 
-- [ ] 20. **Redesign `NavigationHeader.tsx`**
+- [x] 20. **Redesign `NavigationHeader.tsx`**
   - Background: `bg-slack-surface-primary` with backdrop blur
   - CTA buttons: `bg-slack-primary rounded-pill` / ghost variant
   - Nav links: `text-slack-text-primary`
   - Mobile hamburger menu: Slack surface colors
   - _Requirements: 4.1_
 
-- [ ] 21. **Redesign `HeroSection.tsx`**
+- [x] 21. **Redesign `HeroSection.tsx`**
   - Remove purple gradient from heading text
   - Stat cards: `bg-slack-surface-secondary` with Slack border
   - CTA buttons: `bg-slack-primary rounded-pill`
   - Secondary text: `text-slack-text-secondary`
   - _Requirements: 4.1_
 
-- [ ] 22. **Redesign `FeaturesSection.tsx` and `FooterSection.tsx`**
+- [x] 22. **Redesign `FeaturesSection.tsx` and `FooterSection.tsx`**
   - Section backgrounds: `bg-slack-surface-secondary`
   - Feature cards: `bg-slack-surface-primary border border-slack-border`
   - Footer: `bg-slack-surface-secondary` with `text-slack-text-secondary`
   - _Requirements: 4.2_
 
-- [ ] 23. **Redesign demo pages** (auth-demo, chat-demo, ui-demo)
+- [x] 23. **Redesign demo pages** (auth-demo, chat-demo, ui-demo)
   - Update background, card, button, input classes to Slack tokens
   - _Requirements: 5.1, 5.2_
 
-- [ ] 24. **Checkpoint — Landing & Demo Verified**
+- [x] 24. **Checkpoint — Landing & Demo Verified**
   - Walk through landing page — all sections render correctly in light and dark mode
   - Walk through all demo pages — visual consistency with main app
   - Ask user if questions arise before proceeding

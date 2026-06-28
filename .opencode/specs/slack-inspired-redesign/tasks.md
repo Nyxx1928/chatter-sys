@@ -113,13 +113,13 @@ Implementation is organized into four phases: (1) design token installation and 
   - Update create-channel form
   - _Requirements: 3.4, 4.2_
 
-- [ ] 15. **Redesign contacts screens**
+- [x] 15. **Redesign contacts screens**
   - **Files**: `expo-chat-app/app/(tabs)/contacts/*.tsx`
   - Apply Slack tokens to friend list, requests, and add-friend screens
   - Update relationship status badges (friends → accent green, pending → accent yellow)
   - _Requirements: 3.5_
 
-- [ ] 16. **Redesign profile screen**
+- [x] 16. **Redesign profile screen**
   - **File**: `expo-chat-app/app/(tabs)/profile/index.tsx`
   - Apply Slack's settings-like card grouping with surface colors
   - Update user info display with Slack typography
@@ -136,7 +136,7 @@ Implementation is organized into four phases: (1) design token installation and 
   - Update `MessageList` with Slack spacing
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 18. **Checkpoint — Main Interface Complete**
+- [x] 18. **Checkpoint — Main Interface Complete**
   - All main screens use Slack tokens
   - Chat flow works: browse rooms → open room → send/receive messages
   - Contacts flow works: search → add → accept → DM opens
@@ -151,22 +151,22 @@ Implementation is organized into four phases: (1) design token installation and 
   - Fix any contrast issues or missing dark-mode colors
   - _Requirements: 1.3_
 
-- [ ] 20. **Apply Slack tokens to web frontend** *(if web frontend has visual components)*
+- [x] 20. **Apply Slack tokens to web frontend** *(if web frontend has visual components)*
   - Update all CSS modules / styled components to use Slack tokens
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 21. **Token audit — verify cross-platform parity**
+- [x] 21. **Token audit — verify cross-platform parity**
   - Compare mobile `Colors.ts` vs web Tailwind config for every Slack token
   - Confirm hex values are identical
   - Confirm typography values are identical (with platform-appropriate font loading)
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 22. **Preservation check — verify all functionality still works**
+- [x] 22. **Preservation check — verify all functionality still works**
   - Run the app through all critical paths: auth, messaging, contacts, channels
   - Verify every button, input, link, and navigation target from before the redesign still exists and works
   - _Requirements: All_
 
-- [ ] 23. **Checkpoint — Redesign Complete**
+- [x] 23. **Checkpoint — Redesign Complete**
   - All screens use Slack tokens in both light and dark mode
   - Cross-platform token values are identical
   - All pre-existing functionality is preserved
