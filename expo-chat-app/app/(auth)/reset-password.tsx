@@ -4,15 +4,23 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleShee
 
 import { Text } from '@/components/Themed';
 import { useAuthStore } from '@/src/stores/authStore';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
   const { token } = useLocalSearchParams<{ token: string }>();
   const resetPassword = useAuthStore((s) => s.resetPassword);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
 
   const handleReset = async () => {
     if (!newPassword || !confirmPassword) {
@@ -46,18 +54,18 @@ export default function ResetPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.surfaceSecondary }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.inner}>
-        <Text style={styles.title}>Reset Password</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Reset Password</Text>
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        {error && <Text style={[styles.error, { color: colors.accentRed }]}>{error}</Text>}
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="New Password"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           secureTextEntry
           value={newPassword}
           onChangeText={setNewPassword}
@@ -65,9 +73,9 @@ export default function ResetPasswordScreen() {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Confirm New Password"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -75,14 +83,14 @@ export default function ResetPasswordScreen() {
         />
 
         <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: colors.primary }, loading && styles.buttonDisabled]}
           onPress={handleReset}
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.textInverse} />
           ) : (
-            <Text style={styles.buttonText}>Reset Password</Text>
+            <Text style={[styles.buttonText, { color: colors.textInverse }]}>Reset Password</Text>
           )}
         </Pressable>
       </View>
@@ -96,41 +104,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inner: {
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: SlackSpacing['2xl'],
+    gap: SlackSpacing.lg,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: SlackTypography.displayXl.fontSize,
+    fontWeight: SlackTypography.displayXl.fontWeight,
+    lineHeight: SlackTypography.displayXl.lineHeight,
+    fontFamily: SlackTypography.displayXl.fontFamily,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: SlackSpacing.xl,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
+    borderRadius: SlackBorderRadius.md,
+    paddingHorizontal: SlackSpacing.lg,
+    paddingVertical: SlackSpacing.md,
+    fontSize: SlackTypography.bodyMd.fontSize,
   },
   button: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingVertical: 14,
+    backgroundColor: SlackColors.light.primary,
+    borderRadius: SlackBorderRadius.pill,
+    paddingVertical: SlackSpacing.lg,
     alignItems: 'center',
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyMd.fontSize,
     fontWeight: '600',
   },
   error: {
-    color: '#dc2626',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: SlackTypography.bodySm.fontSize,
   },
 });

@@ -1,18 +1,27 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { Text } from '@/components/Themed';
 import { useAuthStore } from '@/src/stores/authStore';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
   const { registered, emailSent } = useLocalSearchParams<{ registered?: string; emailSent?: string }>();
   const login = useAuthStore((s) => s.login);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
@@ -36,65 +45,71 @@ export default function LoginScreen() {
     }
   };
 
+  const gradientColors: readonly [string, string] = colorScheme === 'dark'
+    ? [colors.surfacePrimary, colors.surfacePrimary]
+    : ['#F4EDE4', '#FFFFFF'];
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.inner}>
-        <Text style={styles.title}>Chatter</Text>
+    <LinearGradient colors={gradientColors} style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.inner}>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Chatter</Text>
 
-        {registered === 'true' && (
-          <Text style={styles.successMessage}>Account created successfully. Please log in.</Text>
-        )}
-        {emailSent === 'true' && (
-          <Text style={styles.successMessage}>Password reset successfully. Please log in.</Text>
-        )}
-
-        {error && <Text style={styles.error}>{error}</Text>}
-
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          placeholderTextColor="#999"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={username}
-          onChangeText={setUsername}
-          editable={!loading}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-          editable={!loading}
-        />
-
-        <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Log In</Text>
+          {registered === 'true' && (
+            <Text style={[styles.successMessage, { color: colors.accentGreen }]}>Account created successfully. Please log in.</Text>
           )}
-        </Pressable>
+          {emailSent === 'true' && (
+            <Text style={[styles.successMessage, { color: colors.accentGreen }]}>Password reset successfully. Please log in.</Text>
+          )}
 
-        <Pressable onPress={() => router.push('/(auth)/register')}>
-          <Text style={styles.link}>Create account</Text>
-        </Pressable>
+          {error && <Text style={[styles.error, { color: colors.accentRed }]}>{error}</Text>}
 
-        <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-          <Text style={styles.link}>Forgot password?</Text>
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder="Username"
+            placeholderTextColor={colors.textSecondary}
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={username}
+            onChangeText={setUsername}
+            editable={!loading}
+          />
+
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder="Password"
+            placeholderTextColor={colors.textSecondary}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            editable={!loading}
+          />
+
+          <Pressable
+            style={[styles.button, { backgroundColor: colors.primary }, loading && styles.buttonDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={colors.textInverse} />
+            ) : (
+              <Text style={[styles.buttonText, { color: colors.textInverse }]}>Log In</Text>
+            )}
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/(auth)/register')}>
+            <Text style={[styles.link, { color: colors.accentBlue }]}>Create account</Text>
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+            <Text style={[styles.link, { color: colors.accentBlue }]}>Forgot password?</Text>
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
@@ -104,52 +119,48 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inner: {
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: SlackSpacing['2xl'],
+    gap: SlackSpacing.lg,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: SlackTypography.displayXl.fontSize,
+    fontWeight: SlackTypography.displayXl.fontWeight,
+    lineHeight: SlackTypography.displayXl.lineHeight,
+    fontFamily: SlackTypography.displayXl.fontFamily,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: SlackSpacing.xl,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
+    borderRadius: SlackBorderRadius.md,
+    paddingHorizontal: SlackSpacing.lg,
+    paddingVertical: SlackSpacing.md,
+    fontSize: SlackTypography.bodyMd.fontSize,
   },
   button: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingVertical: 14,
+    backgroundColor: SlackColors.light.primary,
+    borderRadius: SlackBorderRadius.pill,
+    paddingVertical: SlackSpacing.lg,
     alignItems: 'center',
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyMd.fontSize,
     fontWeight: '600',
   },
   link: {
-    color: '#2f95dc',
     textAlign: 'center',
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: SlackTypography.bodySm.fontSize,
+    marginTop: SlackSpacing.xs,
   },
   error: {
-    color: '#dc2626',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: SlackTypography.bodySm.fontSize,
   },
   successMessage: {
-    color: '#16a34a',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: SlackTypography.bodySm.fontSize,
   },
 });

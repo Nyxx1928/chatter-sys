@@ -4,9 +4,15 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleShee
 
 import { Text } from '@/components/Themed';
 import { useAuthStore } from '@/src/stores/authStore';
+import { SlackColors } from '@/constants/Colors';
+import SlackTypography from '@/constants/Typography';
+import SlackSpacing from '@/constants/Spacing';
+import { SlackBorderRadius } from '@/constants/BorderRadius';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
   const register = useAuthStore((s) => s.register);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -14,6 +20,8 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
 
   const handleRegister = async () => {
     if (!username.trim() || !email.trim() || !displayName.trim() || !password.trim()) {
@@ -48,18 +56,18 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.surfaceSecondary }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.inner}>
-        <Text style={styles.title}>Create Account</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Create Account</Text>
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        {error && <Text style={[styles.error, { color: colors.accentRed }]}>{error}</Text>}
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Username"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           autoCapitalize="none"
           autoCorrect={false}
           value={username}
@@ -68,9 +76,9 @@ export default function RegisterScreen() {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Email"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -79,18 +87,18 @@ export default function RegisterScreen() {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Display Name"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           value={displayName}
           onChangeText={setDisplayName}
           editable={!loading}
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.textPrimary, borderColor: colors.border }]}
           placeholder="Password"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -98,19 +106,19 @@ export default function RegisterScreen() {
         />
 
         <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: colors.primary }, loading && styles.buttonDisabled]}
           onPress={handleRegister}
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.textInverse} />
           ) : (
-            <Text style={styles.buttonText}>Create Account</Text>
+            <Text style={[styles.buttonText, { color: colors.textInverse }]}>Create Account</Text>
           )}
         </Pressable>
 
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.link}>Already have an account? Log in</Text>
+          <Text style={[styles.link, { color: colors.accentBlue }]}>Already have an account? Log in</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -123,47 +131,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inner: {
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: SlackSpacing['2xl'],
+    gap: SlackSpacing.lg,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: SlackTypography.displayXl.fontSize,
+    fontWeight: SlackTypography.displayXl.fontWeight,
+    lineHeight: SlackTypography.displayXl.lineHeight,
+    fontFamily: SlackTypography.displayXl.fontFamily,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: SlackSpacing.xl,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
+    borderRadius: SlackBorderRadius.md,
+    paddingHorizontal: SlackSpacing.lg,
+    paddingVertical: SlackSpacing.md,
+    fontSize: SlackTypography.bodyMd.fontSize,
   },
   button: {
-    backgroundColor: '#2f95dc',
-    borderRadius: 8,
-    paddingVertical: 14,
+    backgroundColor: SlackColors.light.primary,
+    borderRadius: SlackBorderRadius.pill,
+    paddingVertical: SlackSpacing.lg,
     alignItems: 'center',
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: SlackTypography.bodyMd.fontSize,
     fontWeight: '600',
   },
   link: {
-    color: '#2f95dc',
     textAlign: 'center',
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: SlackTypography.bodySm.fontSize,
+    marginTop: SlackSpacing.xs,
   },
   error: {
-    color: '#dc2626',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: SlackTypography.bodySm.fontSize,
   },
 });
