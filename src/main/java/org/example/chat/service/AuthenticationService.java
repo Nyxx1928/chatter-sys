@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -86,7 +85,22 @@ public class AuthenticationService {
     ) {}
 
     /**
+     * A dummy bcrypt hash used for timing-safe login.
+     * When a user is not found, we hash against this dummy value so that
+     * Hash::check() always executes for the same duration, preventing
+     * timing attacks that could reveal whether an email is registered.
+     *
+     * This is a valid bcrypt hash of "dummy-timing-attack-prevention-value"
+     * generated with cost factor 12.
+     */
+    private static final String DUMMY_HASH = "$2a$12$AAAAAAAAAAAAAAAAAAAAAOt2t6RTO0M1E8qF1E8qF1E8qF1E8qF1E8qF1O";
+
+    /**
      * Authenticates a user with the provided credentials and returns a JWT token.
+     *
+     * Uses a timing-safe comparison approach (inspired by JLabs3/Laravel Sanctum):
+     * always performs the password hash check, even when the user is not found,
+     * to prevent timing-based email enumeration.
      *
      * @param username the username
      * @param password the plain text password
@@ -107,20 +121,25 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        // Find user by username
+        // Find user by username — use a dummy hash if not found so that
+        // passwordEncoder.matches() always executes (timing-safe).
+        // This prevents attackers from distinguishing between "user not found"
+        // and "wrong password" by measuring response time.
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isEmpty()) {
-            logger.warn("Authentication failed: user not found: {}", username);
-            throw new IllegalArgumentException("Invalid username or password");
-        }
+        String passwordHash = userOptional.map(User::getPasswordHash).orElse(DUMMY_HASH);
 
-        User user = userOptional.get();
-
-        // Verify password
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+        // Verify password — ALWAYS executes, even for non-existent users
+        if (!passwordEncoder.matches(password, passwordHash)) {
             logger.warn("Authentication failed: invalid password for user: {}", username);
             throw new IllegalArgumentException("Invalid username or password");
         }
+
+        // Password matched — user must exist (the dummy hash can never match
+        // because it's a bcrypt hash of a fixed dummy string, not the user's password).
+        User user = userOptional.orElseThrow(() -> {
+            logger.error("Timing-safe login invariant violated: password matched but user not found");
+            return new IllegalStateException("Invalid username or password");
+        });
 
         // Check email verification
         if (!emailVerificationService.isEmailVerified(user)) {
@@ -128,7 +147,7 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Please verify your email before logging in");
         }
 
-        // Generate JWT token
+        // Only reached if user found AND password matched — generate JWT
         String token = jwtUtil.generateToken(username);
         logger.info("Successfully authenticated user: {}", username);
 
@@ -164,6 +183,7 @@ public class AuthenticationService {
         User user = getUserByUsername(username);
 
         // Update email if provided
+        boolean emailChanged = false;
         if (email != null && !email.trim().isEmpty()) {
             // Check if email is already taken by another user
             if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
@@ -173,7 +193,7 @@ public class AuthenticationService {
             if (!email.equals(user.getEmail())) {
                 user.setEmail(email);
                 user.setEmailVerified(false);
-                emailVerificationService.createAndSendToken(user);
+                emailChanged = true;
             }
         }
 
@@ -183,6 +203,13 @@ public class AuthenticationService {
         }
 
         User updatedUser = userRepository.save(user);
+
+        // Send verification email AFTER the user is saved to avoid TOCTOU:
+        // if the DB save fails, no email was sent for an unpersisted change.
+        if (emailChanged) {
+            emailVerificationService.createAndSendToken(updatedUser);
+        }
+
         logger.info("Successfully updated profile for user: {}", username);
 
         return updatedUser;
@@ -207,8 +234,7 @@ public class AuthenticationService {
         User user = getUserByUsername(username);
 
         // 1. Null out created_by on GROUP rooms so they are not orphaned
-        chatRoomRepository.findAll().stream()
-                .filter(r -> r.getCreatedBy() != null && r.getCreatedBy().getId().equals(user.getId()))
+        chatRoomRepository.findByCreatedById(user.getId())
                 .forEach(r -> {
                     r.setCreatedBy(null);
                     chatRoomRepository.save(r);

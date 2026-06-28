@@ -208,14 +208,8 @@ public class RegistrationService {
     @Transactional
     public void cleanupExpiredPendingRegistrations() {
         LocalDateTime cutoff = LocalDateTime.now();
-        long count = pendingRegistrationRepository.findAll().stream()
-                .filter(p -> p.getExpiryDate().isBefore(cutoff))
-                .peek(pendingRegistrationRepository::delete)
-                .count();
-
-        if (count > 0) {
-            logger.info("Cleaned up {} expired pending registrations", count);
-        }
+        pendingRegistrationRepository.deleteByExpiryDateBefore(cutoff);
+        logger.info("Cleaned up expired pending registrations older than {}", cutoff);
     }
 
     private String buildVerificationUrl(String token) {
@@ -250,6 +244,13 @@ public class RegistrationService {
 
         if (password.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+
+        // Password complexity: at least one uppercase, one lowercase, one digit, one special char
+        if (!password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$")) {
+            throw new IllegalArgumentException(
+                    "Password must contain at least one uppercase letter, one lowercase letter, " +
+                    "one digit, and one special character (@$!%*#?&)");
         }
 
         if (displayName == null || displayName.trim().isEmpty()) {

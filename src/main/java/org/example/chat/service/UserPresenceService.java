@@ -123,9 +123,7 @@ public class UserPresenceService {
     public List<User> getOnlineUsers(Long roomId) {
         logger.debug("Retrieving online users for room ID: {}", roomId);
 
-        List<RoomMembership> memberships = roomMembershipRepository.findByChatRoom(
-            new ChatRoom() {{ setId(roomId); }}
-        );
+        List<RoomMembership> memberships = roomMembershipRepository.findByChatRoomId(roomId);
 
         List<User> onlineUsers = memberships.stream()
             .map(RoomMembership::getUser)
