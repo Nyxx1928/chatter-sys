@@ -13,11 +13,13 @@ import {
 } from '@expo-google-fonts/noto-sans-display';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 
 import { useAuthStore } from '@/src/stores/authStore';
+import { useNotifications } from '@/src/hooks/useNotifications';
+import { useNetworkStatus } from '@/src/hooks/useNetworkStatus';
 import { useColorScheme } from '@/components/useColorScheme';
 import { SlackColors } from '@/constants/Colors';
 
@@ -62,40 +64,33 @@ function RootLayoutNav() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const isChecking = useAuthStore((s) => s.isChecking);
   const validateSession = useAuthStore((s) => s.validateSession);
-  const notifHandlerRef = useRef<{ remove: () => void } | null>(null);
+
+  useNotifications();
+  useNetworkStatus();
+
+  useEffect(() => {
+    const setupForegroundHandler = async () => {
+      try {
+        const Notifications = await import('expo-notifications');
+        Notifications.setNotificationHandler({
+          handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldShowBanner: true,
+            shouldShowList: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+          }),
+        });
+      } catch {
+        // Notifications not available
+      }
+    };
+    setupForegroundHandler();
+  }, []);
 
   useEffect(() => {
     validateSession();
   }, []);
-
-  const setupNotifications = useCallback(async () => {
-    try {
-      const Notifications = await import('expo-notifications');
-      Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-          shouldShowAlert: true,
-          shouldShowBanner: true,
-          shouldShowList: true,
-          shouldPlaySound: true,
-          shouldSetBadge: false,
-        }),
-      });
-      const sub = Notifications.addNotificationResponseReceivedListener((response) => {
-        const data = response.notification.request.content.data;
-        if (data?.roomId) {
-        }
-      });
-      notifHandlerRef.current = sub;
-    } catch {
-    }
-  }, []);
-
-  useEffect(() => {
-    setupNotifications();
-    return () => {
-      notifHandlerRef.current?.remove();
-    };
-  }, [setupNotifications]);
 
   if (!isInitialized || isChecking) {
     return (
