@@ -41,7 +41,7 @@ class UserIT extends BaseIntegrationTest {
         testUser = new User();
         testUser.setUsername("profileuser");
         testUser.setEmail("profile@example.com");
-        testUser.setPasswordHash(passwordEncoder.encode("password123"));
+        testUser.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         testUser.setDisplayName("Profile Test User");
         testUser.setCreatedAt(LocalDateTime.now());
         testUser.setOnline(false);
@@ -130,7 +130,7 @@ class UserIT extends BaseIntegrationTest {
         User otherUser = new User();
         otherUser.setUsername("otheruser");
         otherUser.setEmail("other@example.com");
-        otherUser.setPasswordHash(passwordEncoder.encode("password123"));
+        otherUser.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         otherUser.setDisplayName("Other User");
         otherUser.setCreatedAt(LocalDateTime.now());
         otherUser.setOnline(false);

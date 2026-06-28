@@ -74,7 +74,7 @@ class DirectMessagingIT extends BaseIntegrationTest {
         alice = new User();
         alice.setUsername("alice_dm");
         alice.setEmail("alice_dm@example.com");
-        alice.setPasswordHash(passwordEncoder.encode("password123"));
+        alice.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         alice.setDisplayName("Alice DM");
         alice.setCreatedAt(LocalDateTime.now());
         alice.setOnline(false);
@@ -84,7 +84,7 @@ class DirectMessagingIT extends BaseIntegrationTest {
         bob = new User();
         bob.setUsername("bob_dm");
         bob.setEmail("bob_dm@example.com");
-        bob.setPasswordHash(passwordEncoder.encode("password123"));
+        bob.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         bob.setDisplayName("Bob DM");
         bob.setCreatedAt(LocalDateTime.now());
         bob.setOnline(false);
@@ -203,7 +203,7 @@ class DirectMessagingIT extends BaseIntegrationTest {
             User friend = new User();
             friend.setUsername("friend_" + i + "_dm");
             friend.setEmail("friend_" + i + "_dm@example.com");
-            friend.setPasswordHash(passwordEncoder.encode("password123"));
+            friend.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
             friend.setDisplayName("Friend " + i);
             friend.setCreatedAt(LocalDateTime.now());
             friend.setOnline(false);
@@ -325,7 +325,7 @@ class DirectMessagingIT extends BaseIntegrationTest {
         User charlie = new User();
         charlie.setUsername("charlie_dm");
         charlie.setEmail("charlie_dm@example.com");
-        charlie.setPasswordHash(passwordEncoder.encode("password123"));
+        charlie.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         charlie.setDisplayName("Charlie DM");
         charlie.setCreatedAt(LocalDateTime.now());
         charlie.setOnline(false);
@@ -374,7 +374,7 @@ class DirectMessagingIT extends BaseIntegrationTest {
         User charlie = new User();
         charlie.setUsername("charlie_invite_dm");
         charlie.setEmail("charlie_invite_dm@example.com");
-        charlie.setPasswordHash(passwordEncoder.encode("password123"));
+        charlie.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         charlie.setDisplayName("Charlie Invite DM");
         charlie.setCreatedAt(LocalDateTime.now());
         charlie.setOnline(false);

@@ -68,7 +68,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
             User user = new User();
             user.setUsername("auth_user_" + i);
             user.setEmail("auth_user_" + i + "@example.com");
-            user.setPasswordHash(passwordEncoder.encode("password123"));
+            user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
             user.setDisplayName("Auth User " + i);
             user.setCreatedAt(LocalDateTime.now());
             user.setOnline(false);
@@ -124,7 +124,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
             RegisterRequest registerRequest = new RegisterRequest(
                     "pub_user_" + i,
                     "pub_user_" + i + "@example.com",
-                    "password123",
+                    "TestP@ss1",
                     "Public User " + i);
 
             mockMvc.perform(post("/api/auth/register")
@@ -154,7 +154,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
             User user = new User();
             user.setUsername("msguser_" + count);
             user.setEmail("msguser_" + count + "@example.com");
-            user.setPasswordHash(passwordEncoder.encode("password123"));
+            user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
             user.setDisplayName("Message User");
             user.setCreatedAt(LocalDateTime.now());
             user.setOnline(false);
@@ -224,7 +224,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
             User user = new User();
             user.setUsername("creator_" + i);
             user.setEmail("creator_" + i + "@example.com");
-            user.setPasswordHash(passwordEncoder.encode("password123"));
+            user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
             user.setDisplayName("Creator " + i);
             user.setCreatedAt(LocalDateTime.now());
             user.setOnline(false);
@@ -276,7 +276,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
             User user = new User();
             user.setUsername("profile_" + i);
             user.setEmail("profile_" + i + "@example.com");
-            user.setPasswordHash(passwordEncoder.encode("password123"));
+            user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
             user.setDisplayName("Original Name " + i);
             user.setCreatedAt(LocalDateTime.now());
             user.setOnline(false);
@@ -319,7 +319,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
         RegisterRequest invalidEmailRequest = new RegisterRequest(
                 "testuser",
                 "invalid-email",
-                "password123",
+                "TestP@ss1",
                 "Test User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -356,7 +356,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
             User user = new User();
             user.setUsername("member_" + i);
             user.setEmail("member_" + i + "@example.com");
-            user.setPasswordHash(passwordEncoder.encode("password123"));
+            user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
             user.setDisplayName("Member " + i);
             user.setCreatedAt(LocalDateTime.now());
             user.setOnline(false);

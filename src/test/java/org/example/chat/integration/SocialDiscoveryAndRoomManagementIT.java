@@ -63,7 +63,7 @@ class SocialDiscoveryAndRoomManagementIT extends BaseIntegrationTest {
         user1 = new User();
         user1.setUsername("alice");
         user1.setEmail("alice@example.com");
-        user1.setPasswordHash(passwordEncoder.encode("password123"));
+        user1.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         user1.setDisplayName("Alice Smith");
         user1.setCreatedAt(LocalDateTime.now());
         user1.setOnline(false);
@@ -74,7 +74,7 @@ class SocialDiscoveryAndRoomManagementIT extends BaseIntegrationTest {
         user2 = new User();
         user2.setUsername("bob");
         user2.setEmail("bob@example.com");
-        user2.setPasswordHash(passwordEncoder.encode("password123"));
+        user2.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         user2.setDisplayName("Bob Johnson");
         user2.setCreatedAt(LocalDateTime.now());
         user2.setOnline(false);

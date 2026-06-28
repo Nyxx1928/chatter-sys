@@ -32,7 +32,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest registerRequest = new RegisterRequest(
                 "integrationuser",
                 "integration@example.com",
-                "password123",
+                "TestP@ss1",
                 "Integration Test User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -50,10 +50,10 @@ class AuthenticationIT extends BaseIntegrationTest {
         assertNotNull(savedUser);
         assertEquals("integrationuser", savedUser.getUsername());
         assertEquals("integration@example.com", savedUser.getEmail());
-        assertTrue(passwordEncoder.matches("password123", savedUser.getPasswordHash()));
+        assertTrue(passwordEncoder.matches("TestP@ss1", savedUser.getPasswordHash()));
 
         // Step 2: Login with the registered user
-        LoginRequest loginRequest = new LoginRequest("integrationuser", "password123");
+        LoginRequest loginRequest = new LoginRequest("integrationuser", "TestP@ss1");
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest firstRequest = new RegisterRequest(
                 "duplicateuser",
                 "first@example.com",
-                "password123",
+                "TestP@ss1",
                 "First User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -84,7 +84,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest secondRequest = new RegisterRequest(
                 "duplicateuser",
                 "second@example.com",
-                "password456",
+                "TestP@ss1",
                 "Second User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -105,7 +105,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest firstRequest = new RegisterRequest(
                 "firstuser",
                 "duplicate@example.com",
-                "password123",
+                "TestP@ss1",
                 "First User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -117,7 +117,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest secondRequest = new RegisterRequest(
                 "seconduser",
                 "duplicate@example.com",
-                "password456",
+                "TestP@ss1",
                 "Second User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -138,7 +138,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest registerRequest = new RegisterRequest(
                 "testuser",
                 "test@example.com",
-                "correctpassword",
+                "TestP@ss1",
                 "Test User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -147,7 +147,7 @@ class AuthenticationIT extends BaseIntegrationTest {
                 .andExpect(status().isCreated());
 
         // Try to login with wrong password
-        LoginRequest loginRequest = new LoginRequest("testuser", "wrongpassword");
+        LoginRequest loginRequest = new LoginRequest("testuser", "Wr0ngP@ss1");
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +158,7 @@ class AuthenticationIT extends BaseIntegrationTest {
 
     @Test
     void login_NonexistentUser_ReturnsBadRequest() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("nonexistent", "password123");
+        LoginRequest loginRequest = new LoginRequest("nonexistent", "TestP@ss1");
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -172,7 +172,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest request = new RegisterRequest(
                 "testuser",
                 "invalid-email",
-                "password123",
+                "TestP@ss1",
                 "Test User");
 
         mockMvc.perform(post("/api/auth/register")
