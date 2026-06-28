@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest } from '../types/api';
+import { ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest, UpdateProfileRequest } from '../types/api';
 import { User } from '../types/domain';
-import { forgotPassword as forgotPasswordApi, getCurrentUser, login as loginApi, register as registerApi, resetPassword as resetPasswordApi } from '../api/auth';
+import { forgotPassword as forgotPasswordApi, getCurrentUser, login as loginApi, register as registerApi, resetPassword as resetPasswordApi, updateProfile as updateProfileApi } from '../api/auth';
+import { deleteAccount as deleteAccountApi } from '../api/users';
 import { clearStoredAuth, getSecureToken, getStoredAuth, setStoredAuth, setStoredUser } from '../utils/storage';
 
 type AuthState = {
@@ -15,6 +16,8 @@ type AuthState = {
   login: (request: LoginRequest) => Promise<void>;
   register: (request: RegisterRequest) => Promise<User>;
   validateSession: () => Promise<void>;
+  updateProfile: (request: UpdateProfileRequest) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   logout: () => void;
   forgotPassword: (request: ForgotPasswordRequest) => Promise<void>;
   resetPassword: (request: ResetPasswordRequest) => Promise<void>;
@@ -75,6 +78,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     await clearStoredAuth();
     set({ user: null, token: null, csrfToken: null, isAuthenticated: false, isInitialized: true, isChecking: false });
+  },
+  updateProfile: async (request) => {
+    const token = get().token;
+    if (!token) throw new Error('Not authenticated');
+    const user = await updateProfileApi(token, request);
+    await setStoredUser(user);
+    set({ user });
+  },
+  deleteAccount: async () => {
+    const token = get().token;
+    if (!token) throw new Error('Not authenticated');
+    await deleteAccountApi(token);
+    await clearStoredAuth();
+    set({ user: null, token: null, csrfToken: null, isAuthenticated: false, isInitialized: true });
   },
   forgotPassword: async (request) => {
     await forgotPasswordApi(request);
