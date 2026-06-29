@@ -24,23 +24,23 @@ interface FallbackAvatarProps {
 
 function FallbackAvatar({ avatar, size }: FallbackAvatarProps) {
   const colors = [
-    'bg-kiro-purple-500',
-    'bg-kiro-purple-600',
-    'bg-kiro-purple-700',
+    'bg-slack-primary',
+    'bg-slack-primary',
+    'bg-slack-primary-light',
   ];
 
   const colorIndex = Math.abs(
     avatar.id.charCodeAt(avatar.id.length - 1) - 48
   ) % colors.length;
-  const bgColor = colors[colorIndex] ?? 'bg-kiro-purple-500';
+  const bgColor = colors[colorIndex] ?? 'bg-slack-primary';
 
   return (
     <div
-      className={`${bgColor} flex items-center justify-center rounded-full border-2 border-kiro-purple-400/30 shadow-lg shadow-kiro-purple-500/20`}
+      className={`${bgColor} flex items-center justify-center rounded-full border-2 border-slack-primary/30 shadow-lg shadow-slack-primary/20`}
       style={{ width: size, height: size }}
     >
       <svg
-        className="h-1/2 w-1/2 text-kiro-slate-100"
+        className="h-1/2 w-1/2 text-slack-text-inverse"
         fill="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
@@ -83,7 +83,7 @@ function AvatarItem({
       {hasError ? (
         <FallbackAvatar avatar={avatar} size={size} />
       ) : (
-        <div className="relative h-full w-full overflow-hidden rounded-full border-2 border-kiro-purple-400/30 bg-kiro-ink-900 shadow-lg shadow-kiro-purple-500/10">
+        <div className="relative h-full w-full overflow-hidden rounded-full border-2 border-slack-primary/30 bg-slack-surface-primary shadow-lg shadow-slack-primary/10">
           <Image
             src={avatar.imageUrl}
             alt={avatar.alt}
@@ -104,10 +104,10 @@ function AvatarItem({
 function AmbientField() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
-      <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(circle,rgba(124,92,255,0.28)_1px,transparent_1px)] [background-size:32px_32px]" />
-      <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-kiro-purple-500/25 blur-3xl" />
-      <div className="absolute right-8 top-14 h-20 w-20 rounded-full bg-kiro-purple-400/20 blur-3xl" />
-      <div className="absolute bottom-8 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full bg-kiro-purple-600/20 blur-[90px]" />
+      <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(circle,rgba(74,21,75,0.2)_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-slack-primary/25 blur-3xl" />
+      <div className="absolute right-8 top-14 h-20 w-20 rounded-full bg-slack-primary/20 blur-3xl" />
+      <div className="absolute bottom-8 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full bg-slack-primary/20 blur-[90px]" />
     </div>
   );
 }

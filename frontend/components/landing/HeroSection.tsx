@@ -98,13 +98,13 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
               >
                 <defs>
                   <linearGradient id="grid" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stopColor="#6f42c1" stopOpacity="0.15" />
-                    <stop offset="1" stopColor="#9b7cff" stopOpacity="0.3" />
+                    <stop offset="0" stopColor="#4A154B" stopOpacity="0.15" />
+                    <stop offset="1" stopColor="#7C2382" stopOpacity="0.3" />
                   </linearGradient>
                   <linearGradient id="ridge" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0" stopColor="#6f42c1" stopOpacity="0.35" />
-                    <stop offset="0.5" stopColor="#9b7cff" stopOpacity="0.7" />
-                    <stop offset="1" stopColor="#6f42c1" stopOpacity="0.35" />
+                    <stop offset="0" stopColor="#4A154B" stopOpacity="0.35" />
+                    <stop offset="0.5" stopColor="#7C2382" stopOpacity="0.7" />
+                    <stop offset="1" stopColor="#4A154B" stopOpacity="0.35" />
                   </linearGradient>
                 </defs>
                 {Array.from({ length: 6 }).map((_, index) => (

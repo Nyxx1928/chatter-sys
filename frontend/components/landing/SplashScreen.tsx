@@ -93,20 +93,20 @@ export function SplashScreen({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-kiro-ink-950 text-kiro-slate-100 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-slack-surface-primary text-slack-text-primary ${
         isComplete ? 'animate-fade-out' : 'animate-fade-in'
       } ${className}`.trim()}
     >
       <div className="w-full max-w-md px-6 text-center">
         <div className="flex items-center justify-center gap-3 mb-2">
           <Image src="/logo1.png" alt="Chatter logo" width={40} height={40} className="rounded-xl brightness-0 invert" />
-          <p className="text-xl font-bold text-kiro-slate-100">Chatter</p>
+          <p className="text-xl font-bold text-slack-text-primary">Chatter</p>
         </div>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">Connecting bright teams</h1>
-        <p className="mt-4 text-sm text-kiro-slate-500">Initializing workspace</p>
+        <p className="mt-4 text-sm text-slack-text-secondary">Initializing workspace</p>
 
         <div
-          className="mt-8 rounded-full bg-kiro-ink-900/80 p-1"
+          className="mt-8 rounded-full bg-slack-surface-tertiary p-1"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
@@ -116,11 +116,11 @@ export function SplashScreen({
           aria-busy={!isComplete}
         >
           <div
-            className="h-3 origin-left rounded-full bg-gradient-to-r from-kiro-purple-700 via-kiro-purple-500 to-kiro-purple-400 transition-transform duration-150 will-change-transform"
+            className="h-3 origin-left rounded-full bg-gradient-to-r from-slack-primary via-slack-primary-light to-slack-primary transition-transform duration-150 will-change-transform"
             style={{ transform: `scaleX(${progress / 100})` }}
           />
         </div>
-        <p className="mt-3 text-sm text-kiro-slate-200" aria-hidden="true">{progress}%</p>
+        <p className="mt-3 text-sm text-slack-text-secondary" aria-hidden="true">{progress}%</p>
       </div>
     </div>
   );

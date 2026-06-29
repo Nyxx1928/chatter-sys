@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 interface MenuItem {
   label: string;
@@ -146,6 +147,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
 
         {/* Desktop CTA buttons */}
         <div className="hidden items-center gap-3 lg:flex">
+          <ThemeToggle />
           <Link
             href="/auth/login"
             className="rounded-pill border border-slack-border px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slack-text-primary transition-colors hover:bg-slack-surface-tertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary"
