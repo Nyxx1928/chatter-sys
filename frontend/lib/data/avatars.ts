@@ -163,17 +163,17 @@ export const avatarLayout: Record<string, AvatarPosition> = {
  * Creates a network pattern that emphasizes the social/connected nature of the app
  */
 export const avatarConnections: AvatarConnection[] = [
-  { from: 'avatar-1', to: 'avatar-2', color: 'rgba(168, 85, 247, 0.4)' },
-  { from: 'avatar-1', to: 'avatar-3', color: 'rgba(168, 85, 247, 0.3)' },
-  { from: 'avatar-2', to: 'avatar-4', color: 'rgba(168, 85, 247, 0.5)' },
-  { from: 'avatar-3', to: 'avatar-4', color: 'rgba(168, 85, 247, 0.35)' },
-  { from: 'avatar-4', to: 'avatar-5', color: 'rgba(168, 85, 247, 0.4)' },
-  { from: 'avatar-5', to: 'avatar-6', color: 'rgba(168, 85, 247, 0.45)' },
-  { from: 'avatar-5', to: 'avatar-7', color: 'rgba(168, 85, 247, 0.3)' },
-  { from: 'avatar-6', to: 'avatar-7', color: 'rgba(168, 85, 247, 0.35)' },
-  { from: 'avatar-6', to: 'avatar-8', color: 'rgba(168, 85, 247, 0.4)' },
-  { from: 'avatar-2', to: 'avatar-5', color: 'rgba(168, 85, 247, 0.25)' },
-  { from: 'avatar-4', to: 'avatar-6', color: 'rgba(168, 85, 247, 0.3)' },
+  { from: 'avatar-1', to: 'avatar-2', color: 'rgba(74, 21, 75, 0.4)' },
+  { from: 'avatar-1', to: 'avatar-3', color: 'rgba(74, 21, 75, 0.3)' },
+  { from: 'avatar-2', to: 'avatar-4', color: 'rgba(74, 21, 75, 0.5)' },
+  { from: 'avatar-3', to: 'avatar-4', color: 'rgba(74, 21, 75, 0.35)' },
+  { from: 'avatar-4', to: 'avatar-5', color: 'rgba(74, 21, 75, 0.4)' },
+  { from: 'avatar-5', to: 'avatar-6', color: 'rgba(74, 21, 75, 0.45)' },
+  { from: 'avatar-5', to: 'avatar-7', color: 'rgba(74, 21, 75, 0.3)' },
+  { from: 'avatar-6', to: 'avatar-7', color: 'rgba(74, 21, 75, 0.35)' },
+  { from: 'avatar-6', to: 'avatar-8', color: 'rgba(74, 21, 75, 0.4)' },
+  { from: 'avatar-2', to: 'avatar-5', color: 'rgba(74, 21, 75, 0.25)' },
+  { from: 'avatar-4', to: 'avatar-6', color: 'rgba(74, 21, 75, 0.3)' },
 ];
 
 /**
