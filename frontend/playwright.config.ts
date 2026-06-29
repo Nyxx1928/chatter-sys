@@ -54,6 +54,15 @@ export default defineConfig({
     },
   },
 
+  /* Platform-independent snapshot paths.
+   * By default Playwright appends `process.platform` to snapshot filenames
+   * (e.g. `-win32`, `-linux`), which causes all visual tests to fail on CI
+   * when baselines were generated on a different OS. We override the template
+   * to omit `{-snapshotSuffix}`, making snapshot filenames consistent across
+   * all platforms. Cross-platform rendering differences are handled by the
+   * `maxDiffPixelRatio` setting above. */
+  snapshotPathTemplate: '{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}',
+
   projects: [
     /* ── Desktop browsers ── */
     {
