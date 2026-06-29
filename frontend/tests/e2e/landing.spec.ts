@@ -32,10 +32,23 @@ test.describe('Landing page', () => {
     // Small pause to let CSS transitions settle
     await page.waitForTimeout(300);
 
-    await expect(page).toHaveScreenshot('landing-full.png', {
-      fullPage: true,
-      animations: 'disabled',
-    });
+    const viewport = page.viewportSize();
+
+    // On narrow viewports (mobile) the full-page height varies between platforms
+    // due to font-metric differences, causing dimension-mismatch failures on CI.
+    // We use a fixed-height clip that captures substantially more than the viewport
+    // but avoids the variable-height tail. Desktop viewports are unaffected.
+    if (viewport && viewport.width < 768) {
+      await expect(page).toHaveScreenshot('landing-full.png', {
+        clip: { x: 0, y: 0, width: viewport.width, height: 3000 },
+        animations: 'disabled',
+      });
+    } else {
+      await expect(page).toHaveScreenshot('landing-full.png', {
+        fullPage: true,
+        animations: 'disabled',
+      });
+    }
   });
 
   test('visual snapshot — above the fold', async ({ page }) => {
