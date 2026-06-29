@@ -537,6 +537,7 @@ jobs:
 
       - name: Download all debug artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
 
       - name: Write pipeline header
         run: |
@@ -593,7 +594,7 @@ jobs:
                 echo "#### ❌ Build Failure (no test reports — see mvn-build.log)"
                 echo ""
                 echo '```'
-                grep -E "ERROR|FAILURE|BUILD FAIL|Compilation failure|Exception" "$artifact_dir/mvn-build.log" | head -30
+                grep -E "ERROR|FAILURE|BUILD FAIL|Compilation failure|Exception" "$artifact_dir/mvn-build.log" 2>/dev/null | head -30 || true
                 echo '```'
                 echo ""
               } >> $GITHUB_STEP_SUMMARY
