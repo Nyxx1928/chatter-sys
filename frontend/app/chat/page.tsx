@@ -544,7 +544,7 @@ function ChatMessagesSkeleton() {
 
   return (
     <div
-      className="h-full overflow-hidden flex flex-col-reverse px-4 py-4 gap-5 bg-[#13131f]"
+      className="h-full overflow-hidden flex flex-col-reverse px-4 py-4 gap-5 bg-slack-surface-primary"
       role="status"
       aria-label="Loading messages"
       aria-live="polite"
