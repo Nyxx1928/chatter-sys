@@ -110,18 +110,17 @@
   --slack-border: #DDD9D4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --slack-primary: #611F69;
-    --slack-primary-light: #7C2382;
-    --slack-surface-primary: #1A1D21;
-    --slack-surface-secondary: #222529;
-    --slack-surface-tertiary: #2D2F33;
-    --slack-text-primary: #D1D2D3;
-    --slack-text-secondary: #9D9EA0;
-    --slack-text-inverse: #1D1C1D;
-    --slack-border: #424448;
-  }
+/* Dark mode via class-based toggle (applied by ThemeProvider) */
+:root.dark {
+  --slack-primary: #611F69;
+  --slack-primary-light: #7C2382;
+  --slack-surface-primary: #1A1D21;
+  --slack-surface-secondary: #222529;
+  --slack-surface-tertiary: #2D2F33;
+  --slack-text-primary: #D1D2D3;
+  --slack-text-secondary: #9D9EA0;
+  --slack-text-inverse: #1D1C1D;
+  --slack-border: #424448;
 }
 
 body {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_Display } from "next/font/google";
 import "./globals.css";
 import AuthBootstrap from "./AuthBootstrap";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -31,8 +32,10 @@ export default function RootLayout({
       className={`${notoSans.variable} ${notoSansDisplay.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slack-surface-primary" suppressHydrationWarning>
-        <AuthBootstrap />
-        {children}
+        <ThemeProvider>
+          <AuthBootstrap />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
