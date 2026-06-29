@@ -12,6 +12,14 @@ RUN npm run build
 
 # Runtime stage
 FROM node:20-alpine
+
+# Patch OS-level vulnerabilities before installing app dependencies.
+# Alpine images often trail the latest package releases by a few days;
+# 'apk upgrade' brings all installed packages to their latest patched
+# versions so trivy scans (Phase 7 CI) don't flag HIGH/CRITICAL CVEs
+# that upstream has already fixed but not yet shipped in a new tag.
+RUN apk upgrade --no-cache
+
 WORKDIR /app
 
 ENV NODE_ENV=production
