@@ -28,6 +28,10 @@
   --animate-fade-out: fadeOut 0.35s ease-in forwards;
   --animate-slide-down: slideDown 0.3s ease-out;
   --animate-progress: progress 2s linear infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-in: in 0.2s ease-out;
+  --animate-out: out 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -91,6 +95,46 @@
   }
   100% {
     opacity: 0.55;
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
 
