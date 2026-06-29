@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Sans, Noto_Sans_Display } from "next/font/google";
 import "./globals.css";
 import AuthBootstrap from "./AuthBootstrap";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const notoSansDisplay = Noto_Sans_Display({
+  variable: "--font-noto-sans-display",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,11 +29,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${notoSans.variable} ${notoSansDisplay.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-900" suppressHydrationWarning>
-        <AuthBootstrap />
-        {children}
+      <body className="min-h-full flex flex-col bg-slack-surface-primary" suppressHydrationWarning>
+        <ThemeProvider>
+          <AuthBootstrap />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

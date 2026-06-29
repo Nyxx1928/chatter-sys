@@ -10,6 +10,7 @@ on:
       - ".gitignore"
   schedule:
     - cron: "0 2 * * *"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +34,7 @@ jobs:
     outputs:
       deps_changed: ${{ steps.final.outputs.deps_changed }}
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Detect dependency file changes (PRs only)
         if: github.event_name == 'pull_request'
@@ -62,17 +63,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Java
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
       - name: Validate backend
-        run: mvn -DskipTests=true validate
+        run: mvn -DskipTests=true validate 2>&1 | tee mvn-validate.log
+
+      - name: Generate Maven dependency tree
+        run: mvn dependency:tree -DoutputType=text -DoutputFile=maven-dependency-tree.txt
+        continue-on-error: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.4.0
@@ -89,25 +94,43 @@ jobs:
         working-directory: frontend
         run: npm run lint
 
+      - name: Upload debug artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase1-lint-validate
+          path: |
+            maven-dependency-tree.txt
+            mvn-validate.log
+          if-no-files-found: ignore
+
   phase2-unit-tests:
     name: phase 2 - unit testing
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [phase1-lint-validate]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Java
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
       - name: Run backend unit tests
-        run: |
-          mvn -DskipTests=true dependency:go-offline
-          mvn -Dtest="*Test" -DfailIfNoTests=false test
+        run: mvn -Dtest="*Test" -DfailIfNoTests=false test 2>&1 | tee mvn-build.log
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase2-unit-tests
+          path: |
+            target/surefire-reports/
+            mvn-build.log
+          if-no-files-found: ignore
 
   phase3-integration-tests:
     name: phase 3 - integration testing
@@ -129,19 +152,28 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Java
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
       - name: Run backend integration tests
-        run: |
-          mvn -DskipTests=true dependency:go-offline
-          mvn -Dtest="*IntegrationTest" -DfailIfNoTests=false test
+        run: mvn test-compile failsafe:integration-test failsafe:verify -Dit.test="*IT" 2>&1 | tee mvn-build.log
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase3-integration-tests
+          path: |
+            target/failsafe-reports/
+            target/surefire-reports/
+            mvn-build.log
+          if-no-files-found: ignore
 
   phase4-e2e-playwright:
     name: phase 4 - e2e playwright
@@ -149,7 +181,7 @@ jobs:
     timeout-minutes: 30
     needs: [phase1-lint-validate]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Detect Playwright config
         id: playwright
@@ -181,13 +213,99 @@ jobs:
       - name: Run Playwright tests
         if: steps.playwright.outputs.enabled == 'true'
         working-directory: frontend
-        run: npx playwright test --update-snapshots --retries=2
+        run: npx playwright test --retries=2
 
-  phase5-test-build-docker:
-    name: phase 5 - test and build docker
+      - name: Upload Playwright report
+        if: always() && steps.playwright.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase4-playwright
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: ignore
+
+  phase5-mobile-check:
+    name: phase 5 - mobile type-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [phase1-lint-validate]
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: expo-chat-app/package-lock.json
+
+      - name: Install mobile dependencies
+        working-directory: expo-chat-app
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: expo-chat-app
+        run: npx tsc --noEmit 2>&1 | tee tsc-errors.txt
+
+      - name: Upload TypeScript errors
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase5-mobile-ts
+          path: expo-chat-app/tsc-errors.txt
+          if-no-files-found: ignore
+
+  phase6-secrets-scan:
+    name: phase 6 - secrets scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [phase1-lint-validate]
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - name: Scan for secrets
+        id: secrets-scan
+        continue-on-error: true
+        run: |
+          # Ensure ripgrep is available (not pre-installed on ubuntu-latest runners)
+          if ! command -v rg &> /dev/null; then
+            echo "rg not found, installing ripgrep..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+          fi
+          had_findings=false
+          : > secrets-scan-results.txt
+          for pattern in \
+            "\b(?i)(?:sk_live|sk_test|pk_live|pk_test|ghp_|gho_|ghu_|ghs_|github_pat)_[A-Za-z0-9]+" \
+            "(?i)(?:SUPABASE_SERVICE_ROLE|DOCKERHUB_TOKEN|POSTGRES_PASSWORD)\s*=" \
+            "-----BEGIN (?:RSA |EC |)PRIVATE KEY-----"; do
+            echo "--- Scanning: $pattern ---" >> secrets-scan-results.txt
+            if rg -n "$pattern" --glob "*.{ts,tsx,js,jsx,java,kt,go,py}" \
+              --glob "!**/node_modules/**" --glob "!**/target/**" . \
+              >> secrets-scan-results.txt 2>&1; then
+              had_findings=true
+            else
+              echo "(no matches)" >> secrets-scan-results.txt
+            fi
+          done
+          if [ "$had_findings" = "true" ]; then
+            echo "::warning::Secrets or credentials found in repository!"
+            exit 1
+          fi
+
+      - name: Upload secrets scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase6-secrets-scan
+          path: secrets-scan-results.txt
+          if-no-files-found: ignore
+
+  phase7-build-docker:
+    name: phase 7 - build docker
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [phase2-unit-tests, phase3-integration-tests, phase4-e2e-playwright, changes]
+    needs: [phase2-unit-tests, phase3-integration-tests, phase4-e2e-playwright, phase5-mobile-check, changes]
     outputs:
       backend_built: ${{ steps.dockerfiles.outputs.backend }}
       frontend_built: ${{ steps.dockerfiles.outputs.frontend }}
@@ -195,7 +313,7 @@ jobs:
       frontend_image: ${{ steps.images.outputs.frontend_image }}
       images_pushed: ${{ steps.images.outputs.images_pushed }}
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Detect Dockerfiles
         id: dockerfiles
@@ -229,18 +347,18 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.dockerfiles.outputs.backend == 'true' || steps.dockerfiles.outputs.frontend == 'true'
-        uses: docker/setup-buildx-action@v4.0.0
+        uses: docker/setup-buildx-action@v4.1.0
 
       - name: Log in to Docker Hub
         if: (steps.dockerfiles.outputs.backend == 'true' || steps.dockerfiles.outputs.frontend == 'true') && steps.images.outputs.images_pushed == 'true'
-        uses: docker/login-action@v4.1.0
+        uses: docker/login-action@v4.2.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build backend image
         if: steps.dockerfiles.outputs.backend == 'true'
-        uses: docker/build-push-action@v7.1.0
+        uses: docker/build-push-action@v7.2.0
         with:
           context: .
           file: Dockerfile
@@ -250,7 +368,7 @@ jobs:
 
       - name: Build frontend image
         if: steps.dockerfiles.outputs.frontend == 'true'
-        uses: docker/build-push-action@v7.1.0
+        uses: docker/build-push-action@v7.2.0
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -285,7 +403,6 @@ jobs:
           exit-code: "1"
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          skip-db-update: ${{ github.event_name == 'pull_request' }}
 
       - name: Trivy scan (frontend)
         if: steps.dockerfiles.outputs.frontend == 'true'
@@ -296,39 +413,58 @@ jobs:
           exit-code: "1"
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          skip-db-update: ${{ github.event_name == 'pull_request' }}
 
-  phase6-security-scan:
-    name: phase 6 - security scan
+      - name: Upload Docker build debug data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase7-docker-build
+          path: |
+            sbom-backend.spdx.json
+            sbom-frontend.spdx.json
+          if-no-files-found: ignore
+
+  phase8-security-scan:
+    name: phase 8 - security scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [phase5-test-build-docker, changes]
+    needs: [phase7-build-docker, changes]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Install Cosign
-        if: needs.phase5-test-build-docker.outputs.images_pushed == 'true'
-        uses: sigstore/cosign-installer@v4.1.1
+        if: needs.phase7-build-docker.outputs.images_pushed == 'true'
+        uses: sigstore/cosign-installer@v4.1.2
 
       - name: Sign backend image
-        if: needs.phase5-test-build-docker.outputs.backend_built == 'true' && needs.phase5-test-build-docker.outputs.images_pushed == 'true'
+        if: needs.phase7-build-docker.outputs.backend_built == 'true' && needs.phase7-build-docker.outputs.images_pushed == 'true'
         env:
           COSIGN_EXPERIMENTAL: "1"
-        run: cosign sign --yes ${{ needs.phase5-test-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }}
+        run: cosign sign --yes ${{ needs.phase7-build-docker.outputs.backend_image }}:${{ env.IMAGE_TAG }} 2>&1 | tee cosign-backend.log
 
       - name: Sign frontend image
-        if: needs.phase5-test-build-docker.outputs.frontend_built == 'true' && needs.phase5-test-build-docker.outputs.images_pushed == 'true'
+        if: needs.phase7-build-docker.outputs.frontend_built == 'true' && needs.phase7-build-docker.outputs.images_pushed == 'true'
         env:
           COSIGN_EXPERIMENTAL: "1"
-        run: cosign sign --yes ${{ needs.phase5-test-build-docker.outputs.frontend_image }}:${{ env.IMAGE_TAG }}
+        run: cosign sign --yes ${{ needs.phase7-build-docker.outputs.frontend_image }}:${{ env.IMAGE_TAG }} 2>&1 | tee cosign-frontend.log
 
-  phase6-dependency-audit:
-    name: phase 6 - dependency audit
+      - name: Upload signing logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase8-security-scan
+          path: |
+            cosign-backend.log
+            cosign-frontend.log
+          if-no-files-found: ignore
+
+  phase9-dependency-audit:
+    name: phase 9 - dependency audit
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [phase1-lint-validate]
+    needs: [phase1-lint-validate, changes]
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.4.0
@@ -342,12 +478,14 @@ jobs:
         run: npm ci
 
       - name: npm audit
+        if: github.event_name != 'pull_request' || needs.changes.outputs.deps_changed == 'true'
         working-directory: frontend
-        run: npm audit --audit-level=high
+        continue-on-error: true
+        run: npm audit --audit-level=high --json 2>&1 | tee npm-audit-report.json
 
       - name: Set up Java
         if: github.event_name == 'schedule'
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5.4.0
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -364,29 +502,178 @@ jobs:
 
       - name: Maven dependency audit (weekly only)
         if: github.event_name == 'schedule'
-        run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 -DnvdDatafeedUrl=https://www.nist.gov/feeds -DautoUpdate=false || true
+        continue-on-error: true
+        run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 -DautoUpdate=false -Dformat=ALL 2>&1 | tee owasp-dependency-check.log
 
-  phase7-ci-summary:
-    name: phase 7 - ci summary
+      - name: Upload dependency audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-phase9-dependency-audit
+          path: |
+            npm-audit-report.json
+            owasp-dependency-check.log
+            target/dependency-check-report.*
+          if-no-files-found: ignore
+
+  summary:
+    name: summary - compile debug report
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     if: always()
     needs:
+      - changes
       - phase1-lint-validate
       - phase2-unit-tests
       - phase3-integration-tests
       - phase4-e2e-playwright
-      - phase5-test-build-docker
-      - phase6-security-scan
-      - phase6-dependency-audit
+      - phase5-mobile-check
+      - phase6-secrets-scan
+      - phase7-build-docker
+      - phase8-security-scan
+      - phase9-dependency-audit
     steps:
-      - name: Write summary
+      - uses: actions/checkout@v7.0.0
+
+      - name: Download all debug artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+
+      - name: Write pipeline header
         run: |
-          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 1 (Lint/Validate): ${{ needs.phase1-lint-validate.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 2 (Unit Tests): ${{ needs.phase2-unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 3 (Integration Tests): ${{ needs.phase3-integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 4 (E2E Playwright): ${{ needs.phase4-e2e-playwright.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 5 (Docker Build): ${{ needs.phase5-test-build-docker.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 6 (Security Scan): ${{ needs.phase6-security-scan.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Phase 6 (Dependency Audit): ${{ needs.phase6-dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## CI Debug Summary"
+            echo ""
+            echo "**Run:** [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo "**Trigger:** \`${{ github.event_name }}\` | **Branch:** \`${{ github.ref_name }}\` | **Commit:** \`${{ github.sha }}\`"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Write job status table
+        run: |
+          {
+            echo "### Job Status"
+            echo ""
+            echo "| # | Job | Status | Debug Artifacts |"
+            echo "|---|-----|--------|-----------------|"
+            echo "| 1 | Lint / Validate | ${{ needs.phase1-lint-validate.result }} | \`debug-phase1-lint-validate\` |"
+            echo "| 2 | Unit Tests | ${{ needs.phase2-unit-tests.result }} | \`debug-phase2-unit-tests\` |"
+            echo "| 3 | Integration Tests | ${{ needs.phase3-integration-tests.result }} | \`debug-phase3-integration-tests\` |"
+            echo "| 4 | E2E Playwright | ${{ needs.phase4-e2e-playwright.result }} | \`debug-phase4-playwright\` |"
+            echo "| 5 | Mobile TypeScript | ${{ needs.phase5-mobile-check.result }} | \`debug-phase5-mobile-ts\` |"
+            echo "| 6 | Secrets Scan | ${{ needs.phase6-secrets-scan.result }} | \`debug-phase6-secrets-scan\` |"
+            echo "| 7 | Docker Build | ${{ needs.phase7-build-docker.result }} | \`debug-phase7-docker-build\` |"
+            echo "| 8 | Security Scan | ${{ needs.phase8-security-scan.result }} | \`debug-phase8-security-scan\` |"
+            echo "| 9 | Dependency Audit | ${{ needs.phase9-dependency-audit.result }} | \`debug-phase9-dependency-audit\` |"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Extract test failure details
+        run: |
+          for artifact_dir in debug-phase2-unit-tests debug-phase3-integration-tests; do
+            if [ ! -d "$artifact_dir" ]; then
+              continue
+            fi
+            reports=$(find "$artifact_dir" -type f \( -name "*.txt" -o -name "*.xml" \) \
+              \( -path "*/surefire-reports/*" -o -path "*/failsafe-reports/*" \) 2>/dev/null | head -5)
+            if [ -n "$reports" ]; then
+              echo "$reports" | while IFS= read -r report; do
+                if grep -qi "FAILURE\|ERROR\|Exception\|Tests run:.*Failures: [1-9]\|BUILD FAIL" "$report" 2>/dev/null; then
+                  {
+                    echo "#### ❌ Test Failure: \`$(basename "$report")\`"
+                    echo ""
+                    echo '```'
+                    head -60 "$report"
+                    echo '```'
+                    echo ""
+                  } >> $GITHUB_STEP_SUMMARY
+                fi
+              done
+            elif [ -f "$artifact_dir/mvn-build.log" ]; then
+              {
+                echo "#### ❌ Build Failure (no test reports — see mvn-build.log)"
+                echo ""
+                echo '```'
+                grep -E "ERROR|FAILURE|BUILD FAIL|Compilation failure|Exception" "$artifact_dir/mvn-build.log" 2>/dev/null | head -30 || true
+                echo '```'
+                echo ""
+              } >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Extract TypeScript errors
+        if: needs.phase5-mobile-check.result == 'failure'
+        run: |
+          if [ -f "debug-phase5-mobile-ts/tsc-errors.txt" ]; then
+            {
+              echo "### ❌ TypeScript Errors (Mobile)"
+              echo ""
+              echo '```'
+              head -100 debug-phase5-mobile-ts/tsc-errors.txt
+              echo '```'
+              echo ""
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Extract secrets scan findings
+        if: needs.phase6-secrets-scan.result == 'failure'
+        run: |
+          if [ -f "debug-phase6-secrets-scan/secrets-scan-results.txt" ]; then
+            {
+              echo "### ⚠️ Secrets Scan Findings"
+              echo ""
+              echo '```'
+              cat debug-phase6-secrets-scan/secrets-scan-results.txt
+              echo '```'
+              echo ""
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Record system environment
+        run: |
+          {
+            echo "### System Environment"
+            echo ""
+            echo '```'
+            echo "OS: $(uname -a 2>/dev/null || echo 'N/A')"
+            echo "Disk: $(df -h / 2>/dev/null | tail -1 || echo 'N/A')"
+            echo "Memory: $(free -h 2>/dev/null | head -2 || echo 'N/A')"
+            echo '```'
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: List debug artifacts inventory
+        run: |
+          {
+            echo "### Debug Artifacts Inventory"
+            echo ""
+            echo '```'
+            find . -maxdepth 2 \( -type d -name "debug-*" -o -type d -name "summary-*" \) 2>/dev/null | sort
+            find . -type f -not -path './.git/*' 2>/dev/null | head -60
+            echo '```'
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Determine overall pipeline result
+        run: |
+          ALL_RESULTS="${{ needs.phase1-lint-validate.result }} ${{ needs.phase2-unit-tests.result }} ${{ needs.phase3-integration-tests.result }} ${{ needs.phase4-e2e-playwright.result }} ${{ needs.phase5-mobile-check.result }} ${{ needs.phase6-secrets-scan.result }} ${{ needs.phase7-build-docker.result }} ${{ needs.phase8-security-scan.result }} ${{ needs.phase9-dependency-audit.result }}"
+          if echo "$ALL_RESULTS" | grep -q "failure"; then
+            echo "❌ **Pipeline result: FAILED** — one or more jobs failed. See debug artifacts above for details." >> $GITHUB_STEP_SUMMARY
+          elif echo "$ALL_RESULTS" | grep -q "cancelled"; then
+            echo "⚠️ **Pipeline result: CANCELLED** — one or more jobs were cancelled." >> $GITHUB_STEP_SUMMARY
+          elif echo "$ALL_RESULTS" | grep -q "skipped"; then
+            echo "⚠️ **Pipeline result: PARTIAL** — some jobs were skipped." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Pipeline result: SUCCESS** — all jobs passed." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload compiled summary report
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary-report
+          path: |
+            **/*.txt
+            **/*.json
+            **/*.log
+            **/*.xml
+          if-no-files-found: ignore

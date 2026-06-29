@@ -15,8 +15,8 @@ export default function ChatRoomRedirect() {
   }, [router]);
 
   return (
-    <div className="flex items-center justify-center h-full bg-[#13131f]">
-      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-kiro-purple-400" />
+    <div className="flex items-center justify-center h-full bg-slack-surface-primary">
+      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-slack-primary" />
     </div>
   );
 }

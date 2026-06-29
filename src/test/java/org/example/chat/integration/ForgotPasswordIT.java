@@ -35,7 +35,7 @@ class ForgotPasswordIT extends BaseIntegrationTest {
         User user = new User();
         user.setUsername("resetuser");
         user.setEmail("resetuser@example.com");
-        user.setPasswordHash(passwordEncoder.encode("originalPass123"));
+        user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         user.setDisplayName("Reset User");
         user.setCreatedAt(LocalDateTime.now());
         user.setOnline(false);
@@ -83,7 +83,7 @@ class ForgotPasswordIT extends BaseIntegrationTest {
         tokenRepository.save(token);
 
         ResetPasswordRequest resetRequest = new ResetPasswordRequest(
-                token.getToken(), "newSecurePassword456");
+                token.getToken(), "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,9 +96,9 @@ class ForgotPasswordIT extends BaseIntegrationTest {
 
         User updatedUser = userRepository.findByUsername("resetuser").orElse(null);
         assertNotNull(updatedUser);
-        assertTrue(passwordEncoder.matches("newSecurePassword456", updatedUser.getPasswordHash()));
+        assertTrue(passwordEncoder.matches("NewP@ss1", updatedUser.getPasswordHash()));
 
-        LoginRequest loginRequest = new LoginRequest("resetuser", "newSecurePassword456");
+        LoginRequest loginRequest = new LoginRequest("resetuser", "NewP@ss1");
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(loginRequest)))
@@ -116,7 +116,7 @@ class ForgotPasswordIT extends BaseIntegrationTest {
         tokenRepository.save(expiredToken);
 
         ResetPasswordRequest request = new ResetPasswordRequest(
-                expiredToken.getToken(), "newPassword456");
+                expiredToken.getToken(), "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +134,7 @@ class ForgotPasswordIT extends BaseIntegrationTest {
         tokenRepository.save(usedToken);
 
         ResetPasswordRequest request = new ResetPasswordRequest(
-                usedToken.getToken(), "newPassword456");
+                usedToken.getToken(), "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -146,7 +146,7 @@ class ForgotPasswordIT extends BaseIntegrationTest {
     @Test
     void resetPassword_InvalidToken_ReturnsBadRequest() throws Exception {
         ResetPasswordRequest request = new ResetPasswordRequest(
-                "nonexistent-token-hex-1234567890abcdef12345678", "newPassword456");
+                "nonexistent-token-hex-1234567890abcdef12345678", "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)

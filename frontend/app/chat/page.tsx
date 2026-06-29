@@ -276,10 +276,10 @@ export default function ChatRoomsPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-kiro-ink-950" role="status" aria-live="polite">
+      <div className="flex items-center justify-center h-full bg-slack-surface-secondary" role="status" aria-live="polite">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-kiro-purple-400 mb-4" aria-hidden="true" />
-          <p className="text-kiro-slate-400">Loading rooms...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-slack-primary mb-4" aria-hidden="true" />
+          <p className="text-slack-text-secondary">Loading rooms...</p>
         </div>
       </div>
     );
@@ -288,7 +288,7 @@ export default function ChatRoomsPage() {
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full p-4 bg-kiro-ink-950">
+      <div className="flex items-center justify-center h-full p-4 bg-slack-surface-secondary">
         <div className="text-center max-w-md" role="alert">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -296,7 +296,7 @@ export default function ChatRoomsPage() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-16 h-16 mx-auto text-red-500 mb-4"
+            className="w-16 h-16 mx-auto text-slack-accent-red mb-4"
             aria-hidden="true"
           >
             <path
@@ -305,7 +305,7 @@ export default function ChatRoomsPage() {
               d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
             />
           </svg>
-          <p className="text-red-400 font-medium mb-4">{error}</p>
+          <p className="text-slack-accent-red font-medium mb-4">{error}</p>
           <Button onClick={loadRooms} variant="primary">
             Try Again
           </Button>
@@ -329,15 +329,15 @@ export default function ChatRoomsPage() {
           Desktop (lg+): fixed-width sidebar, always visible. ── */}
       <section
         className={`
-          flex flex-col bg-[#16162a] border-r border-white/5
+          flex flex-col bg-slack-surface-secondary border-r border-slack-border
           ${mobileShowChat ? 'hidden md:flex' : 'flex w-full'}
           md:w-80 xl:w-72 md:shrink-0
         `}
       >
         {/* Panel header */}
-        <header className="px-4 py-4 border-b border-white/5">
+        <header className="px-4 py-4 border-b border-slack-border">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold text-kiro-slate-100">Direct Messages</h2>
+            <h2 className="text-base font-semibold text-slack-text-primary">Direct Messages</h2>
             <Button onClick={loadRooms} variant="ghost" size="sm" aria-label="Refresh direct messages">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -376,17 +376,17 @@ export default function ChatRoomsPage() {
               Desktop: flex-1 beside the room list. ── */}
           <div
             className={`
-              flex-1 flex flex-col min-w-0 bg-[#13131f]
+              flex-1 flex flex-col min-w-0 bg-slack-surface-secondary
               ${mobileShowChat ? 'flex' : 'hidden md:flex'}
             `}
           >
             {/* Room header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#16162a] border-b border-white/5 shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 bg-slack-surface-primary border-b border-slack-border shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Back button — mobile only */}
                 <button
                   onClick={() => setSelectedRoom(null)}
-                  className="md:hidden shrink-0 p-1.5 -ml-1 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                  className="md:hidden shrink-0 p-1.5 -ml-1 text-slack-text-secondary hover:text-slack-text-primary hover:bg-slack-surface-tertiary rounded-lg transition-colors"
                   aria-label="Back to rooms"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -395,7 +395,7 @@ export default function ChatRoomsPage() {
                 </button>
 
                 {/* Room avatar */}
-                <div className="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm relative">
+                <div className="shrink-0 w-9 h-9 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-sm relative">
                   {selectedRoom.roomType === 'DIRECT' ? (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
@@ -403,16 +403,16 @@ export default function ChatRoomsPage() {
                   ) : (
                     selectedRoom.name.charAt(0).toUpperCase()
                   )}
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-[#16162a]" aria-hidden="true" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-slack-accent-green border-2 border-slack-surface-primary" aria-hidden="true" />
                 </div>
 
                 <div className="min-w-0">
-                  <h2 className="text-sm font-semibold text-kiro-slate-100 truncate leading-tight">
+                  <h2 className="text-sm font-semibold text-slack-text-primary truncate leading-tight">
                     {selectedRoom.roomType === 'DIRECT'
                       ? (selectedRoom.otherParticipant?.displayName ?? selectedRoom.name)
                       : selectedRoom.name}
                   </h2>
-                  <p className="text-xs text-green-400 leading-tight">
+                  <p className="text-xs text-slack-accent-green leading-tight">
                     {onlineCount > 0 ? `${onlineCount} online` : 'No one online'}
                   </p>
                 </div>
@@ -423,7 +423,7 @@ export default function ChatRoomsPage() {
                 {/* Members toggle */}
                 <button
                   onClick={() => setShowMembersOnMobile(!showMembersOnMobile)}
-                  className="xl:hidden p-2 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                  className="xl:hidden p-2 text-slack-text-secondary hover:text-slack-text-primary hover:bg-slack-surface-tertiary rounded-lg transition-colors"
                   aria-label="Toggle member list"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -443,7 +443,7 @@ export default function ChatRoomsPage() {
             </div>
 
             {/* Message input */}
-            <div className="px-3 py-3 bg-[#16162a] border-t border-white/5 shrink-0">
+            <div className="px-3 py-3 bg-slack-surface-primary border-t border-slack-border shrink-0">
               <MessageInput
                 onSend={handleSendMessage}
                 disabled={!connected || roomLoading}
@@ -453,19 +453,19 @@ export default function ChatRoomsPage() {
           </div>
 
           {/* ── Members sidebar (desktop xl+) ── */}
-          <aside className="hidden xl:flex flex-col w-60 shrink-0 bg-[#16162a] border-l border-white/5 overflow-y-auto">
+          <aside className="hidden xl:flex flex-col w-60 shrink-0 bg-slack-surface-secondary border-l border-slack-border overflow-y-auto">
             <UserList users={members} currentUserId={user?.id} />
           </aside>
 
           {/* ── Members / Friends drawer (mobile overlay) ── */}
           {showMembersOnMobile && (
             <div className="xl:hidden fixed inset-0 bg-black/70 z-50" onClick={() => setShowMembersOnMobile(false)}>
-              <div className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-[#16162a] shadow-xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-                  <h3 className="text-base font-semibold text-kiro-slate-100">Members</h3>
+              <div className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-slack-surface-secondary shadow-xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slack-border">
+                  <h3 className="text-base font-semibold text-slack-text-primary">Members</h3>
                   <button
                     onClick={() => setShowMembersOnMobile(false)}
-                    className="p-1.5 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                    className="p-1.5 text-slack-text-secondary hover:text-slack-text-primary hover:bg-slack-surface-tertiary rounded-lg transition-colors"
                     aria-label="Close member list"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -481,15 +481,15 @@ export default function ChatRoomsPage() {
       ) : (
         <>
           {/* ── Select-a-room placeholder (desktop only) ── */}
-          <div className="hidden md:flex flex-1 items-center justify-center bg-[#13131f]">
+          <div className="hidden md:flex flex-1 items-center justify-center bg-slack-surface-secondary">
             <div className="text-center px-6">
-              <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-kiro-slate-500">
+              <div className="w-16 h-16 rounded-2xl bg-slack-surface-tertiary flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-slack-text-secondary">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                 </svg>
               </div>
-              <p className="text-kiro-slate-300 font-semibold text-lg mb-1">Select a conversation</p>
-              <p className="text-kiro-slate-500 text-sm">Choose a direct message from the list to start chatting</p>
+              <p className="text-slack-text-primary font-semibold text-lg mb-1">Select a conversation</p>
+              <p className="text-slack-text-secondary text-sm">Choose a direct message from the list to start chatting</p>
             </div>
           </div>
         </>
@@ -511,12 +511,12 @@ export default function ChatRoomsPage() {
           </div>
         }
       >
-        <p className="text-sm text-kiro-slate-200">
-          Deleting <span className="font-semibold text-kiro-slate-100">{deleteTarget?.name}</span> will remove all
+        <p className="text-sm text-slack-text-primary">
+          Deleting <span className="font-semibold text-slack-text-primary">{deleteTarget?.name}</span> will remove all
           messages and memberships. This action cannot be undone.
         </p>
         {deleteError && (
-          <p className="mt-3 text-sm text-red-400" role="alert">
+          <p className="mt-3 text-sm text-slack-accent-red" role="alert">
             {deleteError}
           </p>
         )}
@@ -544,7 +544,7 @@ function ChatMessagesSkeleton() {
 
   return (
     <div
-      className="h-full overflow-hidden flex flex-col-reverse px-4 py-4 gap-5 bg-[#13131f]"
+      className="h-full overflow-hidden flex flex-col-reverse px-4 py-4 gap-5 bg-slack-surface-primary"
       role="status"
       aria-label="Loading messages"
       aria-live="polite"

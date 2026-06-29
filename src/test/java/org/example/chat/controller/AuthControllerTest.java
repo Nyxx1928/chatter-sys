@@ -72,7 +72,7 @@ class AuthControllerTest {
         RegisterRequest request = new RegisterRequest(
             "testuser",
             "test@example.com",
-            "password123",
+            "TestP@ss1",  // Meets complexity: uppercase, lowercase, digit, special char
             "Test User"
         );
 
@@ -119,7 +119,7 @@ class AuthControllerTest {
         RegisterRequest request = new RegisterRequest(
             "testuser",
             "test@example.com",
-            "password123",
+            "TestP@ss1",  // Meets complexity: uppercase, lowercase, digit, special char
             "Test User"
         );
 

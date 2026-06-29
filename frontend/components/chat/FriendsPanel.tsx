@@ -260,8 +260,8 @@ export function FriendsPanel({
     <div className="flex h-full flex-col gap-6 overflow-hidden">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-kiro-slate-100">Friends</h3>
-          <p className="text-sm text-kiro-slate-500">
+          <h3 className="text-lg font-semibold text-slack-text-primary">Friends</h3>
+          <p className="text-sm text-slack-text-secondary">
             {friendsWithPresence.length} total · {onlineCount} online
           </p>
         </div>
@@ -271,17 +271,17 @@ export function FriendsPanel({
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-900/50 bg-red-950/40 px-4 py-3 text-sm text-red-400" role="alert">
+        <div className="rounded-xl border border-slack-accent-red/30 bg-slack-accent-red/10 px-4 py-3 text-sm text-slack-accent-red" role="alert">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="rounded-xl border border-kiro-ink-900 bg-kiro-ink-900/60 px-4 py-3 text-sm text-kiro-slate-400" role="status">
+        <div className="rounded-xl border border-slack-border bg-slack-surface-tertiary px-4 py-3 text-sm text-slack-text-secondary" role="status">
           Loading friends data...
         </div>
       ) : friendsWithPresence.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-kiro-ink-900 px-4 py-6 text-center text-sm text-kiro-slate-500">
+        <div className="rounded-xl border border-dashed border-slack-border px-4 py-6 text-center text-sm text-slack-text-secondary">
           Your friends list is empty. Search for people to connect with.
         </div>
       ) : (
@@ -289,31 +289,31 @@ export function FriendsPanel({
           {friendsWithPresence.map((friend) => (
             <li
               key={friend.id}
-              className="flex items-center justify-between rounded-xl border border-kiro-ink-900 bg-kiro-ink-950/60 px-4 py-3"
+              className="flex items-center justify-between rounded-xl border border-slack-border bg-slack-surface-primary px-4 py-3"
             >
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 text-white flex items-center justify-center font-semibold">
+                <div className="h-10 w-10 rounded-full bg-slack-primary text-slack-text-inverse flex items-center justify-center font-semibold">
                   {friend.displayName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-kiro-slate-100">
+                  <p className="text-sm font-semibold text-slack-text-primary">
                     {friend.displayName}
                   </p>
-                  <p className="text-xs text-kiro-slate-500">@{friend.username}</p>
+                  <p className="text-xs text-slack-text-secondary">@{friend.username}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-medium ${
+                  className={`inline-flex items-center gap-2 rounded-pill px-2 py-1 text-xs font-medium ${
                     friend.online
-                      ? 'bg-green-900/40 text-green-400'
-                      : 'bg-kiro-ink-900/60 text-kiro-slate-500'
+                      ? 'bg-slack-accent-green/20 text-slack-accent-green'
+                      : 'bg-slack-surface-tertiary text-slack-text-secondary'
                   }`}
                   aria-label={friend.online ? `${friend.displayName} is online` : `${friend.displayName} is offline`}
                 >
                   <span
                     className={`h-2 w-2 rounded-full ${
-                      friend.online ? 'bg-green-500' : 'bg-kiro-slate-500'
+                      friend.online ? 'bg-slack-accent-green' : 'bg-slack-text-secondary'
                     }`}
                     aria-hidden="true"
                   />
@@ -338,7 +338,7 @@ export function FriendsPanel({
                   onClick={() => handleRemoveFriend(friend.id, friend.displayName)}
                   aria-label={`Remove ${friend.displayName} from friends`}
                   title="Remove friend"
-                  className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                  className="text-slack-accent-red hover:text-slack-accent-red/80 hover:bg-slack-accent-red/20"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -351,26 +351,26 @@ export function FriendsPanel({
       )}
 
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-kiro-slate-200">Pending requests</h4>
+        <h4 className="text-sm font-semibold text-slack-text-primary">Pending requests</h4>
         {requests.incoming.length === 0 && requests.outgoing.length === 0 ? (
-          <p className="text-sm text-kiro-slate-500">No pending friend requests.</p>
+          <p className="text-sm text-slack-text-secondary">No pending friend requests.</p>
         ) : (
           <div className="space-y-4">
             {requests.incoming.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-kiro-slate-500 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-slack-text-secondary uppercase tracking-wide">
                   Incoming
                 </p>
                 {requests.incoming.map((request) => (
                   <div
                     key={request.id}
-                    className="flex flex-col gap-2 rounded-xl border border-kiro-ink-900 bg-kiro-ink-950/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-xl border border-slack-border bg-slack-surface-primary px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-kiro-slate-100">
+                      <p className="text-sm font-semibold text-slack-text-primary">
                         {request.requester.displayName}
                       </p>
-                      <p className="text-xs text-kiro-slate-500">@{request.requester.username}</p>
+                      <p className="text-xs text-slack-text-secondary">@{request.requester.username}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" onClick={() => handleAcceptRequest(request.id)}>
@@ -391,21 +391,21 @@ export function FriendsPanel({
 
             {requests.outgoing.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-kiro-slate-500 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-slack-text-secondary uppercase tracking-wide">
                   Outgoing
                 </p>
                 {requests.outgoing.map((request) => (
                   <div
                     key={request.id}
-                    className="flex items-center justify-between rounded-xl border border-kiro-ink-900 bg-kiro-ink-900/40 px-4 py-3"
+                    className="flex items-center justify-between rounded-xl border border-slack-border bg-slack-surface-tertiary px-4 py-3"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-kiro-slate-100">
+                      <p className="text-sm font-semibold text-slack-text-primary">
                         {request.recipient.displayName}
                       </p>
-                      <p className="text-xs text-kiro-slate-500">@{request.recipient.username}</p>
+                      <p className="text-xs text-slack-text-secondary">@{request.recipient.username}</p>
                     </div>
-                    <span className="rounded-full bg-kiro-purple-700/30 px-3 py-1 text-xs font-medium text-kiro-purple-400">
+                    <span className="rounded-pill bg-slack-primary/30 px-3 py-1 text-xs font-medium text-slack-primary">
                       Requested
                     </span>
                   </div>
@@ -416,9 +416,9 @@ export function FriendsPanel({
         )}
       </div>
 
-      <div className="border-t border-kiro-ink-900 pt-6">
+      <div className="border-t border-slack-border pt-6">
         {searchError && (
-          <div className="mb-3 rounded-xl border border-red-900/50 bg-red-950/40 px-4 py-3 text-sm text-red-400" role="alert">
+          <div className="mb-3 rounded-xl border border-slack-accent-red/30 bg-slack-accent-red/10 px-4 py-3 text-sm text-slack-accent-red" role="alert">
             {searchError}
           </div>
         )}

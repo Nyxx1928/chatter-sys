@@ -30,7 +30,7 @@ export default function AuthBootstrap() {
   if (!showWakeUp) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 rounded-full bg-[#1a1a2e] border border-white/10 px-4 py-2 text-xs text-white/60 shadow-lg">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 rounded-full bg-slack-surface-primary border border-slack-border px-4 py-2 text-xs text-slack-text-secondary shadow-slack-lg">
       <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
       Waking up the server… this takes ~30s on first load
     </div>

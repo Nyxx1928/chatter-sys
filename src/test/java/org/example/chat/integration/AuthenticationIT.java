@@ -1,8 +1,11 @@
 package org.example.chat.integration;
 
+import com.jayway.jsonpath.JsonPath;
 import org.example.chat.dto.LoginRequest;
 import org.example.chat.dto.RegisterRequest;
+import org.example.chat.entity.PendingRegistration;
 import org.example.chat.entity.User;
+import org.example.chat.repository.PendingRegistrationRepository;
 import org.example.chat.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,36 +27,41 @@ class AuthenticationIT extends BaseIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private PendingRegistrationRepository pendingRegistrationRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Test
     void completeAuthenticationFlow_RegisterAndLogin_Success() throws Exception {
-        // Step 1: Register a new user
+        // Step 1: Register a new user (creates pending registration)
         RegisterRequest registerRequest = new RegisterRequest(
                 "integrationuser",
                 "integration@example.com",
-                "password123",
+                "TestP@ss1",
                 "Integration Test User");
 
-        mockMvc.perform(post("/api/auth/register")
+        String registerResponse = mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(registerRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("integrationuser"))
-                .andExpect(jsonPath("$.email").value("integration@example.com"))
-                .andExpect(jsonPath("$.displayName").value("Integration Test User"))
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.online").value(false));
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.emailSent").isBoolean())
+                .andExpect(jsonPath("$.verificationUrl").exists())
+                .andReturn().getResponse().getContentAsString();
 
-        // Verify user was saved to database
-        User savedUser = userRepository.findByUsername("integrationuser").orElse(null);
-        assertNotNull(savedUser);
-        assertEquals("integrationuser", savedUser.getUsername());
-        assertEquals("integration@example.com", savedUser.getEmail());
-        assertTrue(passwordEncoder.matches("password123", savedUser.getPasswordHash()));
+        // Step 2: Verify email (extract verificationUrl from response)
+        String verificationUrl = JsonPath.read(registerResponse, "$.verificationUrl");
+        // verificationUrl is like "http://localhost:8080/api/auth/verify-email?token=..."
+        String token = verificationUrl.substring(verificationUrl.indexOf("token=") + 6);
 
-        // Step 2: Login with the registered user
-        LoginRequest loginRequest = new LoginRequest("integrationuser", "password123");
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/auth/verify-email")
+                .param("token", token))
+                .andExpect(status().isFound()); // 302 redirect to frontend on success
+
+        // Step 3: Login with the now-verified user
+        LoginRequest loginRequest = new LoginRequest("integrationuser", "TestP@ss1");
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +80,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest firstRequest = new RegisterRequest(
                 "duplicateuser",
                 "first@example.com",
-                "password123",
+                "TestP@ss1",
                 "First User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -84,7 +92,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest secondRequest = new RegisterRequest(
                 "duplicateuser",
                 "second@example.com",
-                "password456",
+                "TestP@ss1",
                 "Second User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -93,9 +101,9 @@ class AuthenticationIT extends BaseIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Username already exists"));
 
-        // Verify only one user exists
-        assertEquals(1, userRepository.findAll().stream()
-                .filter(u -> u.getUsername().equals("duplicateuser"))
+        // Verify only one pending registration with this username exists
+        assertEquals(1, pendingRegistrationRepository.findAll().stream()
+                .filter(p -> p.getUsername().equals("duplicateuser"))
                 .count());
     }
 
@@ -105,7 +113,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest firstRequest = new RegisterRequest(
                 "firstuser",
                 "duplicate@example.com",
-                "password123",
+                "TestP@ss1",
                 "First User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -117,7 +125,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest secondRequest = new RegisterRequest(
                 "seconduser",
                 "duplicate@example.com",
-                "password456",
+                "TestP@ss1",
                 "Second User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -126,9 +134,9 @@ class AuthenticationIT extends BaseIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Email already exists"));
 
-        // Verify only one user with this email exists
-        assertEquals(1, userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals("duplicate@example.com"))
+        // Verify only one pending registration with this email exists
+        assertEquals(1, pendingRegistrationRepository.findAll().stream()
+                .filter(p -> p.getEmail().equals("duplicate@example.com"))
                 .count());
     }
 
@@ -138,7 +146,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest registerRequest = new RegisterRequest(
                 "testuser",
                 "test@example.com",
-                "correctpassword",
+                "TestP@ss1",
                 "Test User");
 
         mockMvc.perform(post("/api/auth/register")
@@ -147,7 +155,7 @@ class AuthenticationIT extends BaseIntegrationTest {
                 .andExpect(status().isCreated());
 
         // Try to login with wrong password
-        LoginRequest loginRequest = new LoginRequest("testuser", "wrongpassword");
+        LoginRequest loginRequest = new LoginRequest("testuser", "Wr0ngP@ss1");
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +166,7 @@ class AuthenticationIT extends BaseIntegrationTest {
 
     @Test
     void login_NonexistentUser_ReturnsBadRequest() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("nonexistent", "password123");
+        LoginRequest loginRequest = new LoginRequest("nonexistent", "TestP@ss1");
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -172,7 +180,7 @@ class AuthenticationIT extends BaseIntegrationTest {
         RegisterRequest request = new RegisterRequest(
                 "testuser",
                 "invalid-email",
-                "password123",
+                "TestP@ss1",
                 "Test User");
 
         mockMvc.perform(post("/api/auth/register")

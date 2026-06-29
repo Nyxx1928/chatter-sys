@@ -19,17 +19,17 @@ public class EmailVerificationService {
 
     private final VerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
-    private final EmailService emailService;
+    private final BrevoEmailService brevoEmailService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
     public EmailVerificationService(VerificationTokenRepository tokenRepository,
                                     UserRepository userRepository,
-                                    EmailService emailService) {
+                                    BrevoEmailService brevoEmailService) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
-        this.emailService = emailService;
+        this.brevoEmailService = brevoEmailService;
     }
 
     public record VerificationDispatchResult(String token, String verificationUrl, boolean emailSent) {}
@@ -42,9 +42,12 @@ public class EmailVerificationService {
         tokenRepository.save(token);
 
         String verificationUrl = buildVerificationUrl(token.getToken());
-        boolean emailSent = emailService.sendVerificationEmail(user.getEmail(), verificationUrl);
+        BrevoEmailService.EmailResult emailResult =
+                brevoEmailService.sendVerificationEmail(user.getEmail(), verificationUrl);
+        boolean emailSent = emailResult.success();
         if (!emailSent) {
-            logger.warn("Verification email was not sent for user {}. Falling back to verificationUrl only.", user.getUsername());
+            logger.warn("Verification email was not sent for user {}. Falling back to verificationUrl only. Error: {}",
+                    user.getUsername(), emailResult.errorMessage());
         }
 
         return new VerificationDispatchResult(token.getToken(), verificationUrl, emailSent);

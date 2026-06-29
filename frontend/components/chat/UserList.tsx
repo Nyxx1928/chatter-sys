@@ -35,19 +35,19 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
     return (
       <li
         key={user.id}
-        className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 rounded-lg mx-2 transition-colors"
+        className="flex items-center gap-3 px-4 py-2 hover:bg-slack-surface-tertiary rounded-lg mx-2 transition-colors"
       >
         {/* Presence indicator */}
         <div className="relative shrink-0">
           {/* Avatar placeholder */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-10 h-10 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-medium text-sm">
             {user.displayName.charAt(0).toUpperCase()}
           </div>
           
           {/* Online status badge */}
           <div
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#16162a] ${
-              user.online ? 'bg-green-500' : 'bg-kiro-slate-500'
+            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slack-surface-secondary ${
+              user.online ? 'bg-slack-accent-green' : 'bg-slack-text-secondary'
             }`}
             role="status"
             aria-label={user.online ? 'Online' : 'Offline'}
@@ -56,21 +56,21 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
 
         {/* User info */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-kiro-slate-100 truncate">
+          <p className="text-sm font-medium text-slack-text-primary truncate">
             {user.displayName}
             {isCurrentUser && (
-              <span className="ml-2 text-xs text-kiro-slate-500 font-normal">(You)</span>
+              <span className="ml-2 text-xs text-slack-text-secondary font-normal">(You)</span>
             )}
           </p>
-          <p className="text-xs text-kiro-slate-500 truncate">@{user.username}</p>
+          <p className="text-xs text-slack-text-secondary truncate">@{user.username}</p>
         </div>
 
         {/* Online/Offline badge */}
         <div
-          className={`shrink-0 px-2 py-1 rounded-full text-xs font-medium ${
+          className={`shrink-0 px-2 py-1 rounded-pill text-xs font-medium ${
             user.online
-              ? 'bg-green-900/40 text-green-400'
-              : 'bg-kiro-ink-950/60 text-kiro-slate-500'
+              ? 'bg-slack-accent-green/20 text-slack-accent-green'
+              : 'bg-slack-surface-tertiary text-slack-text-secondary'
           }`}
         >
           {user.online ? 'Online' : 'Offline'}
@@ -83,10 +83,10 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
   if (users.length === 0) {
     return (
       <div
-        className={`flex items-center justify-center h-full p-4 bg-[#16162a] ${className}`}
+        className={`flex items-center justify-center h-full p-4 bg-slack-surface-secondary ${className}`}
         role="status"
       >
-        <p className="text-kiro-slate-500 text-center text-sm">
+        <p className="text-slack-text-secondary text-center text-sm">
           No users in this room
         </p>
       </div>
@@ -94,13 +94,13 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
   }
 
   return (
-    <div className={`flex flex-col h-full bg-[#16162a] ${className}`}>
+    <div className={`flex flex-col h-full bg-slack-surface-secondary ${className}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-white/5">
-        <h3 className="text-sm font-semibold text-kiro-slate-100">
-          Members <span className="text-kiro-slate-500 font-normal">({users.length})</span>
+      <div className="px-4 py-3 border-b border-slack-border">
+        <h3 className="text-sm font-semibold text-slack-text-primary">
+          Members <span className="text-slack-text-secondary font-normal">({users.length})</span>
         </h3>
-        <p className="text-xs text-kiro-slate-500 mt-0.5">
+        <p className="text-xs text-slack-text-secondary mt-0.5">
           {onlineUsers.length} online
         </p>
       </div>
@@ -110,7 +110,7 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
         {/* Online users section */}
         {onlineUsers.length > 0 && (
           <div className="mb-2">
-            <h4 className="px-4 py-1.5 text-xs font-semibold text-kiro-slate-500 uppercase tracking-wider">
+            <h4 className="px-4 py-1.5 text-xs font-semibold text-slack-text-secondary uppercase tracking-wider">
               Online — {onlineUsers.length}
             </h4>
             <ul className="space-y-0.5" role="list" aria-label="Online users">
@@ -122,7 +122,7 @@ export function UserList({ users, currentUserId, className = '' }: UserListProps
         {/* Offline users section */}
         {offlineUsers.length > 0 && (
           <div>
-            <h4 className="px-4 py-1.5 text-xs font-semibold text-kiro-slate-500 uppercase tracking-wider">
+            <h4 className="px-4 py-1.5 text-xs font-semibold text-slack-text-secondary uppercase tracking-wider">
               Offline — {offlineUsers.length}
             </h4>
             <ul className="space-y-0.5" role="list" aria-label="Offline users">

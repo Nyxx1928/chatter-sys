@@ -257,7 +257,7 @@ test.describe('Task 10.3 — Desktop sidebar navigation', () => {
     await expect(channelsLink).toBeVisible({ timeout: 10_000 });
     const classes = await channelsLink.getAttribute('class') ?? '';
     // Active state includes the purple background class
-    expect(classes).toContain('bg-kiro-purple-600/30');
+    expect(classes).toContain('bg-slack-primary/30');
   });
 });
 

@@ -46,12 +46,12 @@ export default function ProfilePage() {
   const initial = user.displayName?.charAt(0).toUpperCase() ?? '?';
 
   return (
-    <div className="flex flex-col h-full bg-[#13131f] min-w-0">
+    <div className="flex flex-col h-full bg-slack-surface-secondary min-w-0">
       <div className="flex-1 flex flex-col items-center md:items-start justify-center px-8 py-12 gap-6">
 
         {/* Avatar */}
         <div
-          className="w-24 h-24 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700
+          className="w-24 h-24 rounded-full bg-slack-primary
                      flex items-center justify-center shrink-0"
           aria-hidden="true"
         >
@@ -60,8 +60,8 @@ export default function ProfilePage() {
 
         {/* User info */}
         <div className="flex flex-col items-center md:items-start gap-1 min-w-0">
-          <h1 className="text-xl font-semibold text-white truncate max-w-xs">{user.displayName}</h1>
-          <p className="text-sm text-kiro-slate-400 truncate max-w-xs">@{user.username}</p>
+          <h1 className="text-xl font-semibold text-slack-text-primary truncate max-w-xs">{user.displayName}</h1>
+          <p className="text-sm text-slack-text-secondary truncate max-w-xs">@{user.username}</p>
         </div>
 
         {/* Actions */}
@@ -69,8 +69,8 @@ export default function ProfilePage() {
           <button
             onClick={handleLogOut}
             aria-label="Log Out"
-            className="px-5 py-2.5 rounded-lg border border-red-500/40 text-red-400
-                       hover:bg-red-500/10 active:bg-red-500/20 transition-colors
+            className="px-5 py-2.5 rounded-pill border border-slack-accent-red/40 text-slack-accent-red
+                       hover:bg-slack-accent-red/10 active:bg-slack-accent-red/20 transition-colors
                        text-sm font-medium min-h-[44px] min-w-[44px]"
           >
             Log Out
@@ -79,8 +79,8 @@ export default function ProfilePage() {
           <button
             onClick={() => { setDeleteError(null); setShowDeleteModal(true); }}
             aria-label="Delete account"
-            className="px-5 py-2.5 rounded-lg border border-red-800/40 text-red-600
-                       hover:bg-red-900/20 active:bg-red-900/30 transition-colors
+            className="px-5 py-2.5 rounded-pill border border-slack-accent-red/30 text-slack-accent-red
+                       hover:bg-slack-accent-red/20 active:bg-slack-accent-red/30 transition-colors
                        text-sm font-medium min-h-[44px] min-w-[44px]"
           >
             Delete Account
@@ -104,12 +104,12 @@ export default function ProfilePage() {
           </div>
         }
       >
-        <p className="text-sm text-kiro-slate-200">
+        <p className="text-sm text-slack-text-primary">
           This will permanently delete your account, all your messages, and remove you from all rooms and friendships.
-          <strong className="text-white"> This cannot be undone.</strong>
+          <strong className="text-slack-text-primary"> This cannot be undone.</strong>
         </p>
         {deleteError && (
-          <p className="mt-3 text-sm text-red-400" role="alert">{deleteError}</p>
+          <p className="mt-3 text-sm text-slack-accent-red" role="alert">{deleteError}</p>
         )}
       </Modal>
     </div>

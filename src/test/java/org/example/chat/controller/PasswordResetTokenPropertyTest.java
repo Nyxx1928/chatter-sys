@@ -7,7 +7,7 @@ import org.example.chat.entity.PasswordResetToken;
 import org.example.chat.entity.User;
 import org.example.chat.repository.PasswordResetTokenRepository;
 import org.example.chat.repository.UserRepository;
-import org.example.chat.service.EmailService;
+import org.example.chat.service.BrevoEmailService;
 import org.example.chat.service.ForgotPasswordService;
 import org.example.chat.service.RateLimiterService;
 import org.example.chat.util.SecurityAuditLogger;
@@ -56,17 +56,18 @@ class PasswordResetTokenPropertyTest {
         PasswordResetTokenRepository tokenRepository = mock(PasswordResetTokenRepository.class);
         RateLimiterService rateLimiterService = mock(RateLimiterService.class);
         PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
-        EmailService emailService = mock(EmailService.class);
+        BrevoEmailService brevoEmailService = mock(BrevoEmailService.class);
         SecurityAuditLogger auditLogger = mock(SecurityAuditLogger.class);
 
         ForgotPasswordService service = new ForgotPasswordService(
                 userRepository, tokenRepository, rateLimiterService,
-                passwordEncoder, emailService, auditLogger);
+                passwordEncoder, brevoEmailService, auditLogger);
         ReflectionTestUtils.setField(service, "frontendUrl", "http://localhost:3000");
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(tokenRepository.save(any(PasswordResetToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(emailService.sendPasswordResetEmail(anyString(), anyString(), anyString())).thenReturn(true);
+        when(brevoEmailService.sendPasswordResetEmail(anyString(), anyString(), anyString()))
+                .thenReturn(new BrevoEmailService.EmailResult(true, null, "msg-123"));
 
         service.initiateReset("test@example.com");
 
@@ -107,12 +108,12 @@ class PasswordResetTokenPropertyTest {
         UserRepository userRepository = mock(UserRepository.class);
         RateLimiterService rateLimiterService = mock(RateLimiterService.class);
         PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
-        EmailService emailService = mock(EmailService.class);
+        BrevoEmailService brevoEmailService = mock(BrevoEmailService.class);
         SecurityAuditLogger auditLogger = mock(SecurityAuditLogger.class);
 
         ForgotPasswordService service = new ForgotPasswordService(
                 userRepository, tokenRepository, rateLimiterService,
-                passwordEncoder, emailService, auditLogger);
+                passwordEncoder, brevoEmailService, auditLogger);
 
         assertThrows(IllegalArgumentException.class,
                 () -> service.resetPassword("any-token-value", "newPassword123"));
@@ -133,12 +134,12 @@ class PasswordResetTokenPropertyTest {
         PasswordResetTokenRepository tokenRepository = mock(PasswordResetTokenRepository.class);
         RateLimiterService rateLimiterService = mock(RateLimiterService.class);
         PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
-        EmailService emailService = mock(EmailService.class);
+        BrevoEmailService brevoEmailService = mock(BrevoEmailService.class);
         SecurityAuditLogger auditLogger = mock(SecurityAuditLogger.class);
 
         ForgotPasswordService service = new ForgotPasswordService(
                 userRepository, tokenRepository, rateLimiterService,
-                passwordEncoder, emailService, auditLogger);
+                passwordEncoder, brevoEmailService, auditLogger);
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 

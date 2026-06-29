@@ -37,6 +37,8 @@ spring:
 # Application base URL
 app:
   base-url: http://localhost:8080
+  rate-limit:
+    enabled: false
 
 # Server Configuration
 server:

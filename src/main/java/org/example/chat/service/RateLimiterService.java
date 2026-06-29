@@ -1,8 +1,10 @@
 package org.example.chat.service;
 
+import org.example.chat.exception.RateLimitExceededException;
 import org.example.chat.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -28,6 +30,9 @@ public class RateLimiterService {
     /** One token is added every this many milliseconds (10 min / 5 = 2 min per token). */
     private static final long ROOM_CREATE_REFILL_INTERVAL_MS = 2 * 60 * 1000L;
 
+    @Value("${app.rate-limit.enabled:true}")
+    private boolean rateLimitEnabled;
+
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
     /**
@@ -37,6 +42,9 @@ public class RateLimiterService {
      * @param userId the ID of the user attempting room creation
      */
     public void checkRoomCreation(Long userId) {
+        if (!rateLimitEnabled) {
+            return;
+        }
         String key = "room_create:" + userId;
         TokenBucket bucket = buckets.computeIfAbsent(key,
                 k -> new TokenBucket(ROOM_CREATE_CAPACITY, ROOM_CREATE_REFILL_INTERVAL_MS));
@@ -57,14 +65,103 @@ public class RateLimiterService {
      * Throws {@link org.example.chat.exception.RateLimitExceededException} (429) if exceeded.
      */
     public void checkForgotPassword(String email) {
+        if (!rateLimitEnabled) {
+            return;
+        }
         String key = "forgot_password:" + email.toLowerCase();
         TokenBucket bucket = buckets.computeIfAbsent(key,
                 k -> new TokenBucket(FORGOT_PASSWORD_CAPACITY, FORGOT_PASSWORD_REFILL_INTERVAL_MS));
 
         if (!bucket.tryConsume()) {
             logger.warn("Rate limit exceeded for forgot-password by email: {}", email);
-            throw new org.example.chat.exception.RateLimitExceededException(
+            throw new RateLimitExceededException(
                     "Too many password reset requests. Please try again later.");
+        }
+    }
+
+    // ── Auth endpoint rate limits (ported from JLabs3 patterns) ──────────────
+
+    private static final int REGISTER_CAPACITY = 3;
+    private static final long REGISTER_REFILL_INTERVAL_MS = 60 * 60 * 1000L; // 3 per 60 min
+
+    private static final int LOGIN_CAPACITY = 5;
+    private static final long LOGIN_REFILL_INTERVAL_MS = 60 * 1000L; // 5 per 1 min
+
+    private static final int VERIFY_EMAIL_CAPACITY = 5;
+    private static final long VERIFY_EMAIL_REFILL_INTERVAL_MS = 60 * 1000L; // 5 per 1 min
+
+    private static final int RESEND_VERIFICATION_CAPACITY = 1;
+    private static final long RESEND_VERIFICATION_REFILL_INTERVAL_MS = 60 * 1000L; // 1 per 1 min
+
+    /**
+     * Rate-limits user registration by IP address.
+     * 3 registration attempts per 60 minutes per IP.
+     */
+    public void checkRegistration(String ipAddress) {
+        if (!rateLimitEnabled) {
+            return;
+        }
+        String key = "register:" + ipAddress;
+        TokenBucket bucket = buckets.computeIfAbsent(key,
+                k -> new TokenBucket(REGISTER_CAPACITY, REGISTER_REFILL_INTERVAL_MS));
+        if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for registration from IP: {}", ipAddress);
+            throw new RateLimitExceededException(
+                    "Too many registration attempts. Please try again later.");
+        }
+    }
+
+    /**
+     * Rate-limits login attempts by username.
+     * 5 attempts per 1 minute per username.
+     */
+    public void checkLogin(String username) {
+        if (!rateLimitEnabled) {
+            return;
+        }
+        String key = "login:" + username.toLowerCase();
+        TokenBucket bucket = buckets.computeIfAbsent(key,
+                k -> new TokenBucket(LOGIN_CAPACITY, LOGIN_REFILL_INTERVAL_MS));
+        if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for login: {}", username);
+            throw new RateLimitExceededException(
+                    "Too many login attempts. Please try again later.");
+        }
+    }
+
+    /**
+     * Rate-limits email verification by IP address.
+     * 5 attempts per 1 minute per IP.
+     */
+    public void checkEmailVerification(String ipAddress) {
+        if (!rateLimitEnabled) {
+            return;
+        }
+        String key = "email_verify:" + ipAddress;
+        TokenBucket bucket = buckets.computeIfAbsent(key,
+                k -> new TokenBucket(VERIFY_EMAIL_CAPACITY, VERIFY_EMAIL_REFILL_INTERVAL_MS));
+        if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for email verification from IP: {}", ipAddress);
+            throw new RateLimitExceededException(
+                    "Too many verification attempts. Please try again later.");
+        }
+    }
+
+    /**
+     * Rate-limits verification email resends by email address.
+     * 1 resend per 1 minute per email.
+     */
+    public void checkResendVerification(String email) {
+        if (!rateLimitEnabled) {
+            return;
+        }
+        String key = "resend_verification:" + email.toLowerCase();
+        TokenBucket bucket = buckets.computeIfAbsent(key,
+                k -> new TokenBucket(RESEND_VERIFICATION_CAPACITY, RESEND_VERIFICATION_REFILL_INTERVAL_MS));
+        if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for resend verification: {}", email);
+            throw new RateLimitExceededException(
+                    "Too many resend attempts. Please try again later.");
         }
     }
 

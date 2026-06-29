@@ -76,6 +76,9 @@ spring-boot-devtools.properties
 # JQwik
 .jqwik-database
 
+# Test artifacts (E2E test outputs, screenshots, reports)
+artifact/
+
 # Temporary files
 *.tmp
 *.temp

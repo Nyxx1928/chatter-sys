@@ -61,7 +61,7 @@ export function RoomCreateModal({
           rows={4}
         />
         {errorMessage && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-slack-accent-red" role="alert">
             {errorMessage}
           </p>
         )}

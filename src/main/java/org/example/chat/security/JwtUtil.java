@@ -14,7 +14,10 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Utility class for JWT token generation and validation.
@@ -33,7 +36,8 @@ public class JwtUtil {
 
     /**
      * Generates a JWT token for the given username.
-     * The token includes the username as the subject and an expiration time.
+     * The token includes the username as the subject, a unique JWT ID (jti),
+     * issued-at, and expiration claims.
      *
      * @param username the username to include in the token
      * @return the generated JWT token as a string
@@ -45,6 +49,7 @@ public class JwtUtil {
         SecretKey key = getSigningKey();
 
         String token = Jwts.builder()
+                .id(UUID.randomUUID().toString())  // unique jti for revocation
                 .subject(username)
                 .issuedAt(now)
                 .expiration(expiryDate)
@@ -53,6 +58,44 @@ public class JwtUtil {
 
         logger.debug("Generated JWT token for user: {}", username);
         return token;
+    }
+
+    /**
+     * Extracts the JWT ID (jti) from a token.
+     * Used for token revocation/blacklisting.
+     *
+     * @param token the JWT token
+     * @return the JWT ID
+     */
+    public String getTokenId(String token) {
+        SecretKey key = getSigningKey();
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getId();
+    }
+
+    /**
+     * Extracts the issued-at timestamp from a token and converts it to
+     * a LocalDateTime (using the system default time zone).
+     * Used for batch revocation checks in session management.
+     *
+     * @param token the JWT token
+     * @return the issued-at time as LocalDateTime
+     */
+    public LocalDateTime getIssuedAt(String token) {
+        SecretKey key = getSigningKey();
+        Date issuedAt = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getIssuedAt();
+        return issuedAt.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     /**

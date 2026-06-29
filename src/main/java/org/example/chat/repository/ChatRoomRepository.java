@@ -13,6 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+
+    List<ChatRoom> findByCreatedById(Long userId);
     
     @Query("SELECT DISTINCT cr FROM ChatRoom cr JOIN cr.memberships m WHERE m.user = :user")
     List<ChatRoom> findByMembersContaining(@Param("user") User user);

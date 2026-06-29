@@ -55,11 +55,11 @@ export function ForgotPasswordForm() {
   if (isSuccess) {
     return (
       <div className="text-center">
-        <div className="mb-4 rounded-lg border border-emerald-900/60 bg-emerald-950/40 p-4 text-sm text-emerald-200">
+        <div className="mb-4 rounded-lg border border-slack-accent-green/30 bg-slack-accent-green/10 p-4 text-sm text-slack-accent-green">
           If an account with that email exists, we&apos;ve sent a password reset link.
           Please check your email and follow the instructions.
         </div>
-        <p className="text-sm text-kiro-slate-500">
+        <p className="text-sm text-slack-text-secondary">
           The link will expire in 15 minutes.
         </p>
       </div>
@@ -68,7 +68,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md" noValidate>
-      <p className="text-sm text-kiro-slate-400">
+      <p className="text-sm text-slack-text-secondary">
         Enter your email address and we&apos;ll send you a link to reset your password.
       </p>
 
@@ -89,7 +89,7 @@ export function ForgotPasswordForm() {
       {errors.general && (
         <div
           role="alert"
-          className="p-3 text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg"
+          className="p-3 text-sm text-slack-accent-red bg-slack-accent-red/10 border border-slack-accent-red/30 rounded-lg"
         >
           {errors.general}
         </div>

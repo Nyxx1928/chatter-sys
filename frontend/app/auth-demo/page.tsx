@@ -6,41 +6,41 @@ import { LoginForm, RegisterForm } from '@/components/auth';
  */
 export default function AuthDemoPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-slack-surface-secondary py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <h1 className="text-3xl font-bold text-slack-text-primary mb-8 text-center">
           Authentication Forms Demo
         </h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Login Form Demo */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          <div className="bg-slack-surface-primary rounded-2xl shadow-slack-lg p-6 border border-slack-border">
+            <h2 className="text-2xl font-semibold text-slack-text-primary mb-4">
               Login Form
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slack-text-secondary mb-6">
               Username and password authentication form with validation.
             </p>
             <LoginForm />
           </div>
           
           {/* Register Form Demo */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          <div className="bg-slack-surface-primary rounded-2xl shadow-slack-lg p-6 border border-slack-border">
+            <h2 className="text-2xl font-semibold text-slack-text-primary mb-4">
               Register Form
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slack-text-secondary mb-6">
               User registration form with username, email, password, and display name.
             </p>
             <RegisterForm />
           </div>
         </div>
         
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">
+        <div className="mt-8 bg-slack-accent-blue/10 border border-slack-accent-blue/30 rounded-2xl p-6">
+          <h3 className="text-lg font-semibold text-slack-accent-blue mb-2">
             Features
           </h3>
-          <ul className="list-disc list-inside text-blue-800 space-y-1">
+          <ul className="list-disc list-inside text-slack-accent-blue space-y-1">
             <li>Client-side form validation with error messages</li>
             <li>Mobile-first responsive design with 44x44px touch targets</li>
             <li>Integration with Zustand auth store</li>

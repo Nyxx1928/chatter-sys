@@ -26,7 +26,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   // Base styles - mobile-first with 44x44px minimum touch target
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-pill transition-all duration-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
   // Size variants - all meet 44x44px minimum for mobile
   const sizeStyles = {
@@ -37,10 +37,10 @@ export function Button({
   
   // Color variants with proper contrast ratios (WCAG AA)
   const variantStyles = {
-    primary: 'bg-kiro-purple-600 text-white hover:bg-kiro-purple-700 focus:ring-kiro-purple-400 active:bg-kiro-purple-700',
-    secondary: 'bg-transparent text-kiro-purple-400 border border-kiro-purple-500 hover:bg-kiro-purple-600 hover:text-white hover:border-kiro-purple-600 focus:ring-kiro-purple-400 active:bg-kiro-purple-700',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800',
-    ghost: 'bg-transparent text-kiro-slate-400 hover:bg-kiro-ink-900/60 hover:text-kiro-slate-100 focus:ring-kiro-purple-400 active:bg-kiro-ink-900',
+    primary: 'bg-slack-primary text-slack-text-inverse hover:bg-slack-primary-light focus:ring-slack-accent-blue active:bg-slack-primary-light',
+    secondary: 'bg-transparent text-slack-accent-blue border border-slack-accent-blue hover:bg-slack-accent-blue hover:text-white focus:ring-slack-accent-blue active:bg-slack-accent-blue',
+    danger: 'bg-slack-accent-red text-white hover:bg-slack-accent-red/80 focus:ring-slack-accent-red active:bg-slack-accent-red',
+    ghost: 'bg-transparent text-slack-text-secondary hover:bg-slack-surface-tertiary hover:text-slack-text-primary focus:ring-slack-accent-blue',
   };
   
   // Width styles

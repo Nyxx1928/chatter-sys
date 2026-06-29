@@ -274,10 +274,10 @@ export default function ChannelsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-[#13131f]" role="status" aria-live="polite">
+      <div className="flex items-center justify-center h-full bg-slack-surface-secondary" role="status" aria-live="polite">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-kiro-purple-400 mb-4" aria-hidden="true" />
-          <p className="text-kiro-slate-400">Loading channels…</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-slack-primary mb-4" aria-hidden="true" />
+          <p className="text-slack-text-secondary">Loading channels…</p>
         </div>
       </div>
     );
@@ -285,9 +285,9 @@ export default function ChannelsPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full p-4 bg-[#13131f]">
+      <div className="flex items-center justify-center h-full p-4 bg-slack-surface-secondary">
         <div className="text-center max-w-md" role="alert">
-          <p className="text-red-400 font-medium mb-4">{error}</p>
+          <p className="text-slack-accent-red font-medium mb-4">{error}</p>
           <Button onClick={loadRooms} variant="primary">Try Again</Button>
         </div>
       </div>
@@ -304,16 +304,16 @@ export default function ChannelsPage() {
           Desktop (md+): fixed-width sidebar, always visible. ── */}
       <section
         className={`
-          flex flex-col bg-[#16162a] border-r border-white/5
+          flex flex-col bg-slack-surface-secondary border-r border-slack-border
           ${mobileShowChat ? 'hidden md:flex' : 'flex w-full'}
           md:w-80 xl:w-72 md:shrink-0
         `}
         aria-label="Channel list"
       >
         {/* Panel header */}
-        <header className="px-4 py-4 border-b border-white/5">
+        <header className="px-4 py-4 border-b border-slack-border">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold text-kiro-slate-100">Channels</h2>
+            <h2 className="text-base font-semibold text-slack-text-primary">Channels</h2>
             <div className="flex items-center gap-1">
               <Button
                 onClick={() => setShowCreateModal(true)}
@@ -363,17 +363,17 @@ export default function ChannelsPage() {
           {/* ── Chat column ── */}
           <div
             className={`
-              flex-1 flex flex-col min-w-0 bg-[#13131f]
+              flex-1 flex flex-col min-w-0 bg-slack-surface-secondary
               ${mobileShowChat ? 'flex' : 'hidden md:flex'}
             `}
           >
             {/* Room header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#16162a] border-b border-white/5 shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 bg-slack-surface-primary border-b border-slack-border shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Back button — mobile only */}
                 <button
                   onClick={() => setSelectedRoom(null)}
-                  className="md:hidden shrink-0 p-1.5 -ml-1 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                  className="md:hidden shrink-0 p-1.5 -ml-1 text-slack-text-secondary hover:text-slack-text-primary hover:bg-slack-surface-tertiary rounded-lg transition-colors"
                   aria-label="Back to channels"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -382,15 +382,15 @@ export default function ChannelsPage() {
                 </button>
 
                 {/* Room avatar */}
-                <div className="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm">
+                <div className="shrink-0 w-9 h-9 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-sm">
                   {selectedRoom.name.charAt(0).toUpperCase()}
                 </div>
 
                 <div className="min-w-0">
-                  <h2 className="text-sm font-semibold text-kiro-slate-100 truncate leading-tight">
+                  <h2 className="text-sm font-semibold text-slack-text-primary truncate leading-tight">
                     {selectedRoom.name}
                   </h2>
-                  <p className="text-xs text-green-400 leading-tight">
+                  <p className="text-xs text-slack-accent-green leading-tight">
                     {onlineCount > 0 ? `${onlineCount} online` : `${members.length} members`}
                   </p>
                 </div>
@@ -402,7 +402,7 @@ export default function ChannelsPage() {
                 {isOwner && (
                   <button
                     onClick={handleOpenInvite}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-kiro-purple-300 hover:text-kiro-purple-200 hover:bg-kiro-purple-600/20 rounded-lg transition-colors border border-kiro-purple-600/30 hover:border-kiro-purple-600/50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slack-primary hover:text-slack-primary/80 hover:bg-slack-primary/20 rounded-lg transition-colors border border-slack-primary/30 hover:border-slack-primary/50"
                     aria-label="Invite members"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
@@ -415,7 +415,7 @@ export default function ChannelsPage() {
                 {/* Members toggle */}
                 <button
                   onClick={() => setShowMembersOnMobile(!showMembersOnMobile)}
-                  className="xl:hidden p-2 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                  className="xl:hidden p-2 text-slack-text-secondary hover:text-slack-text-primary hover:bg-slack-surface-tertiary rounded-lg transition-colors"
                   aria-label="Toggle member list"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -435,7 +435,7 @@ export default function ChannelsPage() {
             </div>
 
             {/* Message input */}
-            <div className="px-3 py-3 bg-[#16162a] border-t border-white/5 shrink-0">
+            <div className="px-3 py-3 bg-slack-surface-primary border-t border-slack-border shrink-0">
               <MessageInput
                 onSend={handleSendMessage}
                 disabled={!connected || roomLoading}
@@ -445,13 +445,13 @@ export default function ChannelsPage() {
           </div>
 
           {/* ── Members sidebar (desktop xl+) ── */}
-          <aside className="hidden xl:flex flex-col w-60 shrink-0 bg-[#16162a] border-l border-white/5 overflow-y-auto">
+          <aside className="hidden xl:flex flex-col w-60 shrink-0 bg-slack-surface-secondary border-l border-slack-border overflow-y-auto">
             {/* Invite button in sidebar for owner */}
             {isOwner && (
               <div className="px-3 pt-3">
                 <button
                   onClick={handleOpenInvite}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-kiro-purple-300 hover:text-kiro-purple-200 bg-kiro-purple-600/10 hover:bg-kiro-purple-600/20 rounded-xl transition-colors border border-kiro-purple-600/20 hover:border-kiro-purple-600/40"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-slack-primary hover:text-slack-primary/80 bg-slack-primary/10 hover:bg-slack-primary/20 rounded-xl transition-colors border border-slack-primary/20 hover:border-slack-primary/40"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -470,14 +470,14 @@ export default function ChannelsPage() {
               onClick={() => setShowMembersOnMobile(false)}
             >
               <div
-                className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-[#16162a] shadow-xl flex flex-col"
+                className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-slack-surface-secondary shadow-xl flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-                  <h3 className="text-base font-semibold text-kiro-slate-100">Members</h3>
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slack-border">
+                  <h3 className="text-base font-semibold text-slack-text-primary">Members</h3>
                   <button
                     onClick={() => setShowMembersOnMobile(false)}
-                    className="p-1.5 text-kiro-slate-400 hover:text-kiro-slate-100 hover:bg-white/5 rounded-lg transition-colors"
+                    className="p-1.5 text-slack-text-secondary hover:text-slack-text-primary hover:bg-slack-surface-tertiary rounded-lg transition-colors"
                     aria-label="Close member list"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -489,7 +489,7 @@ export default function ChannelsPage() {
                   <div className="px-3 pt-3">
                     <button
                       onClick={() => { setShowMembersOnMobile(false); handleOpenInvite(); }}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-kiro-purple-300 hover:text-kiro-purple-200 bg-kiro-purple-600/10 hover:bg-kiro-purple-600/20 rounded-xl transition-colors border border-kiro-purple-600/20"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-slack-primary hover:text-slack-primary/80 bg-slack-primary/10 hover:bg-slack-primary/20 rounded-xl transition-colors border border-slack-primary/20"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -505,15 +505,15 @@ export default function ChannelsPage() {
         </>
       ) : (
         /* ── Select-a-channel placeholder (desktop only) ── */
-        <div className="hidden md:flex flex-1 items-center justify-center bg-[#13131f]">
+        <div className="hidden md:flex flex-1 items-center justify-center bg-slack-surface-secondary">
           <div className="text-center px-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-kiro-slate-500">
+            <div className="w-16 h-16 rounded-2xl bg-slack-surface-tertiary flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-slack-text-secondary">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
               </svg>
             </div>
-            <p className="text-kiro-slate-300 font-semibold text-lg mb-1">Pick a channel</p>
-            <p className="text-kiro-slate-500 text-sm">Select a channel from the list to start chatting</p>
+            <p className="text-slack-text-primary font-semibold text-lg mb-1">Pick a channel</p>
+            <p className="text-slack-text-secondary text-sm">Select a channel from the list to start chatting</p>
           </div>
         </div>
       )}
@@ -543,12 +543,12 @@ export default function ChannelsPage() {
           </div>
         }
       >
-        <p className="text-sm text-kiro-slate-200">
-          Deleting <span className="font-semibold text-kiro-slate-100">{deleteTarget?.name}</span> will
+        <p className="text-sm text-slack-text-primary">
+          Deleting <span className="font-semibold text-slack-text-primary">{deleteTarget?.name}</span> will
           remove all messages and memberships. This cannot be undone.
         </p>
         {deleteError && (
-          <p className="mt-3 text-sm text-red-400" role="alert">{deleteError}</p>
+          <p className="mt-3 text-sm text-slack-accent-red" role="alert">{deleteError}</p>
         )}
       </Modal>
 
@@ -569,11 +569,11 @@ export default function ChannelsPage() {
           />
 
           {inviteSearchLoading && (
-            <p className="text-sm text-kiro-slate-400 text-center py-2">Searching…</p>
+            <p className="text-sm text-slack-text-secondary text-center py-2">Searching…</p>
           )}
 
           {!inviteSearchLoading && inviteSearchResults.length === 0 && inviteSearchQuery.trim().length >= 2 && (
-            <p className="text-sm text-kiro-slate-500 text-center py-2">No users found.</p>
+            <p className="text-sm text-slack-text-secondary text-center py-2">No users found.</p>
           )}
 
           {inviteSearchResults.length > 0 && (
@@ -584,14 +584,14 @@ export default function ChannelsPage() {
                 return (
                   <li
                     key={result.user.id}
-                    className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slack-surface-tertiary transition-colors"
                   >
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-sm shrink-0">
                       {result.user.displayName.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-kiro-slate-100 truncate">{result.user.displayName}</p>
-                      <p className="text-xs text-kiro-slate-500 truncate">@{result.user.username}</p>
+                      <p className="text-sm font-medium text-slack-text-primary truncate">{result.user.displayName}</p>
+                      <p className="text-xs text-slack-text-secondary truncate">@{result.user.username}</p>
                     </div>
                     <Button
                       variant={alreadyInvited ? 'secondary' : 'primary'}
@@ -628,7 +628,7 @@ function ChannelMessagesSkeleton() {
 
   return (
     <div
-      className="h-full overflow-hidden flex flex-col-reverse px-4 py-4 gap-5 bg-[#13131f]"
+      className="h-full overflow-hidden flex flex-col-reverse px-4 py-4 gap-5 bg-slack-surface-primary"
       role="status"
       aria-label="Loading messages"
       aria-live="polite"

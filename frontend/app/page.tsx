@@ -36,7 +36,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07070d] text-white">
+    <div className="min-h-screen bg-slack-surface-primary text-slack-text-primary">
       {/* Splash Screen */}
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 

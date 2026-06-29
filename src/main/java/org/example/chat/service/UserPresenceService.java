@@ -123,9 +123,7 @@ public class UserPresenceService {
     public List<User> getOnlineUsers(Long roomId) {
         logger.debug("Retrieving online users for room ID: {}", roomId);
 
-        List<RoomMembership> memberships = roomMembershipRepository.findByChatRoom(
-            new ChatRoom() {{ setId(roomId); }}
-        );
+        List<RoomMembership> memberships = roomMembershipRepository.findByChatRoomId(roomId);
 
         List<User> onlineUsers = memberships.stream()
             .map(RoomMembership::getUser)
@@ -135,6 +133,18 @@ public class UserPresenceService {
         logger.debug("Found {} online users in room ID: {}", onlineUsers.size(), roomId);
 
         return onlineUsers;
+    }
+
+    /**
+     * Checks if a user is currently online.
+     *
+     * @param userId the ID of the user to check
+     * @return true if the user is online, false otherwise
+     */
+    public boolean isOnline(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::getOnline)
+                .orElse(false);
     }
 
     /**

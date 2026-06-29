@@ -69,7 +69,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
   /** Initials avatar for a display name */
   const Avatar = ({ name, size = 9 }: { name: string; size?: number }) => (
     <div
-      className={`shrink-0 w-${size} h-${size} rounded-full bg-gradient-to-br from-kiro-purple-500 to-kiro-purple-700 flex items-center justify-center text-white font-semibold text-sm select-none`}
+      className={`shrink-0 w-${size} h-${size} rounded-full bg-slack-primary flex items-center justify-center text-slack-text-inverse font-semibold text-sm select-none`}
       aria-hidden="true"
     >
       {name.charAt(0).toUpperCase()}
@@ -78,7 +78,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
 
   const renderSystemMessage = (message: Message) => (
     <div key={getMessageKey(message)} className="flex justify-center py-2" role="status" aria-live="polite">
-      <p className="text-xs text-kiro-slate-500 italic bg-white/5 px-3 py-1 rounded-full">
+      <p className="text-xs text-slack-text-secondary italic bg-slack-surface-tertiary px-3 py-1 rounded-pill">
         {message.content}
       </p>
     </div>
@@ -91,11 +91,11 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
     return (
       <div key={getMessageKey(message)}>
         {/* Timestamp divider — only when enough time has passed */}
-        {showTimestamp && (
+          {showTimestamp && (
           <div className="flex justify-center py-3">
             <time
               dateTime={message.timestamp}
-              className="text-xs text-kiro-slate-500 bg-white/5 px-3 py-1 rounded-full select-none"
+              className="text-xs text-slack-text-secondary bg-slack-surface-tertiary px-3 py-1 rounded-pill select-none"
             >
               {formatTimestamp(message.timestamp)}
             </time>
@@ -113,7 +113,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
           <div className={`flex flex-col gap-1 max-w-[85%] md:max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
             {/* Sender name — nudged right to align with the bubble, not the avatar */}
             <span
-              className={`text-xs font-semibold text-kiro-slate-300 ${!isOwn ? 'pl-1' : 'pr-1'}`}
+              className={`text-xs font-semibold text-slack-text-primary ${!isOwn ? 'pl-1' : 'pr-1'}`}
             >
               {isOwn ? 'Me' : message.senderDisplayName}
             </span>
@@ -122,8 +122,8 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
             <div
               className={`px-4 py-2.5 rounded-2xl break-words text-sm leading-relaxed ${
                 isOwn
-                  ? 'bg-kiro-purple-600 text-white rounded-br-sm'
-                  : 'bg-[#1e1e30] text-kiro-slate-100 rounded-bl-sm'
+                  ? 'bg-slack-primary text-slack-text-inverse rounded-br-sm'
+                  : 'bg-slack-surface-tertiary text-slack-text-primary rounded-bl-sm'
               }`}
             >
               <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{message.content}</p>
@@ -136,15 +136,15 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
 
   if (messages.length === 0) {
     return (
-      <div className={`flex items-center justify-center h-full bg-[#13131f] ${className}`} role="status">
+      <div className={`flex items-center justify-center h-full bg-slack-surface-secondary ${className}`} role="status">
         <div className="text-center px-4">
-          <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-kiro-slate-500">
+          <div className="w-14 h-14 rounded-full bg-slack-surface-tertiary flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-slack-text-secondary">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
             </svg>
           </div>
-          <p className="text-kiro-slate-400 font-medium text-sm">No messages yet</p>
-          <p className="text-kiro-slate-500 text-xs mt-1">Be the first to say something!</p>
+          <p className="text-slack-text-secondary font-medium text-sm">No messages yet</p>
+          <p className="text-slack-text-secondary text-xs mt-1">Be the first to say something!</p>
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ export function MessageList({ messages = [], currentUserId, className = '' }: Me
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col overflow-y-auto h-full bg-[#13131f] py-4 ${className}`}
+      className={`flex flex-col overflow-y-auto h-full bg-slack-surface-secondary py-4 ${className}`}
       role="log"
       aria-live="polite"
       aria-label="Chat messages"

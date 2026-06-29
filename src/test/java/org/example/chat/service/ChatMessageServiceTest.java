@@ -12,6 +12,7 @@ import org.example.chat.repository.RoomMembershipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.util.HtmlSanitizer;
 import org.example.chat.util.SecurityAuditLogger;
+import org.example.chat.service.PushNotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,9 @@ class ChatMessageServiceTest {
     @Mock
     private SecurityAuditLogger securityAuditLogger;
 
+    @Mock
+    private PushNotificationService pushNotificationService;
+
     private ChatMessageService chatMessageService;
 
     private User testUser;
@@ -68,7 +72,8 @@ class ChatMessageServiceTest {
     void setUp() {
         chatMessageService = new ChatMessageService(
             messageRepository, chatRoomRepository, userRepository,
-            roomMembershipRepository, messagingTemplate, htmlSanitizer, securityAuditLogger
+            roomMembershipRepository, messagingTemplate, htmlSanitizer, securityAuditLogger,
+            pushNotificationService
         );
 
         // Create test user

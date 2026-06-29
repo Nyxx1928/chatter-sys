@@ -42,9 +42,9 @@ export default function ContactsPage() {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#13131f] min-w-0">
-      <header className="px-4 py-4 border-b border-white/5 shrink-0">
-        <h1 className="text-lg font-semibold text-white">Contacts</h1>
+    <div className="flex flex-col h-full bg-slack-surface-secondary min-w-0">
+      <header className="px-4 py-4 border-b border-slack-border shrink-0">
+        <h1 className="text-lg font-semibold text-slack-text-primary">Contacts</h1>
       </header>
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <FriendsPanel

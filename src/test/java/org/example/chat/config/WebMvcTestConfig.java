@@ -1,8 +1,10 @@
 package org.example.chat.config;
 
+import org.example.chat.repository.TokenBlacklistRepository;
 import org.example.chat.security.CustomUserDetailsService;
 import org.example.chat.security.JwtAuthenticationFilter;
 import org.example.chat.security.JwtUtil;
+import org.example.chat.service.RateLimiterService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -54,6 +56,30 @@ public class WebMvcTestConfig {
     @Primary
     public CustomUserDetailsService customUserDetailsService() {
         return mock(CustomUserDetailsService.class);
+    }
+
+    /**
+     * Provides a mock RateLimiterService bean for tests.
+     * Auth controllers now depend on this for rate limiting.
+     * 
+     * @return a mock RateLimiterService instance
+     */
+    @Bean
+    @Primary
+    public RateLimiterService rateLimiterService() {
+        return mock(RateLimiterService.class);
+    }
+
+    /**
+     * Provides a mock TokenBlacklistRepository bean for tests.
+     * JwtAuthenticationFilter now depends on this for session management.
+     * 
+     * @return a mock TokenBlacklistRepository instance
+     */
+    @Bean
+    @Primary
+    public TokenBlacklistRepository tokenBlacklistRepository() {
+        return mock(TokenBlacklistRepository.class);
     }
 
     /**

@@ -66,7 +66,7 @@ class ChatRoomIT extends BaseIntegrationTest {
         testUser = new User();
         testUser.setUsername("roomtestuser");
         testUser.setEmail("roomtest@example.com");
-        testUser.setPasswordHash(passwordEncoder.encode("password123"));
+        testUser.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         testUser.setDisplayName("Room Test User");
         testUser.setCreatedAt(LocalDateTime.now());
         testUser.setOnline(false);
@@ -209,7 +209,7 @@ class ChatRoomIT extends BaseIntegrationTest {
         User otherUser = new User();
         otherUser.setUsername("otheruser");
         otherUser.setEmail("other@example.com");
-        otherUser.setPasswordHash(passwordEncoder.encode("password123"));
+        otherUser.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         otherUser.setDisplayName("Other User");
         otherUser.setCreatedAt(LocalDateTime.now());
         otherUser.setOnline(false);
@@ -222,14 +222,12 @@ class ChatRoomIT extends BaseIntegrationTest {
         membership.setJoinedAt(LocalDateTime.now());
         roomMembershipRepository.save(membership);
 
-        // Access room as non-member (auto-joins)
+        // Access room as non-member — should be forbidden (no auto-join)
         mockMvc.perform(get("/api/rooms/" + room.getId())
                 .header("Authorization", "Bearer " + authToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(room.getId()))
-                .andExpect(jsonPath("$.name").value("Private Room"));
+                .andExpect(status().isForbidden());
 
-        assertTrue(roomMembershipRepository.findByUserAndChatRoom(testUser, room).isPresent());
+        assertFalse(roomMembershipRepository.findByUserAndChatRoom(testUser, room).isPresent());
     }
 
     @Test
@@ -273,7 +271,7 @@ class ChatRoomIT extends BaseIntegrationTest {
         User user = new User();
         user.setUsername("concurrentuser");
         user.setEmail("concurrent@example.com");
-        user.setPasswordHash(passwordEncoder.encode("password123"));
+        user.setPasswordHash(passwordEncoder.encode("TestP@ss1"));
         user.setDisplayName("Concurrent User");
         user.setCreatedAt(LocalDateTime.now());
         user.setOnline(false);
