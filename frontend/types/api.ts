@@ -96,6 +96,42 @@ export interface MessageHistoryResponse {
 }
 
 /**
+ * Registration response payload.
+ * Received from POST /api/auth/register
+ */
+export interface RegistrationResponse {
+  message: string;
+  emailSent: boolean;
+  errorMessage?: string;
+}
+
+/**
+ * Verify OTP request payload.
+ * Sent to POST /api/auth/verify-otp
+ */
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+/**
+ * Verify OTP response payload.
+ * Received from POST /api/auth/verify-otp
+ */
+export interface VerifyOtpResponse {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Resend OTP request payload.
+ * Sent to POST /api/auth/resend-otp
+ */
+export interface ResendOtpRequest {
+  email: string;
+}
+
+/**
  * Forgot password request payload.
  * Sent to POST /api/auth/forgot-password
  */
