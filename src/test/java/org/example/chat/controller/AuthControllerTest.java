@@ -5,10 +5,13 @@ import org.example.chat.config.WebMvcTestConfig;
 import org.example.chat.dto.ForgotPasswordRequest;
 import org.example.chat.dto.LoginRequest;
 import org.example.chat.dto.RegisterRequest;
+import org.example.chat.dto.ResendOtpRequest;
 import org.example.chat.dto.ResetPasswordRequest;
+import org.example.chat.dto.VerifyOtpRequest;
 import org.example.chat.entity.User;
 import org.example.chat.service.AuthenticationService;
 import org.example.chat.service.ForgotPasswordService;
+import org.example.chat.service.RegistrationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({WebMvcTestConfig.class, org.example.chat.exception.GlobalExceptionHandler.class}) // Import test config and exception handler
 @AutoConfigureMockMvc(addFilters = false) // Disable security filters for unit tests
 @ActiveProfiles("test") // Use H2 in-memory database for tests
-@TestPropertySource(properties = "app.verification.expose-link=true") // Enable verification URL in response for tests
 class AuthControllerTest {
 
     @Autowired
@@ -52,6 +54,9 @@ class AuthControllerTest {
 
     @MockBean
     private ForgotPasswordService forgotPasswordService;
+
+    @MockBean
+    private RegistrationService registrationService;
 
     private User testUser;
 
@@ -79,8 +84,6 @@ class AuthControllerTest {
         when(authenticationService.registerUser(
             anyString(), anyString(), anyString(), anyString()
         )).thenReturn(new AuthenticationService.RegistrationResult(
-                "token-123",
-                "http://localhost:8080/api/auth/verify-email?token=token-123",
                 true,
                 null
         ));
@@ -92,7 +95,6 @@ class AuthControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.message").value("Registration initiated. Please check your email to verify your account."))
             .andExpect(jsonPath("$.emailSent").value(true))
-            .andExpect(jsonPath("$.verificationUrl").exists())
             .andExpect(jsonPath("$.errorMessage").doesNotExist());
     }
 
@@ -261,5 +263,92 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("This reset link has expired. Please request a new one."));
+    }
+
+    @Test
+    void verifyOtp_ValidOtp_ReturnsSuccess() throws Exception {
+        VerifyOtpRequest request = new VerifyOtpRequest("test@example.com", "123456");
+
+        when(registrationService.verifyOtp("test@example.com", "123456"))
+                .thenReturn(new RegistrationService.OtpVerificationResult(true, "Email verified successfully"));
+
+        mockMvc.perform(post("/api/auth/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.message").value("Email verified successfully"));
+    }
+
+    @Test
+    void verifyOtp_InvalidOtp_ReturnsFailure() throws Exception {
+        VerifyOtpRequest request = new VerifyOtpRequest("test@example.com", "654321");
+
+        when(registrationService.verifyOtp("test@example.com", "654321"))
+                .thenReturn(new RegistrationService.OtpVerificationResult(false, "Invalid code. 2 attempts remaining."));
+
+        mockMvc.perform(post("/api/auth/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.message").value("Invalid code. 2 attempts remaining."));
+    }
+
+    @Test
+    void verifyOtp_ExpiredOtp_ReturnsFailure() throws Exception {
+        VerifyOtpRequest request = new VerifyOtpRequest("test@example.com", "123456");
+
+        when(registrationService.verifyOtp("test@example.com", "123456"))
+                .thenReturn(new RegistrationService.OtpVerificationResult(false, "Code expired"));
+
+        mockMvc.perform(post("/api/auth/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.message").value("Code expired"));
+    }
+
+    @Test
+    void verifyOtp_ValidationError_ReturnsBadRequest() throws Exception {
+        VerifyOtpRequest request = new VerifyOtpRequest("invalid-email", "abc");
+
+        mockMvc.perform(post("/api/auth/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void resendOtp_ReturnsSuccess() throws Exception {
+        ResendOtpRequest request = new ResendOtpRequest("test@example.com");
+
+        doNothing().when(registrationService).resendOtp("test@example.com");
+
+        mockMvc.perform(post("/api/auth/resend-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.message").value("If the email is pending verification, a new code has been sent."));
+    }
+
+    @Test
+    void register_Response_DoesNotContainVerificationUrl() throws Exception {
+        RegisterRequest request = new RegisterRequest(
+            "testuser", "test@example.com", "TestP@ss1", "Test User");
+
+        when(authenticationService.registerUser(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(new AuthenticationService.RegistrationResult(true, null));
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.message").exists())
+            .andExpect(jsonPath("$.emailSent").exists())
+            .andExpect(jsonPath("$.errorMessage").doesNotExist())
+            .andExpect(jsonPath("$.verificationUrl").doesNotExist());
     }
 }

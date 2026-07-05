@@ -6,12 +6,16 @@ import org.example.chat.dto.ForgotPasswordRequest;
 import org.example.chat.dto.LoginRequest;
 import org.example.chat.dto.LoginResponse;
 import org.example.chat.dto.RegisterRequest;
+import org.example.chat.dto.ResendOtpRequest;
 import org.example.chat.dto.ResetPasswordRequest;
 import org.example.chat.dto.UserResponse;
+import org.example.chat.dto.VerifyOtpRequest;
+import org.example.chat.dto.VerifyOtpResponse;
 import org.example.chat.entity.User;
 import org.example.chat.service.AuthenticationService;
 import org.example.chat.service.ForgotPasswordService;
 import org.example.chat.service.RateLimiterService;
+import org.example.chat.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,16 +36,16 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final ForgotPasswordService forgotPasswordService;
     private final RateLimiterService rateLimiterService;
-
-    @Value("${app.verification.expose-link:false}")
-    private boolean exposeVerificationLink;
+    private final RegistrationService registrationService;
 
     public AuthController(AuthenticationService authenticationService,
                           ForgotPasswordService forgotPasswordService,
-                          RateLimiterService rateLimiterService) {
+                          RateLimiterService rateLimiterService,
+                          RegistrationService registrationService) {
         this.authenticationService = authenticationService;
         this.forgotPasswordService = forgotPasswordService;
         this.rateLimiterService = rateLimiterService;
+        this.registrationService = registrationService;
     }
 
     /**
@@ -50,7 +54,7 @@ public class AuthController {
      * User must verify email before account is created.
      *
      * @param request the registration request containing username, email, password, and display name
-     * @return ResponseEntity with registration status and verification details
+     * @return ResponseEntity with registration status
      */
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponse> register(
@@ -69,17 +73,12 @@ public class AuthController {
                 request.getDisplayName()
             );
 
-            String verificationUrl = (exposeVerificationLink || !result.verificationEmailSent())
-                    ? result.verificationUrl()
-                    : null;
-
             if (!result.verificationEmailSent()) {
-                logger.warn("Registration email failed to send for username {}: {}", 
+                logger.warn("Registration email failed to send for username {}: {}",
                         request.getUsername(), result.errorMessage());
                 RegistrationResponse response = new RegistrationResponse(
                         "Registration saved but verification email could not be sent. Please contact support.",
                         false,
-                        verificationUrl,
                         result.errorMessage()
                 );
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -88,11 +87,10 @@ public class AuthController {
             RegistrationResponse response = new RegistrationResponse(
                     "Registration initiated. Please check your email to verify your account.",
                     result.verificationEmailSent(),
-                    verificationUrl,
                     result.errorMessage()
             );
 
-            logger.info("Registration initiated for username: {}, email sent: {}", 
+            logger.info("Registration initiated for username: {}, email sent: {}",
                     request.getUsername(), result.verificationEmailSent());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -108,7 +106,6 @@ public class AuthController {
     public record RegistrationResponse(
             String message,
             boolean emailSent,
-            String verificationUrl,
             String errorMessage
     ) {}
 
@@ -174,5 +171,34 @@ public class AuthController {
 
         logger.info("Password reset completed successfully");
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<VerifyOtpResponse> verifyOtp(
+            @Valid @RequestBody VerifyOtpRequest request,
+            HttpServletRequest httpRequest) {
+        logger.info("OTP verification request for email: {}", request.email());
+
+        rateLimiterService.checkOtpVerification(httpRequest.getRemoteAddr());
+
+        RegistrationService.OtpVerificationResult result =
+                registrationService.verifyOtp(request.email(), request.otp());
+
+        VerifyOtpResponse response = new VerifyOtpResponse(result.success(), result.message());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<VerifyOtpResponse> resendOtp(
+            @Valid @RequestBody ResendOtpRequest request,
+            HttpServletRequest httpRequest) {
+        logger.info("Resend OTP request for email: {}", request.email());
+
+        rateLimiterService.checkResendVerification(request.email());
+        registrationService.resendOtp(request.email());
+
+        VerifyOtpResponse response = new VerifyOtpResponse(true,
+                "If the email is pending verification, a new code has been sent.");
+        return ResponseEntity.ok(response);
     }
 }
