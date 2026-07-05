@@ -64,9 +64,21 @@ public class BrevoEmailService {
      * @param verificationUrl the verification URL to include in the email
      * @return EmailResult containing success status and any error message
      */
-    public EmailResult sendVerificationEmail(String to, String verificationUrl) {
+    public boolean isOperational() {
+        return enabled && apiKey != null && !apiKey.isBlank()
+                && fromEmail != null && !fromEmail.isBlank();
+    }
+
+    /**
+     * Sends an OTP verification email using Brevo HTTP API.
+     *
+     * @param to the recipient email address
+     * @param otp the 6-digit OTP code
+     * @return EmailResult containing success status and any error message
+     */
+    public EmailResult sendOtpEmail(String to, String otp) {
         if (!enabled) {
-            logger.warn("Email service disabled. Would have sent verification email to: {}", to);
+            logger.warn("Email service disabled. Would have sent OTP email to: {}", to);
             return new EmailResult(false, "Email service is disabled", null);
         }
 
@@ -80,9 +92,9 @@ public class BrevoEmailService {
             return new EmailResult(false, "Email service not configured", null);
         }
 
-        String subject = "Verify your email - Real-Time Chat";
-        String htmlContent = buildVerificationEmailHtml(verificationUrl);
-        String textContent = buildVerificationEmailText(verificationUrl);
+        String subject = "Your verification code - Real-Time Chat";
+        String htmlContent = buildOtpEmailHtml(otp);
+        String textContent = buildOtpEmailText(otp);
 
         return sendEmail(to, subject, htmlContent, textContent);
     }
@@ -168,7 +180,8 @@ public class BrevoEmailService {
         }
     }
 
-    private String buildVerificationEmailHtml(String verificationUrl) {
+    private String buildOtpEmailHtml(String otp) {
+        String displayOtp = otp.replaceAll("(\\d)", "$1 ").trim();
         return """
             <!DOCTYPE html>
             <html>
@@ -178,24 +191,15 @@ public class BrevoEmailService {
             </head>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="background-color: #f4f4f4; padding: 20px; border-radius: 10px;">
-                    <h1 style="color: #4a5568; margin-bottom: 20px;">Welcome to Real-Time Chat!</h1>
+                    <h1 style="color: #4a5568; margin-bottom: 20px;">Your Verification Code</h1>
                     <p style="font-size: 16px; margin-bottom: 20px;">
-                        Thank you for registering! Please verify your email address to complete your registration.
+                        Use the code below to verify your email address and complete your registration.
                     </p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="%s" 
-                           style="background-color: #4299e1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-                            Verify Email Address
-                        </a>
+                    <div style="text-align: center; margin: 30px 0; padding: 20px; border: 2px dashed #4299e1; border-radius: 10px; background-color: #fff;">
+                        <span style="font-family: 'Courier New', monospace; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #2d3748;">%s</span>
                     </div>
                     <p style="font-size: 14px; color: #666; margin-top: 20px;">
-                        Or copy and paste this link into your browser:
-                    </p>
-                    <p style="font-size: 12px; color: #4299e1; word-break: break-all; background-color: #fff; padding: 10px; border-radius: 5px;">
-                        %s
-                    </p>
-                    <p style="font-size: 14px; color: #666; margin-top: 30px;">
-                        This link will expire in 24 hours.
+                        This code will expire in 10 minutes.
                     </p>
                     <p style="font-size: 14px; color: #666;">
                         If you did not register for this account, please ignore this email.
@@ -203,22 +207,20 @@ public class BrevoEmailService {
                 </div>
             </body>
             </html>
-            """.formatted(verificationUrl, verificationUrl);
+            """.formatted(displayOtp);
     }
 
-    private String buildVerificationEmailText(String verificationUrl) {
+    private String buildOtpEmailText(String otp) {
         return """
-            Welcome to Real-Time Chat!
-            
-            Thank you for registering! Please verify your email address to complete your registration.
-            
-            Click the link below to verify your email:
+            Your Verification Code
+                        
+            Use the code below to verify your email address and complete your registration:
             %s
-            
-            This link will expire in 24 hours.
-            
+                        
+            This code will expire in 10 minutes.
+                        
             If you did not register for this account, please ignore this email.
-            """.formatted(verificationUrl);
+            """.formatted(otp);
     }
 
     private String buildPasswordResetEmailHtml(String resetUrl, String username) {

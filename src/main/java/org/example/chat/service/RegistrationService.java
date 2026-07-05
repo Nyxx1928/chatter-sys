@@ -6,30 +6,29 @@ import org.example.chat.repository.PendingRegistrationRepository;
 import org.example.chat.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 /**
- * Service for handling user registration with email verification.
+ * Service for handling user registration with OTP email verification.
  * Implements verify-first registration: email must be verified before account is created.
  */
 @Service
 public class RegistrationService {
 
     private static final Logger logger = LoggerFactory.getLogger(RegistrationService.class);
+    private static final int OTP_EXPIRY_MINUTES = 10;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final PendingRegistrationRepository pendingRegistrationRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BrevoEmailService brevoEmailService;
-
-    @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
 
     public RegistrationService(
             PendingRegistrationRepository pendingRegistrationRepository,
@@ -43,107 +42,140 @@ public class RegistrationService {
     }
 
     /**
-     * Initiates user registration by creating a pending registration and sending verification email.
+     * Initiates user registration by creating a pending registration and sending OTP email.
      * The user account is NOT created until email is verified.
      *
      * @param username the desired username
      * @param email the user's email address
      * @param password the plain text password
      * @param displayName the user's display name
-     * @return RegistrationInitiationResult containing status and verification details
+     * @return RegistrationInitiationResult containing status details
      * @throws IllegalArgumentException if validation fails or username/email already exists
      */
     @Transactional
     public RegistrationInitiationResult initiateRegistration(
             String username, String email, String password, String displayName) {
-        
+
         logger.info("Initiating registration for username: {}, email: {}", username, email);
 
-        // Validate input
         validateRegistrationInput(username, email, password, displayName);
 
-        // Check if username already exists (in users or pending)
-        if (userRepository.existsByUsername(username) || 
+        if (userRepository.existsByUsername(username) ||
             pendingRegistrationRepository.existsByUsername(username)) {
             logger.warn("Registration failed: username already exists or pending: {}", username);
             throw new IllegalArgumentException("Username already exists");
         }
 
-        // Check if email already exists (in users or pending)
-        if (userRepository.existsByEmail(email) || 
-            pendingRegistrationRepository.existsByEmail(email)) {
-            logger.warn("Registration failed: email already exists or pending: {}", email);
+        if (userRepository.existsByEmail(email)) {
+            logger.warn("Registration failed: email already exists: {}", email);
             throw new IllegalArgumentException("Email already exists");
         }
 
-        // Hash password
+        // If there's an existing pending registration for this email, delete it first
+        pendingRegistrationRepository.findByEmail(email).ifPresent(existing -> {
+            logger.info("Overwriting existing pending registration for email: {}", email);
+            pendingRegistrationRepository.delete(existing);
+        });
+
         String passwordHash = passwordEncoder.encode(password);
+        String otp = generateOtp();
+        String otpHash = passwordEncoder.encode(otp);
+        LocalDateTime otpExpiry = LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES);
 
-        // Create pending registration
         PendingRegistration pending = new PendingRegistration(
-                username, email, passwordHash, displayName);
-
-        // Send verification email via Brevo
-        String verificationUrl = buildVerificationUrl(pending.getToken());
-        BrevoEmailService.EmailResult emailResult = 
-                brevoEmailService.sendVerificationEmail(email, verificationUrl);
-        boolean emailSent = emailResult.success();
-        String errorMessage = emailResult.errorMessage();
-
-        pending.setEmailSent(emailSent);
+                username, email, passwordHash, displayName, otpHash, otpExpiry);
         PendingRegistration savedPending = pendingRegistrationRepository.save(pending);
+        final Long pendingId = savedPending.getId();
 
-        logger.info("Pending registration created for username: {}, email sent: {}", 
-                username, emailSent);
+        boolean emailWillBeSent = brevoEmailService.isOperational();
+
+        if (emailWillBeSent) {
+            java.util.concurrent.CompletableFuture.runAsync(() -> {
+                try {
+                    BrevoEmailService.EmailResult emailResult =
+                            brevoEmailService.sendOtpEmail(email, otp);
+                    PendingRegistration pr = pendingRegistrationRepository.findById(pendingId).orElse(null);
+                    if (pr != null) {
+                        pr.setEmailSent(emailResult.success());
+                        pendingRegistrationRepository.save(pr);
+                    }
+                    if (emailResult.success()) {
+                        logger.info("OTP email sent successfully to: {}", email);
+                    } else {
+                        logger.error("Failed to send OTP email to {}: {}", email, emailResult.errorMessage());
+                    }
+                } catch (Exception e) {
+                    logger.error("Async OTP email failed for {}: {}", email, e.getMessage(), e);
+                }
+            });
+            logger.info("Pending registration created for username: {}, OTP will be sent asynchronously", username);
+        } else {
+            logger.info("Pending registration created for username: {}, email service not configured", username);
+        }
 
         return new RegistrationInitiationResult(
-                savedPending.getToken(),
-                verificationUrl,
-                emailSent,
-                errorMessage
+                emailWillBeSent,
+                emailWillBeSent ? null : "Email service not configured"
         );
     }
 
     /**
-     * Completes registration by verifying the token and creating the user account.
+     * Verifies the OTP and completes registration by creating the user account.
      *
-     * @param token the verification token from the email
-     * @return the newly created User
-     * @throws IllegalArgumentException if token is invalid, expired, or already used
+     * @param email the email address
+     * @param rawOtp the 6-digit OTP to verify
+     * @return OtpVerificationResult indicating success/failure with a message
      */
     @Transactional
-    public User completeRegistration(String token) {
-        logger.info("Attempting to complete registration with token: {}", token);
+    public OtpVerificationResult verifyOtp(String email, String rawOtp) {
+        logger.info("Verifying OTP for email: {}", email);
 
-        if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("Verification token is required");
+        PendingRegistration pending = pendingRegistrationRepository.findByEmail(email).orElse(null);
+        if (pending == null) {
+            logger.warn("OTP verification failed: no pending registration for email: {}", email);
+            return new OtpVerificationResult(false, "Invalid code");
         }
 
-        // Find pending registration
-        PendingRegistration pending = pendingRegistrationRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid verification token"));
-
-        // Check if expired
         if (pending.isExpired()) {
-            logger.warn("Verification token expired for username: {}", pending.getUsername());
+            logger.warn("OTP expired for email: {}", email);
             pendingRegistrationRepository.delete(pending);
-            throw new IllegalArgumentException("Verification token has expired. Please register again.");
+            return new OtpVerificationResult(false, "Code expired");
+        }
+
+        if (pending.isMaxAttemptsExceeded()) {
+            logger.warn("Max OTP attempts exceeded for email: {}", email);
+            pendingRegistrationRepository.delete(pending);
+            return new OtpVerificationResult(false, "Too many attempts");
+        }
+
+        if (!passwordEncoder.matches(rawOtp, pending.getOtpHash())) {
+            pending.incrementAttempts();
+            pendingRegistrationRepository.save(pending);
+
+            if (pending.isMaxAttemptsExceeded()) {
+                logger.warn("Max OTP attempts exceeded for email: {}", email);
+                pendingRegistrationRepository.delete(pending);
+                return new OtpVerificationResult(false, "Too many attempts");
+            }
+
+            int remaining = 3 - pending.getAttemptCount();
+            logger.warn("Invalid OTP for email: {} ({} attempts remaining)", email, remaining);
+            return new OtpVerificationResult(false, "Invalid code. " + remaining + " attempts remaining.");
         }
 
         // Check if username or email was taken while pending
         if (userRepository.existsByUsername(pending.getUsername())) {
             logger.warn("Username taken during pending period: {}", pending.getUsername());
             pendingRegistrationRepository.delete(pending);
-            throw new IllegalArgumentException("Username is no longer available");
+            return new OtpVerificationResult(false, "Username is no longer available");
         }
 
         if (userRepository.existsByEmail(pending.getEmail())) {
             logger.warn("Email taken during pending period: {}", pending.getEmail());
             pendingRegistrationRepository.delete(pending);
-            throw new IllegalArgumentException("Email is no longer available");
+            return new OtpVerificationResult(false, "Email is no longer available");
         }
 
-        // Create user account
         User user = new User();
         user.setUsername(pending.getUsername());
         user.setEmail(pending.getEmail());
@@ -151,53 +183,50 @@ public class RegistrationService {
         user.setDisplayName(pending.getDisplayName());
         user.setCreatedAt(LocalDateTime.now());
         user.setOnline(false);
-        user.setEmailVerified(true); // Already verified by clicking the link
+        user.setEmailVerified(true);
 
-        User savedUser = userRepository.save(user);
-
-        // Delete pending registration
+        userRepository.save(user);
         pendingRegistrationRepository.delete(pending);
 
-        logger.info("Registration completed successfully for username: {}", savedUser.getUsername());
-
-        return savedUser;
+        logger.info("Registration completed successfully for username: {}", user.getUsername());
+        return new OtpVerificationResult(true, "Email verified successfully");
     }
 
     /**
-     * Resends verification email for a pending registration.
+     * Resends a new OTP for a pending registration.
      *
      * @param email the email address of the pending registration
-     * @throws IllegalArgumentException if no pending registration found
      */
     @Transactional
-    public void resendVerificationEmail(String email) {
-        logger.info("Resending verification email to: {}", email);
+    public void resendOtp(String email) {
+        logger.info("Resending OTP to: {}", email);
 
-        PendingRegistration pending = pendingRegistrationRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No pending registration found for this email"));
-
-        if (pending.isExpired()) {
-            logger.warn("Pending registration expired for email: {}", email);
-            pendingRegistrationRepository.delete(pending);
-            throw new IllegalArgumentException("Registration expired. Please register again.");
+        PendingRegistration pending = pendingRegistrationRepository.findByEmail(email).orElse(null);
+        if (pending == null) {
+            logger.info("No pending registration found for email: {} (returning silently)", email);
+            return;
         }
 
-        String verificationUrl = buildVerificationUrl(pending.getToken());
-        BrevoEmailService.EmailResult emailResult = 
-                brevoEmailService.sendVerificationEmail(email, verificationUrl);
-        boolean emailSent = emailResult.success();
-        String errorMessage = emailResult.errorMessage();
-
-        pending.setEmailSent(emailSent);
+        String newOtp = generateOtp();
+        String newOtpHash = passwordEncoder.encode(newOtp);
+        pending.setOtpHash(newOtpHash);
+        pending.setOtpExpiry(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES));
+        pending.setAttemptCount(0);
         pendingRegistrationRepository.save(pending);
 
-        if (!emailSent) {
-            logger.error("Failed to resend verification email to {}: {}", email, errorMessage);
-            throw new IllegalArgumentException("Failed to send verification email");
+        if (brevoEmailService.isOperational()) {
+            BrevoEmailService.EmailResult emailResult =
+                    brevoEmailService.sendOtpEmail(email, newOtp);
+            pending.setEmailSent(emailResult.success());
+            pendingRegistrationRepository.save(pending);
+            if (emailResult.success()) {
+                logger.info("OTP resent successfully to: {}", email);
+            } else {
+                logger.error("Failed to resend OTP to {}: {}", email, emailResult.errorMessage());
+            }
+        } else {
+            logger.info("Email service not configured, OTP not sent for: {}", email);
         }
-
-        logger.info("Verification email resent to: {}", email);
     }
 
     /**
@@ -208,12 +237,12 @@ public class RegistrationService {
     @Transactional
     public void cleanupExpiredPendingRegistrations() {
         LocalDateTime cutoff = LocalDateTime.now();
-        pendingRegistrationRepository.deleteByExpiryDateBefore(cutoff);
+        pendingRegistrationRepository.deleteByOtpExpiryBefore(cutoff);
         logger.info("Cleaned up expired pending registrations older than {}", cutoff);
     }
 
-    private String buildVerificationUrl(String token) {
-        return baseUrl + "/api/auth/verify-email?token=" + token;
+    private String generateOtp() {
+        return String.format("%06d", SECURE_RANDOM.nextInt(1000000));
     }
 
     private void validateRegistrationInput(String username, String email, String password, String displayName) {
@@ -233,7 +262,6 @@ public class RegistrationService {
             throw new IllegalArgumentException("Email cannot exceed 100 characters");
         }
 
-        // Basic email format validation
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             throw new IllegalArgumentException("Invalid email format");
         }
@@ -246,7 +274,6 @@ public class RegistrationService {
             throw new IllegalArgumentException("Password must be at least 8 characters long");
         }
 
-        // Password complexity: at least one uppercase, one lowercase, one digit, one special char
         if (!password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$")) {
             throw new IllegalArgumentException(
                     "Password must contain at least one uppercase letter, one lowercase letter, " +
@@ -265,15 +292,22 @@ public class RegistrationService {
     /**
      * Result of registration initiation.
      *
-     * @param token the verification token
-     * @param verificationUrl the verification URL
      * @param emailSent whether the email was sent successfully
      * @param errorMessage error message if email failed, null otherwise
      */
     public record RegistrationInitiationResult(
-            String token,
-            String verificationUrl,
             boolean emailSent,
             String errorMessage
+    ) {}
+
+    /**
+     * Result of OTP verification.
+     *
+     * @param success whether verification succeeded
+     * @param message result message
+     */
+    public record OtpVerificationResult(
+            boolean success,
+            String message
     ) {}
 }

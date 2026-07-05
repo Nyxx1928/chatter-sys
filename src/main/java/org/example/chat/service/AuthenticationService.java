@@ -29,14 +29,12 @@ public class AuthenticationService {
     private final ChatRoomRepository chatRoomRepository;
     private final FriendshipRepository friendshipRepository;
     private final FriendRequestRepository friendRequestRepository;
-    private final EmailVerificationService emailVerificationService;
     private final RegistrationService registrationService;
 
     public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,
                                  ChatRoomRepository chatRoomRepository,
                                  FriendshipRepository friendshipRepository,
                                  FriendRequestRepository friendRequestRepository,
-                                 EmailVerificationService emailVerificationService,
                                  RegistrationService registrationService) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
@@ -44,7 +42,6 @@ public class AuthenticationService {
         this.chatRoomRepository = chatRoomRepository;
         this.friendshipRepository = friendshipRepository;
         this.friendRequestRepository = friendRequestRepository;
-        this.emailVerificationService = emailVerificationService;
         this.registrationService = registrationService;
     }
 
@@ -64,22 +61,18 @@ public class AuthenticationService {
     public RegistrationResult registerUser(String username, String email, String password, String displayName) {
         logger.info("Attempting to register user: {}", username);
 
-        RegistrationService.RegistrationInitiationResult result = 
+        RegistrationService.RegistrationInitiationResult result =
                 registrationService.initiateRegistration(username, email, password, displayName);
 
         logger.info("Registration initiated for user: {}, email sent: {}", username, result.emailSent());
 
         return new RegistrationResult(
-                result.token(),
-                result.verificationUrl(),
                 result.emailSent(),
                 result.errorMessage()
         );
     }
 
     public record RegistrationResult(
-            String token,
-            String verificationUrl,
             boolean verificationEmailSent,
             String errorMessage
     ) {}
@@ -142,7 +135,7 @@ public class AuthenticationService {
         });
 
         // Check email verification
-        if (!emailVerificationService.isEmailVerified(user)) {
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
             logger.warn("Authentication failed: email not verified for user: {}", username);
             throw new IllegalArgumentException("Please verify your email before logging in");
         }
@@ -204,10 +197,8 @@ public class AuthenticationService {
 
         User updatedUser = userRepository.save(user);
 
-        // Send verification email AFTER the user is saved to avoid TOCTOU:
-        // if the DB save fails, no email was sent for an unpersisted change.
         if (emailChanged) {
-            emailVerificationService.createAndSendToken(updatedUser);
+            logger.info("Email changed for user: {}. Email verification required for new address.", username);
         }
 
         logger.info("Successfully updated profile for user: {}", username);

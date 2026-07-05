@@ -93,6 +93,9 @@ public class RateLimiterService {
     private static final int RESEND_VERIFICATION_CAPACITY = 1;
     private static final long RESEND_VERIFICATION_REFILL_INTERVAL_MS = 60 * 1000L; // 1 per 1 min
 
+    private static final int OTP_VERIFY_CAPACITY = 5;
+    private static final long OTP_VERIFY_REFILL_INTERVAL_MS = 60 * 1000L; // 5 per 1 min
+
     /**
      * Rate-limits user registration by IP address.
      * 3 registration attempts per 60 minutes per IP.
@@ -162,6 +165,24 @@ public class RateLimiterService {
             logger.warn("Rate limit exceeded for resend verification: {}", email);
             throw new RateLimitExceededException(
                     "Too many resend attempts. Please try again later.");
+        }
+    }
+
+    /**
+     * Rate-limits OTP verification attempts by IP address.
+     * 5 attempts per 1 minute per IP.
+     */
+    public void checkOtpVerification(String clientIp) {
+        if (!rateLimitEnabled) {
+            return;
+        }
+        String key = "otp_verify:" + clientIp;
+        TokenBucket bucket = buckets.computeIfAbsent(key,
+                k -> new TokenBucket(OTP_VERIFY_CAPACITY, OTP_VERIFY_REFILL_INTERVAL_MS));
+        if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for OTP verification from IP: {}", clientIp);
+            throw new RateLimitExceededException(
+                    "Too many verification attempts. Please try again later.");
         }
     }
 
