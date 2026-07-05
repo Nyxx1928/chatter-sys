@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useAuthStore } from '../../lib/store/authStore';
+import { ApiError } from '../../lib/api/client';
 
 /**
  * Registration form component with username, email, password, and displayName inputs.
  * Integrates with auth store for user registration.
+ * On success, redirects to the OTP verification page.
  * 
- * Requirements: 1.1, 1.2, 15.1, 15.2, 17.3
+ * Requirements: 1.1, 1.2, 1.4
  */
 export function RegisterForm() {
   const router = useRouter();
@@ -33,20 +35,9 @@ export function RegisterForm() {
     general?: string;
   }>({});
   
-  const [isLoading, setIsLoading] = useState(false);
-
-  const promptToOpenVerificationLink = (
-    verificationUrl: string,
-    verificationEmailSent?: boolean
-  ) => {
-    const promptMessage = verificationEmailSent === false
-      ? 'Your account was created, but email delivery could not be confirmed. Open the verification link now?'
-      : 'Your account was created. Open the verification link now in a new tab?';
-
-    if (window.confirm(promptMessage)) {
-      window.open(verificationUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
+  const [submitState, setSubmitState] = useState<
+    'idle' | 'submitting' | 'success' | 'error'
+  >('idle');
 
   const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -55,7 +46,6 @@ export function RegisterForm() {
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
 
-    // Username validation
     if (!formData.username.trim()) {
       newErrors.username = 'Username is required';
     } else if (formData.username.length < 3) {
@@ -66,7 +56,6 @@ export function RegisterForm() {
       newErrors.username = 'Username can only contain letters, numbers, hyphens, and underscores';
     }
 
-    // Email validation
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (formData.email.length > 100) {
@@ -75,23 +64,22 @@ export function RegisterForm() {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     } else if (formData.password.length > 100) {
       newErrors.password = 'Password must not exceed 100 characters';
+    } else if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*#?&)';
     }
 
-    // Confirm password validation
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Display name validation
     if (!formData.displayName.trim()) {
       newErrors.displayName = 'Display name is required';
     } else if (formData.displayName.length < 2) {
@@ -106,39 +94,49 @@ export function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Clear previous errors
     setErrors({});
-    
-    // Validate form
+
     if (!validateForm()) {
       return;
     }
 
-    setIsLoading(true);
+    setSubmitState('submitting');
 
     try {
-      const user = await register({
+      const response = await register({
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
         displayName: formData.displayName.trim(),
       });
 
-      if (user.verificationUrl) {
-        promptToOpenVerificationLink(user.verificationUrl, user.verificationEmailSent);
-      }
-      
-      // Redirect to login page on successful registration
-      router.push(`/auth/login?registered=true&emailSent=${user.verificationEmailSent !== false}`);
+      setSubmitState('success');
+
+      setTimeout(() => {
+        router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email.trim())}`);
+      }, 800);
     } catch (error) {
       console.error('Registration failed:', error);
-      
-      // Display user-friendly error message
+      setSubmitState('error');
+
+      if (error instanceof ApiError) {
+        const details = error.details as Record<string, unknown> | undefined;
+        if (details && typeof details === 'object' && 'errors' in details) {
+          const fieldErrors = details.errors as Record<string, string>;
+          const mapped: typeof errors = {};
+          if (fieldErrors.username) mapped.username = fieldErrors.username;
+          if (fieldErrors.email) mapped.email = fieldErrors.email;
+          if (fieldErrors.password) mapped.password = fieldErrors.password;
+          if (fieldErrors.displayName) mapped.displayName = fieldErrors.displayName;
+          if (Object.keys(mapped).length > 0) {
+            setErrors(mapped);
+            return;
+          }
+        }
+      }
+
       if (error instanceof Error) {
         const message = error.message || 'Registration failed';
-        
-        // Check for specific error messages from backend
         if (message.toLowerCase().includes('username')) {
           setErrors({ username: 'Username is already taken' });
         } else if (message.toLowerCase().includes('email')) {
@@ -149,8 +147,6 @@ export function RegisterForm() {
       } else {
         setErrors({ general: 'An unexpected error occurred. Please try again.' });
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -166,7 +162,7 @@ export function RegisterForm() {
         autoComplete="username"
         required
         fullWidth
-        disabled={isLoading}
+        disabled={submitState === 'submitting' || submitState === 'success'}
         aria-label="Username"
       />
 
@@ -180,7 +176,7 @@ export function RegisterForm() {
         autoComplete="email"
         required
         fullWidth
-        disabled={isLoading}
+        disabled={submitState === 'submitting' || submitState === 'success'}
         aria-label="Email"
       />
 
@@ -194,7 +190,7 @@ export function RegisterForm() {
         autoComplete="name"
         required
         fullWidth
-        disabled={isLoading}
+        disabled={submitState === 'submitting' || submitState === 'success'}
         aria-label="Display Name"
         helperText="This is how other users will see you"
       />
@@ -209,7 +205,7 @@ export function RegisterForm() {
         autoComplete="new-password"
         required
         fullWidth
-        disabled={isLoading}
+        disabled={submitState === 'submitting' || submitState === 'success'}
         aria-label="Password"
         showPasswordToggle
       />
@@ -224,7 +220,7 @@ export function RegisterForm() {
         autoComplete="new-password"
         required
         fullWidth
-        disabled={isLoading}
+        disabled={submitState === 'submitting' || submitState === 'success'}
         aria-label="Confirm Password"
         showPasswordToggle
       />
@@ -242,10 +238,16 @@ export function RegisterForm() {
         type="submit"
         variant="primary"
         fullWidth
-        disabled={isLoading}
-        aria-label={isLoading ? 'Creating account...' : 'Create account'}
+        disabled={submitState === 'submitting' || submitState === 'success'}
+        aria-label={
+          submitState === 'submitting' ? 'Creating account...' :
+          submitState === 'success' ? 'Account created' :
+          'Create account'
+        }
       >
-        {isLoading ? 'Creating Account...' : 'Create Account'}
+        {submitState === 'submitting' && 'Creating Account...'}
+        {submitState === 'success' && '✓ Account Created!'}
+        {(submitState === 'idle' || submitState === 'error') && 'Create Account'}
       </Button>
     </form>
   );
