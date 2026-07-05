@@ -3,8 +3,19 @@ package org.example.chat.integration;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.example.chat.dto.LoginRequest;
 import org.example.chat.dto.RegisterRequest;
-import org.example.chat.entity.*;
-import org.example.chat.repository.*;
+import org.example.chat.dto.VerifyOtpRequest;
+import org.example.chat.entity.ChatRoom;
+import org.example.chat.entity.MemberRole;
+import org.example.chat.entity.Message;
+import org.example.chat.entity.PendingRegistration;
+import org.example.chat.entity.RoomMembership;
+import org.example.chat.entity.User;
+import org.example.chat.repository.ChatRoomRepository;
+import org.example.chat.repository.MessageRepository;
+import org.example.chat.repository.PendingRegistrationRepository;
+import org.example.chat.repository.RoomMembershipRepository;
+import org.example.chat.repository.TokenBlacklistRepository;
+import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
 import org.example.chat.service.ChatMessageService;
 import org.example.chat.service.RateLimiterService;
@@ -50,9 +61,6 @@ class FullAuthFlowE2EIT {
     private PendingRegistrationRepository pendingRegistrationRepository;
 
     @Autowired
-    private VerificationTokenRepository verificationTokenRepository;
-
-    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
@@ -84,37 +92,27 @@ class FullAuthFlowE2EIT {
         messageRepository.deleteAll();
         roomMembershipRepository.deleteAll();
         chatRoomRepository.deleteAll();
-        verificationTokenRepository.deleteAll();
         pendingRegistrationRepository.deleteAll();
         tokenBlacklistRepository.deleteAll();
         userRepository.deleteAll();
     }
 
-    private String registerUser(String username, String email, String password, String displayName) throws Exception {
+    private void registerUser(String username, String email, String password, String displayName) throws Exception {
         RegisterRequest request = new RegisterRequest(username, email, password, displayName);
 
         java.util.Random rand = new java.util.Random();
         String ip = "10." + rand.nextInt(256) + "." + rand.nextInt(256) + "." + (rand.nextInt(254) + 1);
 
-        String response = mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(request))
                 .with(r -> { r.setRemoteAddr(ip); return r; }))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(response);
-        String verificationUrl = node.get("verificationUrl").asText();
-        String token = verificationUrl.substring(verificationUrl.indexOf("token=") + 6);
-        return token;
+                .andExpect(status().isCreated());
     }
 
     private void verifyEmail(String token) throws Exception {
-        mockMvc.perform(get("/api/auth/verify-email")
-                .param("token", token))
-                .andExpect(status().isFound());
+        // Token-based email verification is replaced by OTP flow.
+        // Create user directly for tests that need a verified user.
     }
 
     private String loginUser(String username, String password) throws Exception {
@@ -137,19 +135,12 @@ class FullAuthFlowE2EIT {
         RegisterRequest request = new RegisterRequest(
                 "e2euser", "e2e@example.com", "TestP@ss1", "E2E User");
 
-        String response = mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(request))
                 .with(r -> { r.setRemoteAddr("10.1.1.1"); return r; }))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.verificationUrl").isNotEmpty())
-                .andExpect(jsonPath("$.emailSent").isBoolean())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(response);
-        assertTrue(node.get("verificationUrl").asText().contains("token="));
+                .andExpect(jsonPath("$.emailSent").isBoolean());
 
         assertTrue(pendingRegistrationRepository.findByUsername("e2euser").isPresent());
         assertFalse(userRepository.findByUsername("e2euser").isPresent());
@@ -157,13 +148,7 @@ class FullAuthFlowE2EIT {
 
     @Test
     void emailVerificationFlow_ValidToken_CreatesUserWithVerifiedEmail() throws Exception {
-        String token = registerUser("verifyuser", "verify@example.com", "TestP@ss1", "Verify User");
-
-        assertTrue(pendingRegistrationRepository.findByToken(token).isPresent());
-
-        verifyEmail(token);
-
-        assertFalse(pendingRegistrationRepository.findByToken(token).isPresent());
+        createVerifiedUser("verifyuser", "verify@example.com", "TestP@ss1", "Verify User");
 
         User user = userRepository.findByUsername("verifyuser").orElse(null);
         assertNotNull(user);
@@ -174,9 +159,47 @@ class FullAuthFlowE2EIT {
     }
 
     @Test
+    void otpVerificationFlow_RegisterWithOtpVerifyLogin_Success() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest(
+                "otpflowuser", "otpflow@example.com", "TestP@ss1", "OTP Flow User");
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(registerRequest))
+                .with(r -> { r.setRemoteAddr("10.5.1.1"); return r; }))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.emailSent").isBoolean());
+
+        PendingRegistration pending = pendingRegistrationRepository.findByEmail("otpflow@example.com").orElse(null);
+        assertNotNull(pending);
+        assertFalse(userRepository.findByUsername("otpflowuser").isPresent());
+
+        String knownOtp = "123456";
+        pending.setOtpHash(passwordEncoder.encode(knownOtp));
+        pending.setOtpExpiry(java.time.LocalDateTime.now().plusMinutes(10));
+        pending.setAttemptCount(0);
+        pendingRegistrationRepository.save(pending);
+
+        VerifyOtpRequest verifyRequest = new VerifyOtpRequest("otpflow@example.com", knownOtp);
+        mockMvc.perform(post("/api/auth/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(verifyRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Email verified successfully"));
+
+        assertTrue(userRepository.findByUsername("otpflowuser").isPresent());
+        assertTrue(userRepository.findByUsername("otpflowuser").get().getEmailVerified());
+
+        String jwt = loginUser("otpflowuser", "TestP@ss1");
+        assertNotNull(jwt);
+        assertTrue(jwtUtil.validateToken(jwt));
+        assertEquals("otpflowuser", jwtUtil.getUsernameFromToken(jwt));
+    }
+
+    @Test
     void loginFlow_VerifiedUser_ReturnsJwtToken() throws Exception {
-        String token = registerUser("loginuser", "login@example.com", "TestP@ss1", "Login User");
-        verifyEmail(token);
+        createVerifiedUser("loginuser", "login@example.com", "TestP@ss1", "Login User");
 
         String jwt = loginUser("loginuser", "TestP@ss1");
 
@@ -194,6 +217,18 @@ class FullAuthFlowE2EIT {
                 .andExpect(jsonPath("$.user.username").value("loginuser"))
                 .andExpect(jsonPath("$.user.email").value("login@example.com"))
                 .andExpect(jsonPath("$.user.displayName").value("Login User"));
+    }
+
+    private void createVerifiedUser(String username, String email, String password, String displayName) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setDisplayName(displayName);
+        user.setEmailVerified(true);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setOnline(false);
+        userRepository.save(user);
     }
 
     @Test
@@ -492,8 +527,7 @@ class FullAuthFlowE2EIT {
 
     @Test
     void sessionManagement_MultipleLogins_GetUniqueTokens() throws Exception {
-        String token = registerUser("multilogin", "multilogin@example.com", "TestP@ss1", "Multi Login");
-        verifyEmail(token);
+        createVerifiedUser("multilogin", "multilogin@example.com", "TestP@ss1", "Multi Login");
 
         String jwt1 = loginUser("multilogin", "TestP@ss1");
         String jwt2 = loginUser("multilogin", "TestP@ss1");
@@ -519,13 +553,7 @@ class FullAuthFlowE2EIT {
 
     @Test
     void completeEndToEndFlow_RegisterVerifyLoginMessage() throws Exception {
-        String verificationToken = registerUser(
-                "fullflow", "fullflow@example.com", "TestP@ss1", "Full Flow User");
-
-        assertFalse(userRepository.findByUsername("fullflow").isPresent());
-        assertTrue(pendingRegistrationRepository.findByUsername("fullflow").isPresent());
-
-        verifyEmail(verificationToken);
+        createVerifiedUser("fullflow", "fullflow@example.com", "TestP@ss1", "Full Flow User");
 
         User user = userRepository.findByUsername("fullflow").orElseThrow();
         assertTrue(user.getEmailVerified());

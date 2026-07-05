@@ -45,10 +45,6 @@ const getErrorMessage = (details: unknown): string => {
       errors?: Record<string, unknown>;
     };
 
-    if (typeof detailObject.message === 'string' && detailObject.message.trim()) {
-      return detailObject.message;
-    }
-
     if (detailObject.errors && typeof detailObject.errors === 'object') {
       const firstError = Object.values(detailObject.errors).find(
         (value) => typeof value === 'string' && value.trim()
@@ -57,6 +53,10 @@ const getErrorMessage = (details: unknown): string => {
       if (typeof firstError === 'string') {
         return firstError;
       }
+    }
+
+    if (typeof detailObject.message === 'string' && detailObject.message.trim()) {
+      return detailObject.message;
     }
   }
 

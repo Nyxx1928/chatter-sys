@@ -6,7 +6,6 @@ import org.example.chat.repository.FriendRequestRepository;
 import org.example.chat.repository.FriendshipRepository;
 import org.example.chat.repository.UserRepository;
 import org.example.chat.security.JwtUtil;
-import org.example.chat.service.EmailVerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,9 +43,6 @@ class AuthenticationServiceTest {
     private FriendRequestRepository friendRequestRepository;
 
     @Mock
-    private EmailVerificationService emailVerificationService;
-
-    @Mock
     private RegistrationService registrationService;
 
     private AuthenticationService authenticationService;
@@ -58,7 +54,7 @@ class AuthenticationServiceTest {
         authenticationService = new AuthenticationService(
                 userRepository, jwtUtil, passwordEncoder,
                 chatRoomRepository, friendshipRepository, friendRequestRepository,
-                emailVerificationService, registrationService);
+                registrationService);
     }
 
     @Test
@@ -71,8 +67,6 @@ class AuthenticationServiceTest {
 
         when(registrationService.initiateRegistration(username, email, password, displayName))
                 .thenReturn(new RegistrationService.RegistrationInitiationResult(
-                        "token-123",
-                        "http://localhost:8080/api/auth/verify-email?token=token-123",
                         true,
                         null
                 ));
@@ -83,8 +77,6 @@ class AuthenticationServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals("token-123", result.token());
-        assertEquals("http://localhost:8080/api/auth/verify-email?token=token-123", result.verificationUrl());
         assertTrue(result.verificationEmailSent());
         assertNull(result.errorMessage());
 
@@ -212,7 +204,6 @@ class AuthenticationServiceTest {
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(jwtUtil.generateToken(username)).thenReturn(expectedToken);
-        when(emailVerificationService.isEmailVerified(user)).thenReturn(true);
 
         // Act
         String result = authenticationService.authenticateUser(username, password);

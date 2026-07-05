@@ -10,8 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PendingRegistrationRepository extends JpaRepository<PendingRegistration, Long> {
 
-    Optional<PendingRegistration> findByToken(String token);
-
     Optional<PendingRegistration> findByEmail(String email);
 
     Optional<PendingRegistration> findByUsername(String username);
@@ -20,5 +18,5 @@ public interface PendingRegistrationRepository extends JpaRepository<PendingRegi
 
     boolean existsByUsername(String username);
 
-    void deleteByExpiryDateBefore(LocalDateTime dateTime);
+    void deleteByOtpExpiryBefore(LocalDateTime dateTime);
 }

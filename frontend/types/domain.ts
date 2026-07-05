@@ -37,8 +37,6 @@ export interface User {
   lastSeen: string | null; // ISO 8601 date string
   online: boolean;
   emailVerified?: boolean;
-  verificationUrl?: string;
-  verificationEmailSent?: boolean;
 }
 
 /**

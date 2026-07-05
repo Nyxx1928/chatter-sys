@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { LoginRequest, RegisterRequest } from '../../types/api';
+import { LoginRequest, RegisterRequest, RegistrationResponse } from '../../types/api';
 import { User } from '../../types/domain';
 import {
   getCurrentUser,
@@ -23,7 +23,7 @@ type AuthState = {
   isInitialized: boolean;
   isChecking: boolean;
   login: (request: LoginRequest) => Promise<void>;
-  register: (request: RegisterRequest) => Promise<User>;
+  register: (request: RegisterRequest) => Promise<RegistrationResponse>;
   validateSession: () => Promise<void>;
   logout: () => void;
 };
@@ -51,17 +51,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
   register: async (request) => {
-    const user = await registerApi(request);
-    setStoredUser(user);
+    const response = await registerApi(request);
 
     set({
-      user,
       token: null,
       isAuthenticated: false,
       isInitialized: true
     });
 
-    return user;
+    return response;
   },
   validateSession: async () => {
     const { token } = get();

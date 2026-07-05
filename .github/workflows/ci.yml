@@ -222,7 +222,6 @@ jobs:
           name: debug-phase4-playwright
           path: |
             frontend/playwright-report/
-            frontend/test-results/
           if-no-files-found: ignore
 
   phase5-mobile-check:
