@@ -158,9 +158,6 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    // Wait for the page to settle
-    await page.waitForLoadState('networkidle');
-
     const channelsTab = page.locator('nav[aria-label="Mobile navigation"]').filter({ hasText: 'Channels' }).locator('a[href="/chat/channels"]').first();
     await channelsTab.click();
     await expect(page).toHaveURL(/\/chat\/channels/, { timeout: 10_000 });
@@ -170,8 +167,6 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await setupMocks(page);
     await page.goto('/chat');
-
-    await page.waitForLoadState('networkidle');
 
     const contactsTab = page.locator('nav[aria-label="Mobile navigation"]').filter({ hasText: 'Contacts' }).locator('a[href="/chat/contacts"]').first();
     await contactsTab.click();
@@ -183,8 +178,6 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    await page.waitForLoadState('networkidle');
-
     const profileTab = page.locator('nav[aria-label="Mobile navigation"]').filter({ hasText: 'Profile' }).locator('a[href="/chat/profile"]').first();
     await profileTab.click();
     await expect(page).toHaveURL(/\/chat\/profile/, { timeout: 10_000 });
@@ -194,8 +187,6 @@ test.describe('Task 10.2 — Bottom tab bar visibility and navigation', () => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await setupMocks(page);
     await page.goto('/chat/channels');
-
-    await page.waitForLoadState('networkidle');
 
     // The Channels link in the bottom tab bar should have aria-current="page"
     const activeTab = page.locator('nav[aria-label="Mobile navigation"] a[aria-current="page"]').first();
@@ -213,10 +204,8 @@ test.describe('Task 10.3 — Desktop sidebar navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    await page.waitForLoadState('networkidle');
-
-    // Desktop nav: NavIcon links with aria-label
-    const channelsLink = page.locator('nav.hidden.md\\:flex a[aria-label="Channels"]');
+    const channelsLink = page.locator('nav[aria-label="Main navigation"] a[aria-label="Channels"]');
+    await expect(channelsLink).toBeVisible({ timeout: 10_000 });
     await channelsLink.click();
     await expect(page).toHaveURL(/\/chat\/channels/, { timeout: 10_000 });
   });
@@ -226,9 +215,8 @@ test.describe('Task 10.3 — Desktop sidebar navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    await page.waitForLoadState('networkidle');
-
-    const contactsLink = page.locator('nav.hidden.md\\:flex a[aria-label="Contacts"]');
+    const contactsLink = page.locator('nav[aria-label="Main navigation"] a[aria-label="Contacts"]');
+    await expect(contactsLink).toBeVisible({ timeout: 10_000 });
     await contactsLink.click();
     await expect(page).toHaveURL(/\/chat\/contacts/, { timeout: 10_000 });
   });
@@ -238,9 +226,8 @@ test.describe('Task 10.3 — Desktop sidebar navigation', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    await page.waitForLoadState('networkidle');
-
-    const profileLink = page.locator('nav.hidden.md\\:flex a[aria-label="Profile"]');
+    const profileLink = page.locator('nav[aria-label="Main navigation"] a[aria-label="Profile"]');
+    await expect(profileLink).toBeVisible({ timeout: 10_000 });
     await profileLink.click();
     await expect(page).toHaveURL(/\/chat\/profile/, { timeout: 10_000 });
   });
@@ -250,13 +237,9 @@ test.describe('Task 10.3 — Desktop sidebar navigation', () => {
     await setupMocks(page);
     await page.goto('/chat/channels');
 
-    await page.waitForLoadState('networkidle');
-
-    // The active NavIcon gets bg-kiro-purple-600/30 and text-kiro-purple-400 classes
-    const channelsLink = page.locator('nav.hidden.md\\:flex a[aria-label="Channels"]');
+    const channelsLink = page.locator('nav[aria-label="Main navigation"] a[aria-label="Channels"]');
     await expect(channelsLink).toBeVisible({ timeout: 10_000 });
     const classes = await channelsLink.getAttribute('class') ?? '';
-    // Active state includes the purple background class
     expect(classes).toContain('bg-slack-primary/30');
   });
 });
@@ -382,8 +365,7 @@ test.describe('Task 10.7 — No horizontal overflow at 320 px', () => {
     await setupMocks(page);
     await page.goto('/chat');
 
-    // Wait for the page to settle
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     const hasOverflow = await page.evaluate(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
