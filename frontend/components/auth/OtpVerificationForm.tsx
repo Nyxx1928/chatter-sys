@@ -16,7 +16,7 @@ export function OtpVerificationForm({ email }: OtpVerificationFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [submitState, setSubmitState] = useState<'idle' | 'verifying' | 'success' | 'error'>('idle');
   const [resendCooldown, setResendCooldown] = useState(60);
-  const [timerExpiry, setTimerExpiry] = useState<number>(Date.now() + 10 * 60 * 1000);
+  const [timerExpiry, setTimerExpiry] = useState<number>(() => Date.now() + 10 * 60 * 1000);
   const [timeRemaining, setTimeRemaining] = useState(600);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 

@@ -103,7 +103,7 @@ export function RegisterForm() {
     setSubmitState('submitting');
 
     try {
-      const response = await register({
+      await register({
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
