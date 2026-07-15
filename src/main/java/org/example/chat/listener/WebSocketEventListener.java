@@ -11,6 +11,8 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * WebSocket event listener for connection lifecycle management.
@@ -30,6 +32,8 @@ public class WebSocketEventListener {
     private final UserRepository userRepository;
     private final UserPresenceService userPresenceService;
 
+    private final ConcurrentHashMap<String, AtomicInteger> connectionCounts = new ConcurrentHashMap<>();
+
     public WebSocketEventListener(
             UserRepository userRepository,
             UserPresenceService userPresenceService) {
@@ -39,12 +43,12 @@ public class WebSocketEventListener {
 
     /**
      * Handle WebSocket connection events.
-     * 
+     *
      * When a user establishes a WebSocket connection:
      * 1. Mark the user as online in the database
      * 2. Update the user's lastSeen timestamp
      * 3. Publish presence updates to all rooms the user is a member of
-     * 
+     *
      * @param event the session connect event
      */
     @EventListener
@@ -54,9 +58,9 @@ public class WebSocketEventListener {
 
         if (user != null) {
             String username = user.getName();
-            logger.info("User connected: {}", username);
+            int count = connectionCounts.computeIfAbsent(username, k -> new AtomicInteger(0)).incrementAndGet();
+            logger.info("User connected: {} (active connections: {})", username, count);
 
-            // Mark user as online using UserPresenceService
             userRepository.findByUsername(username).ifPresent(userEntity -> {
                 userPresenceService.markUserOnline(userEntity.getId());
             });
@@ -65,12 +69,12 @@ public class WebSocketEventListener {
 
     /**
      * Handle WebSocket disconnection events.
-     * 
+     *
      * When a user disconnects from WebSocket:
-     * 1. Mark the user as offline in the database
+     * 1. Mark the user as offline in the database ONLY if this was their last active connection
      * 2. Update the user's lastSeen timestamp
      * 3. Publish presence updates to all rooms the user is a member of
-     * 
+     *
      * @param event the session disconnect event
      */
     @EventListener
@@ -80,12 +84,16 @@ public class WebSocketEventListener {
 
         if (user != null) {
             String username = user.getName();
-            logger.info("User disconnected: {}", username);
+            AtomicInteger counter = connectionCounts.get(username);
+            int remaining = (counter != null) ? counter.decrementAndGet() : 0;
+            logger.info("User disconnected: {} (active connections: {})", username, remaining);
 
-            // Mark user as offline using UserPresenceService
-            userRepository.findByUsername(username).ifPresent(userEntity -> {
-                userPresenceService.markUserOffline(userEntity.getId());
-            });
+            if (remaining <= 0) {
+                connectionCounts.remove(username);
+                userRepository.findByUsername(username).ifPresent(userEntity -> {
+                    userPresenceService.markUserOffline(userEntity.getId());
+                });
+            }
         }
     }
 }

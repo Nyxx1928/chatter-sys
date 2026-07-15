@@ -3,6 +3,7 @@ package org.example.chat.service;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.MemberRole;
 import org.example.chat.entity.RoomMembership;
+import org.example.chat.entity.RoomType;
 import org.example.chat.entity.User;
 import org.example.chat.exception.RoomNotFoundException;
 import org.example.chat.exception.UnauthorizedException;
@@ -81,7 +82,7 @@ class ChatRoomServiceTest {
         String description = "New room description";
         Long creatorId = 1L;
 
-        when(chatRoomRepository.findByName(roomName)).thenReturn(Optional.empty());
+        when(chatRoomRepository.findByNameAndRoomType(roomName, RoomType.GROUP)).thenReturn(Optional.empty());
         when(userRepository.findById(creatorId)).thenReturn(Optional.of(testUser));
         when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(testRoom);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
@@ -105,7 +106,7 @@ class ChatRoomServiceTest {
         String description = "Description";
         Long creatorId = 1L;
 
-        when(chatRoomRepository.findByName(roomName)).thenReturn(Optional.of(testRoom));
+        when(chatRoomRepository.findByNameAndRoomType(roomName, RoomType.GROUP)).thenReturn(Optional.of(testRoom));
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
@@ -150,7 +151,7 @@ class ChatRoomServiceTest {
         String description = "Description";
         Long creatorId = 999L;
 
-        when(chatRoomRepository.findByName(roomName)).thenReturn(Optional.empty());
+        when(chatRoomRepository.findByNameAndRoomType(roomName, RoomType.GROUP)).thenReturn(Optional.empty());
         when(userRepository.findById(creatorId)).thenReturn(Optional.empty());
 
         // Act & Assert

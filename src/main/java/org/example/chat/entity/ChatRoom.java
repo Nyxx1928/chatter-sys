@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "chat_rooms")
+@Table(name = "chat_rooms", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "room_type"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +28,7 @@ public class ChatRoom {
     @ToString.Include
     private Long id;
     
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     @ToString.Include
     private String name;
 

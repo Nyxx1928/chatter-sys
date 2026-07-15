@@ -9,6 +9,7 @@ import org.example.chat.repository.ChatRoomRepository;
 import org.example.chat.repository.RoomMembershipRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,15 +58,19 @@ public class DirectMessageService {
                     room.setName(dmName);
                     room.setRoomType(RoomType.DIRECT);
                     room.setCreatedAt(LocalDateTime.now());
-                    // DM rooms have no single "owner" — createdBy is left null
-                    ChatRoom saved = chatRoomRepository.save(room);
-
-                    addMembership(saved, userA);
-                    addMembership(saved, userB);
-
-                    logger.info("Created DM room '{}' with ID {} for users {} and {}",
-                            dmName, saved.getId(), userA.getId(), userB.getId());
-                    return saved;
+                    try {
+                        ChatRoom saved = chatRoomRepository.save(room);
+                        addMembership(saved, userA);
+                        addMembership(saved, userB);
+                        logger.info("Created DM room '{}' with ID {} for users {} and {}",
+                                dmName, saved.getId(), userA.getId(), userB.getId());
+                        return saved;
+                    } catch (DataIntegrityViolationException e) {
+                        logger.warn("Race on DM room '{}' — another thread created it first, fetching existing", dmName);
+                        return chatRoomRepository.findByNameAndRoomType(dmName, RoomType.DIRECT)
+                                .orElseThrow(() -> new IllegalStateException(
+                                        "DM room disappeared after concurrent create", e));
+                    }
                 });
     }
 

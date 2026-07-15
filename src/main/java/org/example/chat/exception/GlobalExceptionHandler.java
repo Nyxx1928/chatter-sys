@@ -2,6 +2,7 @@ package org.example.chat.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -115,6 +116,26 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    /**
+     * Handles database access exceptions (connection failures, constraint violations, etc.).
+     *
+     * @param ex the DataAccessException
+     * @return ResponseEntity with error details and HTTP 503 Service Unavailable status
+     */
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
+        logger.error("Database access error", ex);
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "Service temporarily unavailable. Please try again later.",
+            LocalDateTime.now(),
+            HttpStatus.SERVICE_UNAVAILABLE.value(),
+            "DATABASE_ERROR"
+        );
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
     }
 
     /**

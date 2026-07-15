@@ -5,9 +5,11 @@ import org.example.chat.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,6 +36,23 @@ public class RateLimiterService {
     private boolean rateLimitEnabled;
 
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
+
+    /**
+     * Evicts token buckets that haven't been accessed in the last hour,
+     * preventing unbounded memory growth in long-running processes.
+     * Runs every 30 minutes.
+     */
+    @Scheduled(fixedRate = 1_800_000)
+    public void evictStaleBuckets() {
+        long cutoff = Instant.now().toEpochMilli() - 3_600_000L;
+        Iterator<ConcurrentHashMap.Entry<String, TokenBucket>> it = buckets.entrySet().iterator();
+        while (it.hasNext()) {
+            ConcurrentHashMap.Entry<String, TokenBucket> entry = it.next();
+            if (entry.getValue().lastAccessTime < cutoff) {
+                it.remove();
+            }
+        }
+    }
 
     /**
      * Checks whether the given user is allowed to create a room right now.
@@ -199,16 +218,20 @@ public class RateLimiterService {
 
         private int tokens;
         private long lastRefillTime;
+        volatile long lastAccessTime;
 
         TokenBucket(int capacity, long refillIntervalMs) {
             this.capacity = capacity;
             this.refillIntervalMs = refillIntervalMs;
             this.tokens = capacity;
-            this.lastRefillTime = Instant.now().toEpochMilli();
+            long now = Instant.now().toEpochMilli();
+            this.lastRefillTime = now;
+            this.lastAccessTime = now;
         }
 
         synchronized boolean tryConsume() {
             refill();
+            lastAccessTime = Instant.now().toEpochMilli();
             if (tokens > 0) {
                 tokens--;
                 return true;

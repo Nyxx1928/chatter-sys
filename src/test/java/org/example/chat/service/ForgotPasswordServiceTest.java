@@ -15,7 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.HexFormat;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +54,9 @@ class ForgotPasswordServiceTest {
     private PasswordResetToken validToken;
     private PasswordResetToken expiredToken;
     private PasswordResetToken usedToken;
+    private String rawValidToken;
+    private String rawExpiredToken;
+    private String rawUsedToken;
 
     @BeforeEach
     void setUp() {
@@ -61,25 +68,39 @@ class ForgotPasswordServiceTest {
         testUser.setCreatedAt(LocalDateTime.now());
         testUser.setOnline(false);
 
-        validToken = new PasswordResetToken(testUser, "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
+        this.rawValidToken = "raw-valid-token-abcdef0123456789abcdef0123456789";
+        this.rawExpiredToken = "raw-expired-token-hex-1234567890abcdef123456";
+        this.rawUsedToken = "raw-used-token-hex-1234567890abcdef1234567890";
+
+        validToken = new PasswordResetToken(testUser, sha256(rawValidToken));
         ReflectionTestUtils.setField(validToken, "id", 1L);
         ReflectionTestUtils.setField(validToken, "expiryDate", LocalDateTime.now().plusMinutes(15));
         ReflectionTestUtils.setField(validToken, "used", false);
         ReflectionTestUtils.setField(validToken, "createdAt", LocalDateTime.now());
 
-        expiredToken = new PasswordResetToken(testUser, "expired-token-hex-1234567890abcdef1234567890abcdef");
+        expiredToken = new PasswordResetToken(testUser, sha256(rawExpiredToken));
         ReflectionTestUtils.setField(expiredToken, "id", 2L);
         ReflectionTestUtils.setField(expiredToken, "expiryDate", LocalDateTime.now().minusMinutes(1));
         ReflectionTestUtils.setField(expiredToken, "used", false);
         ReflectionTestUtils.setField(expiredToken, "createdAt", LocalDateTime.now().minusMinutes(20));
 
-        usedToken = new PasswordResetToken(testUser, "used-token-hex-1234567890abcdef1234567890abcdef");
+        usedToken = new PasswordResetToken(testUser, sha256(rawUsedToken));
         ReflectionTestUtils.setField(usedToken, "id", 3L);
         ReflectionTestUtils.setField(usedToken, "expiryDate", LocalDateTime.now().plusMinutes(15));
         ReflectionTestUtils.setField(usedToken, "used", true);
         ReflectionTestUtils.setField(usedToken, "createdAt", LocalDateTime.now());
 
         ReflectionTestUtils.setField(forgotPasswordService, "frontendUrl", "http://localhost:3000");
+    }
+
+    private static String sha256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -132,10 +153,10 @@ class ForgotPasswordServiceTest {
 
     @Test
     void resetPassword_ValidToken_UpdatesPassword() {
-        String tokenStr = validToken.getToken();
+        String tokenStr = rawValidToken;
         String newPassword = "newSecurePassword123";
 
-        when(tokenRepository.findByToken(tokenStr)).thenReturn(Optional.of(validToken));
+        when(tokenRepository.findByToken(sha256(tokenStr))).thenReturn(Optional.of(validToken));
         when(passwordEncoder.encode(newPassword)).thenReturn("new-encoded-password");
 
         forgotPasswordService.resetPassword(tokenStr, newPassword);
@@ -148,8 +169,8 @@ class ForgotPasswordServiceTest {
 
     @Test
     void resetPassword_ExpiredToken_ThrowsException() {
-        String tokenStr = "non-existent-token";
-        when(tokenRepository.findByToken(tokenStr)).thenReturn(Optional.of(expiredToken));
+        String tokenStr = rawExpiredToken;
+        when(tokenRepository.findByToken(sha256(tokenStr))).thenReturn(Optional.of(expiredToken));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> forgotPasswordService.resetPassword(tokenStr, "newPassword123"));
@@ -160,8 +181,8 @@ class ForgotPasswordServiceTest {
 
     @Test
     void resetPassword_UsedToken_ThrowsException() {
-        String tokenStr = usedToken.getToken();
-        when(tokenRepository.findByToken(tokenStr)).thenReturn(Optional.of(usedToken));
+        String tokenStr = rawUsedToken;
+        when(tokenRepository.findByToken(sha256(tokenStr))).thenReturn(Optional.of(usedToken));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> forgotPasswordService.resetPassword(tokenStr, "newPassword123"));
@@ -173,7 +194,7 @@ class ForgotPasswordServiceTest {
     @Test
     void resetPassword_InvalidToken_ThrowsException() {
         String tokenStr = "nonexistent-token";
-        when(tokenRepository.findByToken(tokenStr)).thenReturn(Optional.empty());
+        when(tokenRepository.findByToken(sha256(tokenStr))).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
                 () -> forgotPasswordService.resetPassword(tokenStr, "newPassword123"));

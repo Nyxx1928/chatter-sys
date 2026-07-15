@@ -71,7 +71,7 @@ public class ChatRoomService {
         validateRoomName(name);
 
         // Check if room name already exists
-        if (chatRoomRepository.findByName(name).isPresent()) {
+        if (chatRoomRepository.findByNameAndRoomType(name, RoomType.GROUP).isPresent()) {
             logger.warn("Room creation failed: room name already exists: {}", name);
             throw new IllegalArgumentException("Room name already exists");
         }
