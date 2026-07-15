@@ -41,7 +41,7 @@ public class PendingRegistration {
     @Column(nullable = false)
     private String otpHash;
 
-    @Column(nullable = false)
+    @Column(name = "expiry_date", nullable = false)
     private LocalDateTime otpExpiry;
 
     @Column(nullable = false)
