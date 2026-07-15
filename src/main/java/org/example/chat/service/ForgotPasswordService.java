@@ -63,11 +63,12 @@ public class ForgotPasswordService {
 
         tokenRepository.deleteByUser(user);
 
-        String token = generateToken();
-        PasswordResetToken resetToken = new PasswordResetToken(user, token);
+        String rawToken = generateToken();
+        String hashedToken = hashToken(rawToken);
+        PasswordResetToken resetToken = new PasswordResetToken(user, hashedToken);
         tokenRepository.save(resetToken);
 
-        String resetUrl = buildResetUrl(token);
+        String resetUrl = buildResetUrl(rawToken);
         BrevoEmailService.EmailResult emailResult =
                 brevoEmailService.sendPasswordResetEmail(user.getEmail(), resetUrl, user.getUsername());
 
@@ -86,7 +87,7 @@ public class ForgotPasswordService {
             throw new IllegalArgumentException("Reset token is required");
         }
 
-        PasswordResetToken token = tokenRepository.findByToken(tokenStr)
+        PasswordResetToken token = tokenRepository.findByToken(hashToken(tokenStr))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
 
         if (token.getUsed()) {
@@ -116,6 +117,16 @@ public class ForgotPasswordService {
         byte[] bytes = new byte[32];
         random.nextBytes(bytes);
         return HexFormat.of().formatHex(bytes);
+    }
+
+    private String hashToken(String rawToken) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(rawToken.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
     }
 
     private String buildResetUrl(String token) {

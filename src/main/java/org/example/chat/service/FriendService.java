@@ -141,8 +141,6 @@ public class FriendService {
         Friendship friendship = friendshipRepository.findBetweenUsers(currentUser, requester)
                 .orElseGet(() -> createFriendship(currentUser, requester));
 
-        request.setStatus(FriendRequestStatus.ACCEPTED);
-        request.setRespondedAt(LocalDateTime.now());
         friendRequestRepository.delete(request);
 
         logger.info("Friend request accepted by {} from {}", currentUser.getUsername(), requester.getUsername());
@@ -162,8 +160,6 @@ public class FriendService {
         FriendRequest request = friendRequestRepository.findByIdAndRecipient(requestId, currentUser)
                 .orElseThrow(() -> new FriendRequestNotFoundException(requestId));
 
-        request.setStatus(FriendRequestStatus.DECLINED);
-        request.setRespondedAt(LocalDateTime.now());
         friendRequestRepository.delete(request);
 
         logger.info("Friend request declined by {} from {}", currentUser.getUsername(), request.getRequester().getUsername());

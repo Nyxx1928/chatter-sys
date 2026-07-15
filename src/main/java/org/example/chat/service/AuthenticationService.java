@@ -80,13 +80,18 @@ public class AuthenticationService {
     /**
      * A dummy bcrypt hash used for timing-safe login.
      * When a user is not found, we hash against this dummy value so that
-     * Hash::check() always executes for the same duration, preventing
-     * timing attacks that could reveal whether an email is registered.
+     * bcrypt evaluation always executes for the same duration, preventing
+     * timing attacks that could reveal whether a username is registered.
      *
-     * This is a valid bcrypt hash of "dummy-timing-attack-prevention-value"
-     * generated with cost factor 12.
+     * Generated at class-load time from a fixed dummy password.  This
+     * guarantees the hash is always a syntactically valid bcrypt string
+     * and never throws an exception inside BCryptPasswordEncoder.
      */
-    private static final String DUMMY_HASH = "$2a$12$AAAAAAAAAAAAAAAAAAAAAOt2t6RTO0M1E8qF1E8qF1E8qF1E8qF1E8qF1O";
+    private static final String DUMMY_HASH;
+    static {
+        DUMMY_HASH = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
+                .encode("dummy-timing-attack-prevention-value-4761");
+    }
 
     /**
      * Authenticates a user with the provided credentials and returns a JWT token.
