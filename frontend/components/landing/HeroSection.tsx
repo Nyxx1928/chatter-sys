@@ -1,18 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import Lightfall from '@/components/Lightfall';
+import { AnimatedStatCounter } from '@/components/ui/AnimatedStatCounter';
 
 const HERO_STATS = [
-  { value: '2500+', label: 'Launch concepts shaped' },
-  { value: '15x', label: 'Growth measured over time' },
-  { value: '98%', label: 'Confident launch readiness' },
-  { value: '6M', label: 'Signals aligned as one' },
+  { value: 2500, suffix: '+', label: 'Launch concepts shaped' },
+  { value: 15, suffix: 'x', label: 'Growth measured over time' },
+  { value: 98, suffix: '%', label: 'Confident launch readiness' },
+  { value: 6, suffix: 'M', label: 'Signals aligned as one' },
 ];
 
 const PANEL_METRICS = [
-  { value: '78%', label: 'Market Fit' },
-  { value: '4.9x', label: 'Team Velocity' },
-  { value: '94%', label: 'Stakeholder Buy-In' },
+  { value: 78, suffix: '%', label: 'Market Fit' },
+  { value: 4.9, suffix: 'x', label: 'Team Velocity', decimals: 1 },
+  { value: 94, suffix: '%', label: 'Stakeholder Buy-In' },
 ];
 
 export interface HeroSectionProps {
@@ -23,11 +25,34 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
   return (
     <section
       id="home"
-      className={`relative overflow-hidden px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-32 lg:pt-36 ${className}`.trim()}
+      className={`sticky top-0 z-0 px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32 relative overflow-hidden ${className}`.trim()}
       aria-labelledby="hero-heading"
     >
+      {/* WebGL Lightfall Background */}
+      <div className="absolute inset-0 -z-10">
+        <Lightfall
+          colors={['#4A154B', '#7C2382', '#36C5F0']}
+          backgroundColor="#0A0A14"
+          speed={0.3}
+          streakCount={2}
+          streakWidth={1}
+          streakLength={1.5}
+          glow={1}
+          density={0.5}
+          twinkle={0.8}
+          zoom={3}
+          backgroundGlow={0.4}
+          opacity={0.65}
+          mouseInteraction
+          mouseStrength={0.25}
+          mouseRadius={0.8}
+        />
+      </div>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+      {/* Bottom Border Effect */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slack-border to-transparent" />
+
+      <div className="relative mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="text-left">
           <span className="inline-flex items-center gap-2 rounded-pill border border-slack-border bg-slack-surface-tertiary px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-slack-text-secondary">
             Idea Lab Launch
@@ -62,10 +87,14 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
           <div className="mt-10 grid gap-3 sm:mt-12 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {HERO_STATS.map((stat) => (
               <div
-                key={stat.value}
+                key={`${stat.value}${stat.suffix}`}
                 className="rounded-2xl border border-slack-border bg-slack-surface-secondary px-4 py-3 sm:py-4"
               >
-                <p className="text-2xl font-semibold text-slack-text-primary">{stat.value}</p>
+                <AnimatedStatCounter
+                  value={stat.value}
+                  suffix={stat.suffix}
+                  className="text-2xl font-semibold text-slack-text-primary"
+                />
                 <p className="mt-2 text-xs uppercase tracking-[0.2em] text-slack-text-secondary">
                   {stat.label}
                 </p>
@@ -150,7 +179,12 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
                   key={metric.label}
                   className="rounded-2xl border border-slack-border bg-slack-surface-secondary px-4 py-3"
                 >
-                  <p className="text-base font-semibold text-slack-text-primary sm:text-lg">{metric.value}</p>
+                  <AnimatedStatCounter
+                    value={metric.value}
+                    suffix={metric.suffix}
+                    decimals={'decimals' in metric ? metric.decimals : undefined}
+                    className="text-base font-semibold text-slack-text-primary sm:text-lg"
+                  />
                   <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slack-text-secondary">
                     {metric.label}
                   </p>
