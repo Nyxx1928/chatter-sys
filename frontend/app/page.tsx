@@ -10,6 +10,7 @@ import {
   FooterSection,
 } from '@/components/landing';
 import { useAuthStore } from '@/lib/store/authStore';
+import Lightfall from '@/components/Lightfall';
 
 export default function Home() {
   const router = useRouter();
@@ -36,14 +37,35 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slack-surface-primary text-slack-text-primary">
+    <div className="min-h-screen text-slack-text-primary relative">
+      {/* Full-viewport Lightfall background — canvas covers entire page */}
+      <div className="fixed inset-0 z-0 blur-sm">
+        <Lightfall
+          colors={['#4A154B', '#7C2382', '#36C5F0']}
+          backgroundColor="#0A0A14"
+          speed={0.3}
+          streakCount={2}
+          streakWidth={1}
+          streakLength={1.5}
+          glow={1}
+          density={0.5}
+          twinkle={0.8}
+          zoom={3}
+          backgroundGlow={0.4}
+          opacity={0.65}
+          mouseInteraction
+          mouseStrength={0.25}
+          mouseRadius={0.8}
+        />
+      </div>
+
       {/* Splash Screen */}
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
       {/* Landing Page Content */}
       {!showSplash && (
         <div
-          className={`transition-opacity duration-500 ${
+          className={`relative z-10 transition-opacity duration-500 ${
             showLanding ? 'animate-fade-in opacity-100' : 'opacity-0'
           }`}
         >
