@@ -31,7 +31,7 @@ export default function RootLayout({
       lang="en"
       className={`${notoSans.variable} ${notoSansDisplay.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0A0A14]" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>
           <AuthBootstrap />
           {children}

@@ -10,6 +10,7 @@ import {
   FooterSection,
 } from '@/components/landing';
 import { useAuthStore } from '@/lib/store/authStore';
+import { ForceDarkMode } from '@/components/theme/ForceDarkMode';
 import Lightfall from '@/components/Lightfall';
 
 export default function Home() {
@@ -38,6 +39,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-slack-text-primary relative">
+      <ForceDarkMode />
       {/* Full-viewport Lightfall background — canvas covers entire page */}
       <div className="fixed inset-0 z-0 blur-sm">
         <Lightfall
