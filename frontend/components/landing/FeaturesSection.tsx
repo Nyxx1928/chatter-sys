@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { FeatureGrid } from './FeatureGrid';
+import { AnimatedCard } from '@/components/ui/AnimatedCard';
 
 const READINESS_STEPS = [
   'Validate the core idea and market signal',
@@ -90,7 +92,7 @@ export interface FeaturesSectionProps {
 
 export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
   return (
-    <div className={`px-4 sm:px-6 ${className}`.trim()}>
+    <div className={`relative z-10 bg-slack-surface-primary px-4 sm:px-6 ${className}`.trim()}>
       <section id="readiness" className="mx-auto w-full max-w-6xl py-14 sm:py-20">
         <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
@@ -182,9 +184,9 @@ export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
                 Explore more
               </Link>
             </div>
-            <div className="grid gap-4">
+            <FeatureGrid className="grid gap-4">
               {SYSTEM_MODULES.map((module) => (
-                <div
+                <AnimatedCard
                   key={module.title}
                   className="rounded-2xl border border-slack-border bg-slack-surface-primary p-6"
                 >
@@ -214,9 +216,9 @@ export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
                       </div>
                     ))}
                   </div>
-                </div>
+                </AnimatedCard>
               ))}
-            </div>
+            </FeatureGrid>
           </div>
         </div>
       </section>
@@ -233,20 +235,20 @@ export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
             Connect product, people, and community without friction. The system adapts to the rhythm of your team and keeps every touchpoint aligned.
           </p>
         </div>
-        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-3">
+        <FeatureGrid className="mt-8 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-3">
           {INTEGRATION_CARDS.map((card) => (
-            <div
+            <AnimatedCard
               key={card.title}
-                className="rounded-2xl border border-slack-border bg-slack-surface-primary p-5 sm:p-6"
-              >
-                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slack-primary/40">
-                  <span className="h-2 w-2 rounded-full bg-slack-primary" />
-                </div>
-                <h3 className="text-lg font-semibold text-slack-text-primary">{card.title}</h3>
-                <p className="mt-3 text-sm text-slack-text-secondary">{card.description}</p>
-            </div>
+              className="rounded-2xl border border-slack-border bg-slack-surface-primary p-5 sm:p-6"
+            >
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slack-primary/40">
+                <span className="h-2 w-2 rounded-full bg-slack-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-slack-text-primary">{card.title}</h3>
+              <p className="mt-3 text-sm text-slack-text-secondary">{card.description}</p>
+            </AnimatedCard>
           ))}
-        </div>
+        </FeatureGrid>
       </section>
 
       <section id="community" className="mx-auto w-full max-w-6xl py-14 sm:py-20">
@@ -319,30 +321,30 @@ export function FeaturesSection({ className = '' }: FeaturesSectionProps) {
             Join them
           </Link>
         </div>
-        <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-6 lg:grid-cols-3">
+        <FeatureGrid className="mt-8 grid gap-4 sm:mt-10 sm:gap-6 lg:grid-cols-3">
           {STORY_CARDS.map((story) => (
-            <div
+            <AnimatedCard
               key={story.name}
-                className="rounded-2xl border border-slack-border bg-slack-surface-primary p-5 sm:p-6"
-              >
-                <p className="text-sm text-slack-text-secondary">{story.quote}</p>
-                <div className="mt-6 flex items-center justify-between border-t border-slack-border pt-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slack-text-primary">{story.name}</p>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-slack-text-secondary">
-                      {story.role}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-semibold text-slack-text-primary">{story.metric}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slack-text-secondary">
+              className="rounded-2xl border border-slack-border bg-slack-surface-primary p-5 sm:p-6"
+            >
+              <p className="text-sm text-slack-text-secondary">{story.quote}</p>
+              <div className="mt-6 flex items-center justify-between border-t border-slack-border pt-4">
+                <div>
+                  <p className="text-sm font-semibold text-slack-text-primary">{story.name}</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slack-text-secondary">
+                    {story.role}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-semibold text-slack-text-primary">{story.metric}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slack-text-secondary">
                     {story.metricLabel}
                   </p>
                 </div>
               </div>
-            </div>
+            </AnimatedCard>
           ))}
-        </div>
+        </FeatureGrid>
       </section>
 
       <section id="contact" className="mx-auto w-full max-w-6xl pb-20 pt-8 sm:pb-28 sm:pt-10">
