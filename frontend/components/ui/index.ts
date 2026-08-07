@@ -20,3 +20,7 @@ export type { CardProps, CardHeaderProps, CardTitleProps, CardContentProps, Card
 
 export { Modal } from './Modal';
 export type { ModalProps } from './Modal';
+
+export { AnimatedStatCounter } from './AnimatedStatCounter';
+
+export { AnimatedCard } from './AnimatedCard';

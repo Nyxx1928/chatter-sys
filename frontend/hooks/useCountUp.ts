@@ -33,7 +33,7 @@ export function useCountUp(end: number, options: UseCountUpOptions = {}) {
       const elapsed = timestamp - startTimeRef.current;
       const progress = Math.min(elapsed / duration, 1);
       const easedProgress = easeOutCubic(progress);
-      const currentCount = Math.round(easedProgress * end);
+      const currentCount = easedProgress * end;
 
       setCount(currentCount);
 
