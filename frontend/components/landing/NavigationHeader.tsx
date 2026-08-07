@@ -14,7 +14,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/shadcn-button';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { MENU_ITEMS, SYSTEM_MODULES } from './navigationData';
 import { SystemMegaMenu } from './SystemMegaMenu';
 import { Menu } from 'lucide-react';
@@ -140,16 +139,13 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
 
           {/* Desktop actions */}
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-1 md:flex">
-              <ThemeToggle />
-            </div>
             <Link href="/auth/login" className="hidden md:block">
               <Button variant="outline" size="sm" className="rounded-full border-slack-border">
                 Sign In
               </Button>
             </Link>
             <Link href="/auth/register" className="hidden md:block">
-              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-primary hover:bg-slack-primary-light">
+              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-inverse hover:bg-slack-primary-light">
                 Get Started
               </Button>
             </Link>

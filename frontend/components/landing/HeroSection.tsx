@@ -50,7 +50,7 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
           <div className="mt-8 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4">
             <Link
               href="/auth/register"
-              className="w-full rounded-pill bg-slack-primary px-7 py-3 text-center text-xs font-semibold uppercase tracking-[0.25em] text-slack-text-primary shadow-slack-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary sm:w-auto"
+              className="w-full rounded-pill bg-slack-primary px-7 py-3 text-center text-xs font-semibold uppercase tracking-[0.25em] text-slack-text-inverse shadow-slack-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary sm:w-auto"
             >
               Start Building
             </Link>
