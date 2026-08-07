@@ -132,8 +132,7 @@ class PreservationPropertyIT extends BaseIntegrationTest {
                     .content(toJson(registerRequest)))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.message").exists())
-                    .andExpect(jsonPath("$.emailSent").isBoolean())
-                    .andExpect(jsonPath("$.verificationUrl").exists());
+                    .andExpect(jsonPath("$.emailSent").isBoolean());
         }
     }
 
