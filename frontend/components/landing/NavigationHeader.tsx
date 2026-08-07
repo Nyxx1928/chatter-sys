@@ -64,7 +64,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
   return (
     <header className={`sticky top-0 z-40 w-full ${className}`.trim()}>
       <div className="mx-auto flex max-w-7xl items-center justify-center px-6 py-2">
-        <div className="flex h-14 w-full items-center justify-between gap-2 rounded-full border border-slack-border bg-slack-surface-primary shadow-slack-md pr-3 sm:h-16 md:w-5xl">
+        <div className="flex h-14 w-full items-center justify-between gap-2 rounded-full border border-white/10 bg-[#0A0A14]/20 backdrop-blur-md shadow-slack-md pr-3 sm:h-16 md:w-5xl">
           {/* Logo */}
           <button
             type="button"
@@ -149,7 +149,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
               </Button>
             </Link>
             <Link href="/auth/register" className="hidden md:block">
-              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-inverse hover:bg-slack-primary-light">
+              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-primary hover:bg-slack-primary-light">
                 Get Started
               </Button>
             </Link>
