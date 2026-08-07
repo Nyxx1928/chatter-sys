@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Lightfall from '@/components/Lightfall';
 import { AnimatedStatCounter } from '@/components/ui/AnimatedStatCounter';
 
 const HERO_STATS = [
@@ -25,30 +24,9 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
   return (
     <section
       id="home"
-      className={`sticky top-0 z-0 px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32 relative overflow-hidden ${className}`.trim()}
+      className={`sticky top-0 z-0 px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 lg:pt-24 relative overflow-hidden ${className}`.trim()}
       aria-labelledby="hero-heading"
     >
-      {/* WebGL Lightfall Background */}
-      <div className="absolute inset-0 -z-10">
-        <Lightfall
-          colors={['#4A154B', '#7C2382', '#36C5F0']}
-          backgroundColor="#0A0A14"
-          speed={0.3}
-          streakCount={2}
-          streakWidth={1}
-          streakLength={1.5}
-          glow={1}
-          density={0.5}
-          twinkle={0.8}
-          zoom={3}
-          backgroundGlow={0.4}
-          opacity={0.65}
-          mouseInteraction
-          mouseStrength={0.25}
-          mouseRadius={0.8}
-        />
-      </div>
-
       {/* Bottom Border Effect */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slack-border to-transparent" />
 
@@ -72,7 +50,7 @@ export function HeroSection({ className = '' }: HeroSectionProps) {
           <div className="mt-8 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4">
             <Link
               href="/auth/register"
-              className="w-full rounded-pill bg-slack-primary px-7 py-3 text-center text-xs font-semibold uppercase tracking-[0.25em] text-slack-text-inverse shadow-slack-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary sm:w-auto"
+              className="w-full rounded-pill bg-slack-primary px-7 py-3 text-center text-xs font-semibold uppercase tracking-[0.25em] text-slack-text-primary shadow-slack-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-slack-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slack-surface-primary sm:w-auto"
             >
               Start Building
             </Link>
