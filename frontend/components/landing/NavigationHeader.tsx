@@ -145,7 +145,7 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
               </Button>
             </Link>
             <Link href="/auth/register" className="hidden md:block">
-              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-inverse hover:bg-slack-primary-light">
+              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-primary hover:bg-slack-primary-light">
                 Get Started
               </Button>
             </Link>
