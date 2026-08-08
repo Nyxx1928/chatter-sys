@@ -12,8 +12,9 @@ export function ForceDarkMode() {
     root.classList.add('dark');
     root.classList.remove('light');
 
+    const currentTheme = themeRef.current;
     return () => {
-      if (themeRef.current === 'light') {
+      if (currentTheme === 'light') {
         root.classList.add('light');
         root.classList.remove('dark');
       }
