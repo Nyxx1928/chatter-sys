@@ -11,6 +11,12 @@ on:
   schedule:
     - cron: "0 2 * * *"
   workflow_dispatch:
+    inputs:
+      update_playwright_snapshots:
+        description: 'Update Playwright visual snapshots (--update-snapshots)'
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -213,7 +219,12 @@ jobs:
       - name: Run Playwright tests
         if: steps.playwright.outputs.enabled == 'true'
         working-directory: frontend
-        run: npx playwright test --retries=2
+        run: |
+          if [ "${{ inputs.update_playwright_snapshots }}" = "true" ]; then
+            npx playwright test --update-snapshots --retries=0
+          else
+            npx playwright test --retries=2
+          fi
 
       - name: Upload Playwright report
         if: always() && steps.playwright.outputs.enabled == 'true'
@@ -222,6 +233,15 @@ jobs:
           name: debug-phase4-playwright
           path: |
             frontend/playwright-report/
+          if-no-files-found: ignore
+
+      - name: Upload updated snapshots
+        if: always() && steps.playwright.outputs.enabled == 'true' && inputs.update_playwright_snapshots == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-playwright-snapshots
+          path: |
+            frontend/tests/e2e/**/*-snapshots/
           if-no-files-found: ignore
 
   phase5-mobile-check:
