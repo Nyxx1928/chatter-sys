@@ -216,6 +216,11 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps
 
+      - name: Build frontend (production)
+        if: steps.playwright.outputs.enabled == 'true'
+        working-directory: frontend
+        run: npm run build
+
       - name: Run Playwright tests
         if: steps.playwright.outputs.enabled == 'true'
         working-directory: frontend
