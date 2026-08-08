@@ -32,6 +32,10 @@ test.describe('Landing page', () => {
     // Small pause to let CSS transitions settle
     await page.waitForTimeout(300);
 
+    // Freeze WebGL animation so Playwright can capture a stable screenshot
+    await page.evaluate(() => { (window as any).__LIGHTFALL_PAUSED__ = true; });
+    await page.waitForTimeout(100);
+
     const viewport = page.viewportSize();
 
     // On narrow viewports (mobile) the full-page height varies between platforms
@@ -54,6 +58,10 @@ test.describe('Landing page', () => {
   test('visual snapshot — above the fold', async ({ page }) => {
     await expect(page.getByRole('banner')).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(300);
+
+    // Freeze WebGL animation so Playwright can capture a stable screenshot
+    await page.evaluate(() => { (window as any).__LIGHTFALL_PAUSED__ = true; });
+    await page.waitForTimeout(100);
 
     await expect(page).toHaveScreenshot('landing-viewport.png', {
       animations: 'disabled',
