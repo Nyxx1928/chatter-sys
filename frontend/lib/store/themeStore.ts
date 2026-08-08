@@ -13,10 +13,10 @@ type ThemeState = {
 const STORAGE_KEY = 'chatter-theme';
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'dark';
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') return stored;
-  return 'light';
+  return 'dark';
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
