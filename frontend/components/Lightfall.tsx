@@ -317,7 +317,7 @@ const Lightfall: React.FC<LightfallProps> = ({
     const loop = (t: number) => {
       rafRef.current = requestAnimationFrame(loop);
       // Allow test suites to freeze the animation for stable visual snapshots
-      if (typeof window !== 'undefined' && (window as any).__LIGHTFALL_PAUSED__) {
+      if (typeof window !== 'undefined' && (window as unknown as { __LIGHTFALL_PAUSED__?: boolean }).__LIGHTFALL_PAUSED__) {
         return;
       }
       uniforms.iTime.value = t * 0.001;
