@@ -58,14 +58,19 @@ export default defineConfig({
     },
   },
 
-  /* Platform-independent snapshot paths.
-   * By default Playwright appends `process.platform` to snapshot filenames
-   * (e.g. `-win32`, `-linux`), which causes all visual tests to fail on CI
-   * when baselines were generated on a different OS. We override the template
-   * to omit `{-snapshotSuffix}`, making snapshot filenames consistent across
-   * all platforms. Cross-platform rendering differences are handled by the
-   * `maxDiffPixelRatio` setting above. */
-  snapshotPathTemplate: '{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}',
+  /* Per-platform snapshot paths.
+   * Playwright appends `process.platform` to snapshot filenames (e.g.
+   * `-win32`, `-linux`) via the `{-snapshotSuffix}` token. We KEEP this suffix
+   * so each platform has its own baselines — this is what makes visual tests
+   * reliable when baselines are generated on Windows but verified on Ubuntu
+   * Linux CI, where font rasterization (especially WebKit) differs enough to
+   * exceed any reasonable pixel-diff threshold.
+   *
+   * Workflow: generate baselines on each platform you run tests on:
+   *   - Windows (local dev):  npx playwright test --update-snapshots
+   *   - Linux (CI parity):   npm run test:e2e:update-snapshots:docker
+   * Commit both the `-win32` and `-linux` PNGs. */
+  snapshotPathTemplate: '{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{-snapshotSuffix}{ext}',
 
   projects: [
     /* ── Desktop browsers ── */
@@ -93,9 +98,14 @@ export default defineConfig({
     },
   ],
 
-  /* Start the Next.js dev server automatically when running tests locally */
+  /* Start the Next.js server automatically when running tests.
+   * In CI we run a production build (`next start`) so the Next.js dev overlay
+   * can never intercept pointer events or appear in screenshots — this is
+   * defense-in-depth on top of the root-layout hydration fix. Locally we keep
+   * `next dev` for fast HMR. The Docker Compose path sets CI=true, so it also
+   * uses `next start` (and must build first — see package.json scripts). */
   webServer: {
-    command: 'npm run dev',
+    command: process.env.CI ? 'npm run start' : 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
