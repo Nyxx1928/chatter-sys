@@ -31,6 +31,11 @@ export default function RootLayout({
       lang="en"
       className={`${notoSans.variable} ${notoSansDisplay.variable} h-full antialiased`}
     >
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.classList.add('dark')`,
+        }}
+      />
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>
           <AuthBootstrap />

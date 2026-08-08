@@ -226,6 +226,16 @@ const Lightfall: React.FC<LightfallProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
+    // Verify WebGL is available before constructing the Renderer.
+    // On CI / Firefox without GPU, the ogl Renderer constructor throws an
+    // uncaught TypeError (`this.gl is null`) that crashes the component tree.
+    const testCanvas = document.createElement('canvas');
+    const testGL = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+    if (!testGL) {
+      console.warn('Lightfall: WebGL context unavailable, skipping animation');
+      return;
+    }
+
     const renderer = new Renderer({
       dpr: dpr ?? (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1),
       alpha: true,
@@ -306,6 +316,10 @@ const Lightfall: React.FC<LightfallProps> = ({
 
     const loop = (t: number) => {
       rafRef.current = requestAnimationFrame(loop);
+      // Allow test suites to freeze the animation for stable visual snapshots
+      if (typeof window !== 'undefined' && (window as any).__LIGHTFALL_PAUSED__) {
+        return;
+      }
       uniforms.iTime.value = t * 0.001;
       if (mouseDampening > 0) {
         if (!lastTimeRef.current) lastTimeRef.current = t;
