@@ -33,7 +33,7 @@ test.describe('Landing page', () => {
     await page.waitForTimeout(300);
 
     // Freeze WebGL animation so Playwright can capture a stable screenshot
-    await page.evaluate(() => { (window as any).__LIGHTFALL_PAUSED__ = true; });
+    await page.evaluate(() => { (window as unknown as { __LIGHTFALL_PAUSED__?: boolean }).__LIGHTFALL_PAUSED__ = true; });
     await page.waitForTimeout(100);
 
     const viewport = page.viewportSize();
@@ -60,7 +60,7 @@ test.describe('Landing page', () => {
     await page.waitForTimeout(300);
 
     // Freeze WebGL animation so Playwright can capture a stable screenshot
-    await page.evaluate(() => { (window as any).__LIGHTFALL_PAUSED__ = true; });
+    await page.evaluate(() => { (window as unknown as { __LIGHTFALL_PAUSED__?: boolean }).__LIGHTFALL_PAUSED__ = true; });
     await page.waitForTimeout(100);
 
     await expect(page).toHaveScreenshot('landing-viewport.png', {
