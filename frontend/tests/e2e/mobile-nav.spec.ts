@@ -363,9 +363,12 @@ test.describe('Task 10.7 — No horizontal overflow at 320 px', () => {
   test('no horizontal scroll at 320 px viewport width', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     await setupMocks(page);
-    await page.goto('/chat');
+    await page.goto('/chat/channels');
 
-    await page.waitForLoadState('load');
+    // Wait for a visible element so we know the React app has finished rendering.
+    // `waitForLoadState('load')` only waits for the browser load event, but the
+    // SPA may still be hydrating / fetching data after that.
+    await expect(page.getByText('general').first()).toBeVisible({ timeout: 10_000 });
 
     const hasOverflow = await page.evaluate(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
