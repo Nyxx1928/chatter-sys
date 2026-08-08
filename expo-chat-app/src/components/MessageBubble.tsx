@@ -16,54 +16,6 @@ type Props = {
   onRetry?: () => void;
 };
 
-const MessageBubble = memo(function MessageBubble({ message, isOwn, onRetry }: Props) {
-  const colorScheme = useColorScheme();
-  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
-
-  if (message.messageType === MessageType.SYSTEM || message.messageType === MessageType.JOIN || message.messageType === MessageType.LEAVE) {
-    return (
-      <View style={styles.systemContainer}>
-        <Text style={[styles.systemText, { color: colors.textSecondary }]}>{message.content}</Text>
-      </View>
-    );
-  }
-
-  const isFailed = message._status === 'failed';
-  const isSending = message._status === 'sending';
-
-  const retryLabel = isFailed ? 'Tap to retry sending message' : undefined;
-
-  return (
-    <Pressable
-      style={[
-        styles.bubbleContainer,
-        isOwn ? styles.ownBubbleContainer : styles.otherBubbleContainer,
-        isSending && styles.sending,
-      ]}
-      onPress={isFailed ? onRetry : undefined}
-      accessibilityLabel={retryLabel}
-      accessibilityRole={isFailed ? 'button' : 'text'}
-    >
-      <View
-        style={[
-          styles.bubble,
-          isOwn ? [styles.ownBubble, { backgroundColor: colors.primary }] : [styles.otherBubble, { backgroundColor: colors.surfaceTertiary }],
-        ]}
-      >
-        <Text style={[styles.messageText, { color: isOwn ? colors.textInverse : colors.textPrimary }]}>
-          {message.content}
-        </Text>
-        <View style={styles.metaRow}>
-          {isFailed && <Text style={[styles.failedIcon, { color: colors.accentRed }]}>!</Text>}
-          <Text style={[styles.time, { color: isOwn ? 'rgba(255,255,255,0.7)' : colors.textSecondary }]}>
-            {formatMessageTime(message.timestamp)}
-          </Text>
-        </View>
-      </View>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   systemContainer: {
     alignItems: 'center',
@@ -120,4 +72,51 @@ const styles = StyleSheet.create({
   },
 });
 
+const MessageBubble = memo<Props>(function MessageBubble({ message, isOwn, onRetry }) {
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === 'dark' ? SlackColors.dark : SlackColors.light;
+
+  if (message.messageType === MessageType.SYSTEM || message.messageType === MessageType.JOIN || message.messageType === MessageType.LEAVE) {
+    return (
+      <View style={styles.systemContainer}>
+        <Text style={[styles.systemText, { color: colors.textSecondary }]}>{message.content}</Text>
+      </View>
+    );
+  }
+
+  const isFailed = message._status === 'failed';
+  const isSending = message._status === 'sending';
+
+  const retryLabel = isFailed ? 'Tap to retry sending message' : undefined;
+
+  return (
+    <Pressable
+      style={[
+        styles.bubbleContainer,
+        isOwn ? styles.ownBubbleContainer : styles.otherBubbleContainer,
+        isSending && styles.sending,
+      ]}
+      onPress={isFailed ? onRetry : undefined}
+      accessibilityLabel={retryLabel}
+      accessibilityRole={isFailed ? 'button' : 'text'}
+    >
+      <View
+        style={[
+          styles.bubble,
+          isOwn ? [styles.ownBubble, { backgroundColor: colors.primary }] : [styles.otherBubble, { backgroundColor: colors.surfaceTertiary }],
+        ]}
+      >
+        <Text style={[styles.messageText, { color: isOwn ? colors.textInverse : colors.textPrimary }]}>
+          {message.content}
+        </Text>
+        <View style={styles.metaRow}>
+          {isFailed && <Text style={[styles.failedIcon, { color: colors.accentRed }]}>!</Text>}
+          <Text style={[styles.time, { color: isOwn ? 'rgba(255,255,255,0.7)' : colors.textSecondary }]}>
+            {formatMessageTime(message.timestamp)}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+});
 export default MessageBubble;
