@@ -107,6 +107,13 @@
             <version>2.21.4</version>
         </dependency>
 
+        <!-- Explicit spring-data-commons version override for CVE fixes -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>3.5.12</version>
+        </dependency>
+
         <!-- Lombok (optional, for reducing boilerplate) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
