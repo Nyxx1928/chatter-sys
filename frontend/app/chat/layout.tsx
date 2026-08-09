@@ -6,7 +6,6 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useConnectionStore } from '@/lib/store/connectionStore';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 /**
  * Chat layout that wraps all chat pages.
@@ -99,9 +98,6 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         </NavIcon>
 
         <div className="flex-1" />
-
-        {/* Theme toggle */}
-        <ThemeToggle />
 
         {/* Connection dot */}
         <div

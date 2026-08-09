@@ -66,16 +66,10 @@ public class RegistrationService {
             throw new IllegalArgumentException("Username already exists");
         }
 
-        if (userRepository.existsByEmail(email)) {
-            logger.warn("Registration failed: email already exists: {}", email);
+        if (userRepository.existsByEmail(email) || pendingRegistrationRepository.existsByEmail(email)) {
+            logger.warn("Registration failed: email already exists or is pending: {}", email);
             throw new IllegalArgumentException("Email already exists");
         }
-
-        // If there's an existing pending registration for this email, delete it first
-        pendingRegistrationRepository.findByEmail(email).ifPresent(existing -> {
-            logger.info("Overwriting existing pending registration for email: {}", email);
-            pendingRegistrationRepository.delete(existing);
-        });
 
         String passwordHash = passwordEncoder.encode(password);
         String otp = generateOtp();

@@ -20,3 +20,5 @@ export type { FeaturesSectionProps } from './FeaturesSection';
 
 export { FooterSection } from './FooterSection';
 export type { FooterSectionProps } from './FooterSection';
+
+export { FeatureGrid } from './FeatureGrid';

@@ -14,7 +14,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/shadcn-button';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { MENU_ITEMS, SYSTEM_MODULES } from './navigationData';
 import { SystemMegaMenu } from './SystemMegaMenu';
 import { Menu } from 'lucide-react';
@@ -63,8 +62,8 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
 
   return (
     <header className={`sticky top-0 z-40 w-full ${className}`.trim()}>
-      <div className="mx-auto flex max-w-7xl items-center justify-center px-6 py-3">
-        <div className="flex h-14 w-full items-center justify-between gap-2 rounded-full border border-slack-border bg-slack-surface-primary shadow-slack-md pr-3 sm:h-16 md:w-5xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-center px-6 py-2">
+        <div className="flex h-14 w-full items-center justify-between gap-2 rounded-full border border-white/10 bg-[#0A0A14]/20 backdrop-blur-md shadow-slack-md pr-3 sm:h-16 md:w-5xl">
           {/* Logo */}
           <button
             type="button"
@@ -140,16 +139,13 @@ export function NavigationHeader({ className = '' }: NavigationHeaderProps) {
 
           {/* Desktop actions */}
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-1 md:flex">
-              <ThemeToggle />
-            </div>
             <Link href="/auth/login" className="hidden md:block">
               <Button variant="outline" size="sm" className="rounded-full border-slack-border">
                 Sign In
               </Button>
             </Link>
             <Link href="/auth/register" className="hidden md:block">
-              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-inverse hover:bg-slack-primary-light">
+              <Button size="sm" className="rounded-full bg-slack-primary text-slack-text-primary hover:bg-slack-primary-light">
                 Get Started
               </Button>
             </Link>

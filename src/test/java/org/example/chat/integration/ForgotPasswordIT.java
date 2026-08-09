@@ -13,7 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.HexFormat;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,11 +83,12 @@ class ForgotPasswordIT extends BaseIntegrationTest {
     void resetPassword_ValidToken_UpdatesPasswordAndAllowsLogin() throws Exception {
         User user = createVerifiedUser();
 
-        PasswordResetToken token = new PasswordResetToken(user, "valid-integration-token-hex-1234567890abcdef1234");
+        String rawToken = "valid-integration-token-hex-1234567890abcdef1234";
+        PasswordResetToken token = new PasswordResetToken(user, hashToken(rawToken));
         tokenRepository.save(token);
 
         ResetPasswordRequest resetRequest = new ResetPasswordRequest(
-                token.getToken(), "NewP@ss1");
+                rawToken, "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,13 +115,14 @@ class ForgotPasswordIT extends BaseIntegrationTest {
     void resetPassword_ExpiredToken_ReturnsBadRequest() throws Exception {
         User user = createVerifiedUser();
 
-        PasswordResetToken expiredToken = new PasswordResetToken(user, "expired-integration-token-hex-1234567890abcdef");
+        String rawToken = "expired-integration-token-hex-1234567890abcdef";
+        PasswordResetToken expiredToken = new PasswordResetToken(user, hashToken(rawToken));
         tokenRepository.save(expiredToken);
         expiredToken.setExpiryDate(LocalDateTime.now().minusMinutes(5));
         tokenRepository.save(expiredToken);
 
         ResetPasswordRequest request = new ResetPasswordRequest(
-                expiredToken.getToken(), "NewP@ss1");
+                rawToken, "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -129,12 +135,13 @@ class ForgotPasswordIT extends BaseIntegrationTest {
     void resetPassword_UsedToken_ReturnsBadRequest() throws Exception {
         User user = createVerifiedUser();
 
-        PasswordResetToken usedToken = new PasswordResetToken(user, "used-integration-token-hex-1234567890abcdef");
+        String rawToken = "used-integration-token-hex-1234567890abcdef";
+        PasswordResetToken usedToken = new PasswordResetToken(user, hashToken(rawToken));
         usedToken.setUsed(true);
         tokenRepository.save(usedToken);
 
         ResetPasswordRequest request = new ResetPasswordRequest(
-                usedToken.getToken(), "NewP@ss1");
+                rawToken, "NewP@ss1");
 
         mockMvc.perform(post("/api/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -163,5 +170,21 @@ class ForgotPasswordIT extends BaseIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(request)))
             .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Hashes a raw token string using SHA-256, matching the hashing used by
+     * {@link org.example.chat.service.ForgotPasswordService#hashToken}.
+     * Tests must store the hashed token in the database (as the real service does)
+     * so that {@code ForgotPasswordService.resetPassword()} can find it.
+     */
+    private String hashToken(String rawToken) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 not available", e);
+        }
     }
 }
