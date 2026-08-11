@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   // Next.js 16 uses allowedDevOrigins (not allowedDevHosts).
   // The wildcard entry covers any ngrok subdomain so you don't need to
   // update this every time ngrok generates a new URL.
+  productionBrowserSourceMaps: true,
   allowedDevOrigins: ["*.ngrok-free.app", "*.ngrok-free.dev", "*.ngrok.io"],
   images: {
     remotePatterns: [
@@ -24,16 +25,9 @@ export default withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: process.env.CI !== 'true',    // verbose in CI for debugging
+  silent: process.env.CI !== 'true',   // verbose in CI for debugging
   widenClientFileUpload: true,         // upload a bit more for better stack traces
-
-  // Hide source maps in production
-  sourcemaps: {
-    disable: true,
-  },
-
-  // Disable Sentry's own tunnel route if you don't need it
-  disableLogger: true,
+  disableLogger: true,                 // Disable Sentry's own tunnel route if you don't need it
 });
 
 
