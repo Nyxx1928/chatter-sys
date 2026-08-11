@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -18,4 +19,21 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Source map upload
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: process.env.CI !== 'true',    // verbose in CI for debugging
+  widenClientFileUpload: true,         // upload a bit more for better stack traces
+
+  // Hide source maps in production
+  sourcemaps: {
+    disable: true,
+  },
+
+  // Disable Sentry's own tunnel route if you don't need it
+  disableLogger: true,
+});
+
+
