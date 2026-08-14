@@ -32,7 +32,7 @@ export default function LoginScreen() {
     setError(null);
     try {
       await login({ username: username.trim(), password });
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/chats');
     } catch (err: unknown) {
       const apiErr = err as { status?: number; message?: string };
       if (apiErr.status === 401) {
