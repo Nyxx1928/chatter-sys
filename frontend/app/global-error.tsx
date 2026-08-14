@@ -19,7 +19,7 @@ export default function GlobalError({
             <body>
                 <div style={{ padding: 40, textAlign: 'center' }}>
                     <h1>Something went wrong</h1>
-                    <p>We've been notified. Please try again.</p>
+                    <p>We&apos;ve been notified. Please try again.</p>
                     <button onClick={reset}>Try again</button>
                 </div>
             </body>
