@@ -27,7 +27,10 @@ export default withSentryConfig(nextConfig, {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: process.env.CI !== 'true',   // verbose in CI for debugging
   widenClientFileUpload: true,         // upload a bit more for better stack traces
-  disableLogger: true,                 // Disable Sentry's own tunnel route if you don't need it
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 });
-
 
