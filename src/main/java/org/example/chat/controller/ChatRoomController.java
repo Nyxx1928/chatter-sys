@@ -137,7 +137,7 @@ public class ChatRoomController {
         }
 
         // Add the invitee as a MEMBER
-        chatRoomService.addMember(id, inviteeId, MemberRole.MEMBER);
+        chatRoomService.addMember(id, inviteeId, MemberRole.MEMBER, currentUser.getId());
 
         logger.info("User ID {} successfully invited to room ID {} by user: {}",
                 inviteeId, id, userDetails.getUsername());

@@ -152,7 +152,7 @@ class ChatMessageControllerTest {
         verify(chatRoomService).getRoomById(1L);
         verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
         // addMember is no longer called — joinRoom only broadcasts for existing members
-        verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any());
+        verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any(), anyLong());
 
         ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
@@ -178,7 +178,7 @@ class ChatMessageControllerTest {
             controller.joinRoom(1L, principal);
         });
 
-        verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any());
+        verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any(), anyLong());
         verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
     }
 
@@ -196,7 +196,7 @@ class ChatMessageControllerTest {
 
         // Assert
         verify(userRepository).findByUsername("testuser");
-        verify(chatRoomService, never()).removeMember(anyLong(), anyLong());
+        verify(chatRoomService, never()).removeMember(anyLong(), anyLong(), anyLong());
 
         ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
@@ -222,7 +222,7 @@ class ChatMessageControllerTest {
             controller.leaveRoom(1L, principal);
         });
 
-        verify(chatRoomService, never()).removeMember(anyLong(), anyLong());
+        verify(chatRoomService, never()).removeMember(anyLong(), anyLong(), anyLong());
         verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
     }
 
