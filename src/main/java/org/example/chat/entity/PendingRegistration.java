@@ -76,4 +76,8 @@ public class PendingRegistration {
     public void incrementAttempts() {
         this.attemptCount++;
     }
+
+    public int getRemainingAttempts() {
+        return Math.max(0, MAX_ATTEMPTS - attemptCount);
+    }
 }
