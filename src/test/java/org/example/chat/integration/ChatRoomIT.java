@@ -283,11 +283,11 @@ class ChatRoomIT extends BaseIntegrationTest {
         try {
             Future<?> first = executor.submit(() -> {
                 awaitLatch(startLatch);
-                chatRoomService.addMember(savedRoom.getId(), savedUser.getId(), null);
+                chatRoomService.addMember(savedRoom.getId(), savedUser.getId(), null, null);
             });
             Future<?> second = executor.submit(() -> {
                 awaitLatch(startLatch);
-                chatRoomService.addMember(savedRoom.getId(), savedUser.getId(), null);
+                chatRoomService.addMember(savedRoom.getId(), savedUser.getId(), null, null);
             });
 
             startLatch.countDown();
