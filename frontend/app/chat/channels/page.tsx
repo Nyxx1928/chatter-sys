@@ -115,7 +115,7 @@ export default function ChannelsPage() {
         getRoomMembers(token, room.id),
       ]);
       setSelectedRoom(details);
-      setMessages(history?.content ?? []);
+      setMessages([...(history?.content ?? [])].reverse());
       setMembers(roomMembers);
     } catch {
       // non-fatal — room header still shows

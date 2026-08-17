@@ -136,7 +136,7 @@ export default function ChatRoomsPage() {
       }
 
       setSelectedRoom(resolvedRoom);
-      setMessages(messageHistory?.content ?? []);
+      setMessages([...(messageHistory?.content ?? [])].reverse());
       setMembers(roomMembers);
     } catch (err) {
       console.error('Failed to load room data:', err);
