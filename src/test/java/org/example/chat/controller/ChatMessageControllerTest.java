@@ -16,10 +16,8 @@ import org.example.chat.util.SecurityAuditLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -45,9 +43,6 @@ class ChatMessageControllerTest {
     private RoomMembershipRepository roomMembershipRepository;
 
     @Mock
-    private SimpMessagingTemplate messagingTemplate;
-
-    @Mock
     private SecurityAuditLogger securityAuditLogger;
 
     @Mock
@@ -63,7 +58,7 @@ class ChatMessageControllerTest {
     void setUp() {
         controller = new ChatMessageController(
             chatMessageService, chatRoomService, userRepository,
-            roomMembershipRepository, messagingTemplate, securityAuditLogger
+            roomMembershipRepository, securityAuditLogger
         );
 
         testUser = new User();
@@ -132,7 +127,7 @@ class ChatMessageControllerTest {
     }
 
     @Test
-    void joinRoom_ValidUser_AddsToRoomAndBroadcasts() {
+    void joinRoom_ValidUser_PersistsAndBroadcastsViaService() {
         // Arrange
         RoomMembership membership = new RoomMembership();
         membership.setUser(testUser);
@@ -151,20 +146,12 @@ class ChatMessageControllerTest {
         verify(userRepository).findByUsername("testuser");
         verify(chatRoomService).getRoomById(1L);
         verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
-        // addMember is no longer called — joinRoom only broadcasts for existing members
+        // addMember is no longer called — joinRoom only announces presence for existing members
         verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any(), anyLong());
 
-        ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
-        verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
-
-        MessageResponse broadcastedMessage = messageCaptor.getValue();
-        assertEquals(MessageType.JOIN, broadcastedMessage.getMessageType());
-        assertEquals("Test User joined the room", broadcastedMessage.getContent());
-        assertEquals(testUser.getId(), broadcastedMessage.getSenderId());
-        assertEquals(testUser.getUsername(), broadcastedMessage.getSenderUsername());
-        assertEquals(testUser.getDisplayName(), broadcastedMessage.getSenderDisplayName());
-        assertEquals(testRoom.getId(), broadcastedMessage.getChatRoomId());
-        assertNotNull(broadcastedMessage.getTimestamp());
+        // JOIN system message is persisted and broadcast via the service
+        verify(chatMessageService).sendSystemMessage(eq(1L), eq(1L), eq(MessageType.JOIN),
+                eq("Test User joined the room"));
     }
 
     @Test
@@ -179,11 +166,11 @@ class ChatMessageControllerTest {
         });
 
         verify(chatRoomService, never()).addMember(anyLong(), anyLong(), any(), anyLong());
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendSystemMessage(anyLong(), anyLong(), any(), anyString());
     }
 
     @Test
-    void leaveRoom_ValidUser_BroadcastsAndPreservesMembership() {
+    void leaveRoom_ValidUser_PersistsViaServiceAndPreservesMembership() {
         // Arrange
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
@@ -198,17 +185,9 @@ class ChatMessageControllerTest {
         verify(userRepository).findByUsername("testuser");
         verify(chatRoomService, never()).removeMember(anyLong(), anyLong(), anyLong());
 
-        ArgumentCaptor<MessageResponse> messageCaptor = ArgumentCaptor.forClass(MessageResponse.class);
-        verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), messageCaptor.capture());
-
-        MessageResponse broadcastedMessage = messageCaptor.getValue();
-        assertEquals(MessageType.LEAVE, broadcastedMessage.getMessageType());
-        assertEquals("Test User left the room", broadcastedMessage.getContent());
-        assertEquals(testUser.getId(), broadcastedMessage.getSenderId());
-        assertEquals(testUser.getUsername(), broadcastedMessage.getSenderUsername());
-        assertEquals(testUser.getDisplayName(), broadcastedMessage.getSenderDisplayName());
-        assertEquals(testRoom.getId(), broadcastedMessage.getChatRoomId());
-        assertNotNull(broadcastedMessage.getTimestamp());
+        // LEAVE system message is persisted and broadcast via the service
+        verify(chatMessageService).sendSystemMessage(eq(1L), eq(1L), eq(MessageType.LEAVE),
+                eq("Test User left the room"));
     }
 
     @Test
@@ -223,7 +202,7 @@ class ChatMessageControllerTest {
         });
 
         verify(chatRoomService, never()).removeMember(anyLong(), anyLong(), anyLong());
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendSystemMessage(anyLong(), anyLong(), any(), anyString());
     }
 
     @Test
@@ -271,7 +250,7 @@ class ChatMessageControllerTest {
             controller.joinRoom(1L, principal);
         });
 
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendSystemMessage(anyLong(), anyLong(), any(), anyString());
     }
 
     @Test
@@ -287,7 +266,7 @@ class ChatMessageControllerTest {
             controller.joinRoom(1L, principal);
         });
 
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendSystemMessage(anyLong(), anyLong(), any(), anyString());
     }
 
     @Test
@@ -302,6 +281,22 @@ class ChatMessageControllerTest {
             controller.leaveRoom(1L, principal);
         });
 
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendSystemMessage(anyLong(), anyLong(), any(), anyString());
+    }
+
+    @Test
+    void handleValidationException_ReturnsBadRequestErrorResponse() {
+        // Arrange
+        IllegalArgumentException testException = new IllegalArgumentException("Message content cannot be empty");
+        when(principal.getName()).thenReturn("testuser");
+
+        // Act
+        ErrorResponse response = controller.handleValidationException(testException, principal);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("Message content cannot be empty", response.getMessage());
+        assertEquals(400, response.getStatus());
+        assertNotNull(response.getTimestamp());
     }
 }
