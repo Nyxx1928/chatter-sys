@@ -3,6 +3,7 @@ package org.example.chat.service;
 import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
+import org.example.chat.entity.MessageType;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.UnauthorizedException;
@@ -127,6 +128,7 @@ class ChatMessageServiceTest {
         assertEquals(testMessage.getId(), result.getId());
         verify(messageRepository).save(any(Message.class));
         verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), any(MessageResponse.class));
+        verify(messagingTemplate).convertAndSend(eq("/topic/rooms"), any(MessageResponse.class));
     }
 
     @Test
@@ -228,9 +230,8 @@ class ChatMessageServiceTest {
         chatMessageService.sendMessage(1L, 1L, content);
 
         // Assert
-        ArgumentCaptor<String> destinationCaptor = ArgumentCaptor.forClass(String.class);
-        verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), any(MessageResponse.class));
-        assertEquals("/topic/room/1", destinationCaptor.getValue());
+        verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), any(MessageResponse.class));
+        verify(messagingTemplate).convertAndSend(eq("/topic/rooms"), any(MessageResponse.class));
     }
 
     @Test
@@ -239,7 +240,7 @@ class ChatMessageServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Message> expectedPage = new PageImpl<>(List.of(testMessage), pageable, 1);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
-        when(messageRepository.findByChatRoomOrderByTimestampAsc(testRoom, pageable))
+        when(messageRepository.findByChatRoomOrderByTimestampDesc(testRoom, pageable))
                 .thenReturn(expectedPage);
 
         // Act
@@ -249,7 +250,7 @@ class ChatMessageServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals(testMessage.getId(), result.getContent().get(0).getId());
-        verify(messageRepository).findByChatRoomOrderByTimestampAsc(testRoom, pageable);
+        verify(messageRepository).findByChatRoomOrderByTimestampDesc(testRoom, pageable);
     }
 
     @Test
@@ -264,7 +265,7 @@ class ChatMessageServiceTest {
         });
 
         assertEquals("Chat room not found", exception.getMessage());
-        verify(messageRepository, never()).findByChatRoomOrderByTimestampAsc(any(), any());
+        verify(messageRepository, never()).findByChatRoomOrderByTimestampDesc(any(), any());
     }
 
     @Test
@@ -273,7 +274,7 @@ class ChatMessageServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Message> emptyPage = new PageImpl<>(List.of(), pageable, 0);
         when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
-        when(messageRepository.findByChatRoomOrderByTimestampAsc(testRoom, pageable))
+        when(messageRepository.findByChatRoomOrderByTimestampDesc(testRoom, pageable))
                 .thenReturn(emptyPage);
 
         // Act
@@ -311,4 +312,60 @@ class ChatMessageServiceTest {
         assertEquals(testRoom, savedMessage.getChatRoom());
         assertEquals(content, savedMessage.getContent());
     }
+
+    @Test
+    void sendSystemMessage_ValidMember_PersistsWithTypeAndBroadcasts() {
+        // Arrange
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.of(testMembership));
+        when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> {
+            Message msg = invocation.getArgument(0);
+            msg.setId(1L);
+            return msg;
+        });
+
+        // Act
+        Message result = chatMessageService.sendSystemMessage(1L, 1L, MessageType.JOIN,
+                "Test User joined the room");
+
+        // Assert
+        assertNotNull(result);
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository).save(messageCaptor.capture());
+        assertEquals(MessageType.JOIN, messageCaptor.getValue().getMessageType());
+        verify(messagingTemplate).convertAndSend(eq("/topic/room/1"), any(MessageResponse.class));
+        // System messages must not update global previews
+        verify(messagingTemplate, never()).convertAndSend(eq("/topic/rooms"), any(MessageResponse.class));
+    }
+
+    @Test
+    void sendSystemMessage_UserNotMember_Throws() {
+        // Arrange
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(chatRoomRepository.findById(1L)).thenReturn(Optional.of(testRoom));
+        when(roomMembershipRepository.findByUserAndChatRoom(testUser, testRoom))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UnauthorizedException.class, () -> {
+            chatMessageService.sendSystemMessage(1L, 1L, MessageType.LEAVE, "Test User left the room");
+        });
+
+        verify(messageRepository, never()).save(any(Message.class));
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+    }
+
+    @Test
+    void sendSystemMessage_NullType_Throws() {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            chatMessageService.sendSystemMessage(1L, 1L, null, "Some content");
+        });
+
+        verify(messageRepository, never()).save(any(Message.class));
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+    }
 }
+
