@@ -12,10 +12,8 @@ import org.example.chat.repository.UserRepository;
 import org.example.chat.service.ChatMessageService;
 import org.example.chat.service.ChatRoomService;
 import org.example.chat.util.SecurityAuditLogger;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.security.Principal;
-import java.time.LocalDateTime;
+import java.security.Principal;import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -117,13 +115,12 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
         ChatMessageController controller = new ChatMessageController(
             chatMessageService, chatRoomService, userRepository, 
-            roomMembershipRepository, messagingTemplate, securityAuditLogger);
+            roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);
@@ -149,8 +146,9 @@ class WebSocketAuthorizationBypassPropertyTest {
             controller.sendMessage(inputMessage, roomId, principal);
         });
 
-        // Verify that message was NOT broadcast
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        // Verify that message was NOT broadcast: the controller has no direct
+        // broadcasting capability, so the service must never be invoked
+        verify(chatMessageService, never()).sendMessage(anyLong(), anyLong(), anyString());
     }
 
     /**
@@ -172,11 +170,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);
@@ -205,7 +202,7 @@ class WebSocketAuthorizationBypassPropertyTest {
         verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
         
         // Verify message was NOT broadcast
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendMessage(anyLong(), anyLong(), anyString());
     }
 
     /**
@@ -230,11 +227,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);
@@ -260,7 +256,7 @@ class WebSocketAuthorizationBypassPropertyTest {
         });
 
         // Verify message was NOT broadcast
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendMessage(anyLong(), anyLong(), anyString());
     }
 
     /**
@@ -282,11 +278,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom roomB = createTestRoom(testUser);
@@ -314,7 +309,7 @@ class WebSocketAuthorizationBypassPropertyTest {
         });
 
         // Verify message was NOT broadcast
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendMessage(anyLong(), anyLong(), anyString());
     }
 
     /**
@@ -337,11 +332,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);
@@ -370,7 +364,7 @@ class WebSocketAuthorizationBypassPropertyTest {
         verify(roomMembershipRepository).findByUserAndChatRoom(testUser, testRoom);
         
         // Assert: Verify message was NOT broadcast (authorization check prevented it)
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendMessage(anyLong(), anyLong(), anyString());
     }
 
     /**
@@ -391,11 +385,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);
@@ -424,7 +417,7 @@ class WebSocketAuthorizationBypassPropertyTest {
         }
 
         // Verify all attempts were rejected
-        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+        verify(chatMessageService, never()).sendMessage(anyLong(), anyLong(), anyString());
     }
 
     /**
@@ -446,11 +439,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);
@@ -499,11 +491,10 @@ class WebSocketAuthorizationBypassPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         Principal principal = mock(Principal.class);
         
-        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, messagingTemplate, securityAuditLogger);
+        ChatMessageController controller = new ChatMessageController(chatMessageService, chatRoomService, userRepository, roomMembershipRepository, securityAuditLogger);
         
         User testUser = createTestUser();
         ChatRoom testRoom = createTestRoom(testUser);

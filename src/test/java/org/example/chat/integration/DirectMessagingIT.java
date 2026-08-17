@@ -264,13 +264,13 @@ class DirectMessagingIT extends BaseIntegrationTest {
     // Feature: direct-messaging, Property 6: DM message history ordering
 
     /**
-     * Messages sent to a DM room must be returned in ascending timestamp order
-     * and the default page size must be 50.
+     * Messages sent to a DM room must be returned in descending timestamp order
+     * (newest first) and the default page size must be 50.
      *
      * Validates: Requirements 3.3, 5.3
      */
     @Test
-    void dmMessageHistoryOrdering_AscendingTimestampAndDefaultPageSize() throws Exception {
+    void dmMessageHistoryOrdering_DescendingTimestampAndDefaultPageSize() throws Exception {
         long dmRoomId = createFriendshipAndGetDmRoomId();
 
         // Send 5 messages from alice to the DM room via the service layer
@@ -296,13 +296,13 @@ class DirectMessagingIT extends BaseIntegrationTest {
         assertTrue(content.isArray(), "'content' must be an array");
         assertEquals(5, content.size(), "Must return exactly 5 messages");
 
-        // Messages must be in ascending timestamp order
+        // Messages must be in descending timestamp order (newest first)
         String prevTimestamp = null;
         for (var msgNode : content) {
             String ts = msgNode.get("timestamp").asText();
             if (prevTimestamp != null) {
-                assertTrue(ts.compareTo(prevTimestamp) >= 0,
-                        "Messages must be in ascending timestamp order: " + prevTimestamp + " <= " + ts);
+                assertTrue(ts.compareTo(prevTimestamp) <= 0,
+                        "Messages must be in descending timestamp order: " + prevTimestamp + " >= " + ts);
             }
             prevTimestamp = ts;
         }

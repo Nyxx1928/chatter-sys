@@ -18,7 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -114,11 +113,10 @@ class RaceConditionPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         ChatMessageController controller = new ChatMessageController(
                 chatMessageService, chatRoomService, userRepository,
-                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+                roomMembershipRepository, securityAuditLogger);
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
@@ -177,11 +175,10 @@ class RaceConditionPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         ChatMessageController controller = new ChatMessageController(
                 chatMessageService, chatRoomService, userRepository,
-                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+                roomMembershipRepository, securityAuditLogger);
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
@@ -227,11 +224,10 @@ class RaceConditionPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         ChatMessageController controller = new ChatMessageController(
                 chatMessageService, chatRoomService, userRepository,
-                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+                roomMembershipRepository, securityAuditLogger);
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");
@@ -291,11 +287,10 @@ class RaceConditionPropertyTest {
         ChatRoomService chatRoomService = mock(ChatRoomService.class);
         UserRepository userRepository = mock(UserRepository.class);
         RoomMembershipRepository roomMembershipRepository = mock(RoomMembershipRepository.class);
-        SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
         SecurityAuditLogger securityAuditLogger = mock(SecurityAuditLogger.class);
         ChatMessageController controller = new ChatMessageController(
                 chatMessageService, chatRoomService, userRepository,
-                roomMembershipRepository, messagingTemplate, securityAuditLogger);
+                roomMembershipRepository, securityAuditLogger);
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("testuser");

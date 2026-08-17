@@ -1,6 +1,5 @@
 package org.example.chat.controller;
 
-import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
 import org.example.chat.entity.MessageType;
@@ -18,7 +17,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
@@ -44,20 +42,17 @@ public class ChatMessageController {
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
     private final RoomMembershipRepository roomMembershipRepository;
-    private final SimpMessagingTemplate messagingTemplate;
     private final SecurityAuditLogger securityAuditLogger;
 
     public ChatMessageController(ChatMessageService chatMessageService,
             ChatRoomService chatRoomService,
             UserRepository userRepository,
             RoomMembershipRepository roomMembershipRepository,
-            SimpMessagingTemplate messagingTemplate,
             SecurityAuditLogger securityAuditLogger) {
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
         this.userRepository = userRepository;
         this.roomMembershipRepository = roomMembershipRepository;
-        this.messagingTemplate = messagingTemplate;
         this.securityAuditLogger = securityAuditLogger;
     }
 
@@ -102,8 +97,8 @@ public class ChatMessageController {
     /**
      * Handles room join requests from clients.
      * 
-     * Adds the user to the room membership and broadcasts a JOIN system message
-     * to all room subscribers.
+     * Persists and broadcasts a JOIN system message so it also shows up in the
+     * room's message history.
      * 
      * @param roomId    the ID of the chat room to join
      * @param principal the authenticated user principal
@@ -126,17 +121,8 @@ public class ChatMessageController {
                 .orElseThrow(() -> new UnauthorizedException(
                         "You are not a member of this room"));
 
-        // Create and broadcast JOIN system message
-        Message joinMessage = new Message();
-        joinMessage.setSender(user);
-        joinMessage.setChatRoom(chatRoom);
-        joinMessage.setContent(user.getDisplayName() + " joined the room");
-        joinMessage.setTimestamp(LocalDateTime.now());
-        joinMessage.setMessageType(MessageType.JOIN);
-
-        // Broadcast to room topic
-        String destination = "/topic/room/" + roomId;
-        messagingTemplate.convertAndSend(destination, MessageResponse.from(joinMessage));
+        chatMessageService.sendSystemMessage(user.getId(), roomId, MessageType.JOIN,
+                userDisplayName(user) + " joined the room");
 
         logger.info("User: {} successfully joined room: {}", user.getUsername(), roomId);
     }
@@ -144,7 +130,8 @@ public class ChatMessageController {
     /**
      * Handles room leave requests from clients.
      * 
-     * Broadcasts a LEAVE system message to all remaining room subscribers.
+     * Persists and broadcasts a LEAVE system message so it also shows up in the
+     * room's message history.
      * Note: membership is intentionally preserved so users can re-enter the room
      * without needing to re-join. Navigation away from a room should not
      * permanently remove membership.
@@ -168,19 +155,42 @@ public class ChatMessageController {
         roomMembershipRepository.findByUserAndChatRoom(user, chatRoom)
                 .orElseThrow(() -> new UnauthorizedException("You are not a member of this room"));
 
-        // Create and broadcast LEAVE system message (membership is preserved)
-        Message leaveMessage = new Message();
-        leaveMessage.setSender(user);
-        leaveMessage.setChatRoom(chatRoom);
-        leaveMessage.setContent(user.getDisplayName() + " left the room");
-        leaveMessage.setTimestamp(LocalDateTime.now());
-        leaveMessage.setMessageType(MessageType.LEAVE);
-
-        // Broadcast to room topic
-        String destination = "/topic/room/" + roomId;
-        messagingTemplate.convertAndSend(destination, MessageResponse.from(leaveMessage));
+        chatMessageService.sendSystemMessage(user.getId(), roomId, MessageType.LEAVE,
+                userDisplayName(user) + " left the room");
 
         logger.info("User: {} left room: {} (membership preserved)", user.getUsername(), roomId);
+    }
+
+    /**
+     * Returns the user's display name, falling back to the username when no
+     * display name has been set.
+     */
+    private String userDisplayName(User user) {
+        return user.getDisplayName() != null && !user.getDisplayName().isBlank()
+                ? user.getDisplayName()
+                : user.getUsername();
+    }
+
+    /**
+     * Exception handler specifically for validation failures.
+     * 
+     * Catches IllegalArgumentException (e.g. empty or oversized messages) and
+     * sends a 400 error response to the user's error queue.
+     * 
+     * @param exception the IllegalArgumentException that occurred
+     * @param principal the authenticated user principal
+     * @return error response sent to user's error queue
+     */
+    @MessageExceptionHandler(IllegalArgumentException.class)
+    @SendToUser("/queue/errors")
+    public ErrorResponse handleValidationException(IllegalArgumentException exception, Principal principal) {
+        logger.warn("Validation error for user: {}: {}",
+                principal != null ? principal.getName() : "unknown", exception.getMessage());
+
+        return new ErrorResponse(
+                exception.getMessage(),
+                LocalDateTime.now(),
+                400);
     }
 
     /**

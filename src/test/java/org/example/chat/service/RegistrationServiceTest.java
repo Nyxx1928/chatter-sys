@@ -77,6 +77,7 @@ class RegistrationServiceTest {
     void initiateRegistration_ExistingPendingEmail_DeletesOldAndCreatesNew() {
         PendingRegistration existing = new PendingRegistration();
         existing.setEmail("test@example.com");
+        existing.setUsername("testuser");
 
         when(userRepository.existsByUsername("testuser")).thenReturn(false);
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
@@ -93,6 +94,22 @@ class RegistrationServiceTest {
     }
 
     @Test
+    void initiateRegistration_EmailPendingForDifferentUsername_Throws() {
+        PendingRegistration existing = new PendingRegistration();
+        existing.setEmail("test@example.com");
+        existing.setUsername("otheruser");
+
+        when(userRepository.existsByUsername("testuser")).thenReturn(false);
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(pendingRegistrationRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existing));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> registrationService.initiateRegistration("testuser", "test@example.com", "TestP@ss1", "Test User"));
+        assertEquals("Email already exists", exception.getMessage());
+        verify(pendingRegistrationRepository, never()).save(any(PendingRegistration.class));
+    }
+
+    @Test
     void initiateRegistration_DuplicateUsername_Throws() {
         when(userRepository.existsByUsername("testuser")).thenReturn(true);
 
@@ -103,7 +120,6 @@ class RegistrationServiceTest {
     @Test
     void initiateRegistration_EmailAlreadyInUsers_Throws() {
         when(userRepository.existsByUsername("testuser")).thenReturn(false);
-        when(pendingRegistrationRepository.existsByUsername("testuser")).thenReturn(false);
         when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class,
@@ -139,7 +155,7 @@ class RegistrationServiceTest {
         PendingRegistration pending = createPendingRegistration("testuser", "test@example.com", otpHash,
                 LocalDateTime.now().plusMinutes(10), 0);
 
-        when(pendingRegistrationRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+        when(pendingRegistrationRepository.findByEmailForUpdate("test@example.com")).thenReturn(Optional.of(pending));
         when(userRepository.existsByUsername("testuser")).thenReturn(false);
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -160,7 +176,7 @@ class RegistrationServiceTest {
         PendingRegistration pending = createPendingRegistration("testuser", "test@example.com", otpHash,
                 LocalDateTime.now().plusMinutes(10), 0);
 
-        when(pendingRegistrationRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+        when(pendingRegistrationRepository.findByEmailForUpdate("test@example.com")).thenReturn(Optional.of(pending));
         when(pendingRegistrationRepository.save(any(PendingRegistration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -179,7 +195,7 @@ class RegistrationServiceTest {
         PendingRegistration pending = createPendingRegistration("testuser", "test@example.com", otpHash,
                 LocalDateTime.now().plusMinutes(10), 3);
 
-        when(pendingRegistrationRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+        when(pendingRegistrationRepository.findByEmailForUpdate("test@example.com")).thenReturn(Optional.of(pending));
 
         RegistrationService.OtpVerificationResult result =
                 registrationService.verifyOtp("test@example.com", "654321");
@@ -195,7 +211,7 @@ class RegistrationServiceTest {
         PendingRegistration pending = createPendingRegistration("testuser", "test@example.com", otpHash,
                 LocalDateTime.now().plusMinutes(10), 2);
 
-        when(pendingRegistrationRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+        when(pendingRegistrationRepository.findByEmailForUpdate("test@example.com")).thenReturn(Optional.of(pending));
         when(pendingRegistrationRepository.save(any(PendingRegistration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -212,7 +228,7 @@ class RegistrationServiceTest {
         PendingRegistration pending = createPendingRegistration("testuser", "test@example.com", "hash",
                 LocalDateTime.now().minusMinutes(1), 0);
 
-        when(pendingRegistrationRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+        when(pendingRegistrationRepository.findByEmailForUpdate("test@example.com")).thenReturn(Optional.of(pending));
 
         RegistrationService.OtpVerificationResult result =
                 registrationService.verifyOtp("test@example.com", "123456");
@@ -224,7 +240,7 @@ class RegistrationServiceTest {
 
     @Test
     void verifyOtp_NotFound_ReturnsFailure() {
-        when(pendingRegistrationRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+        when(pendingRegistrationRepository.findByEmailForUpdate("unknown@example.com")).thenReturn(Optional.empty());
 
         RegistrationService.OtpVerificationResult result =
                 registrationService.verifyOtp("unknown@example.com", "123456");

@@ -3,6 +3,7 @@ package org.example.chat.service;
 import org.example.chat.dto.MessageResponse;
 import org.example.chat.entity.ChatRoom;
 import org.example.chat.entity.Message;
+import org.example.chat.entity.MessageType;
 import org.example.chat.entity.RoomMembership;
 import org.example.chat.entity.User;
 import org.example.chat.exception.UnauthorizedException;
@@ -32,6 +33,9 @@ public class ChatMessageService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatMessageService.class);
     private static final int MAX_MESSAGE_LENGTH = 5000;
+
+    private static final String ROOM_TOPIC_PREFIX = "/topic/room/";
+    private static final String ROOMS_PREVIEW_TOPIC = "/topic/rooms";
 
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -130,6 +134,55 @@ public class ChatMessageService {
     }
 
     /**
+     * Persists and broadcasts a server-generated system message (e.g. JOIN or
+     * LEAVE events) so it also appears in the room's message history.
+     * System messages are not pushed as notifications and do not update the
+     * global room previews.
+     *
+     * @param senderId    the ID of the user the system event belongs to
+     * @param roomId      the ID of the chat room
+     * @param messageType the system message type
+     * @param content     the system-generated message content
+     * @return the persisted Message entity
+     * @throws IllegalArgumentException if the message type or content is invalid
+     * @throws UnauthorizedException if the sender is not a member of the room
+     */
+    @Transactional
+    public Message sendSystemMessage(Long senderId, Long roomId, MessageType messageType, String content) {
+        logger.info("Creating {} system message for user ID: {} in room ID: {}", messageType, senderId, roomId);
+
+        if (messageType == null) {
+            throw new IllegalArgumentException("Message type cannot be null");
+        }
+        validateMessageContent(content);
+
+        User sender = userRepository.findById(senderId)
+                .orElseThrow(() -> {
+                    logger.warn("System message failed: sender not found: {}", senderId);
+                    return new IllegalArgumentException("Sender not found");
+                });
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> {
+                    logger.warn("System message failed: chat room not found: {}", roomId);
+                    return new IllegalArgumentException("Chat room not found");
+                });
+
+        validateMembership(sender, chatRoom);
+
+        Message message = new Message();
+        message.setSender(sender);
+        message.setChatRoom(chatRoom);
+        message.setContent(htmlSanitizer.sanitize(content));
+        message.setMessageType(messageType);
+        message.setTimestamp(LocalDateTime.now());
+
+        Message savedMessage = messageRepository.save(message);
+        broadcastMessage(savedMessage);
+        return savedMessage;
+    }
+
+    /**
      * Retrieves paginated message history for a chat room.
      *
      * @param roomId   the ID of the chat room
@@ -147,8 +200,9 @@ public class ChatMessageService {
                     return new IllegalArgumentException("Chat room not found");
                 });
 
-        // Retrieve paginated messages
-        Page<Message> messages = messageRepository.findByChatRoomOrderByTimestampAsc(chatRoom, pageable);
+        // Retrieve paginated messages, newest first so page 0 always holds the
+        // most recent messages
+        Page<Message> messages = messageRepository.findByChatRoomOrderByTimestampDesc(chatRoom, pageable);
         logger.debug("Retrieved {} messages for room ID: {}", messages.getNumberOfElements(), roomId);
 
         return messages;
@@ -191,16 +245,22 @@ public class ChatMessageService {
 
     /**
      * Broadcasts a message to the STOMP topic for the chat room.
+     * TEXT messages are additionally fanned out to the global rooms topic so
+     * clients can update their latest-message previews.
      *
      * @param message the message to broadcast
      */
     private void broadcastMessage(Message message) {
-        String destination = "/topic/room/" + message.getChatRoom().getId();
+        String destination = ROOM_TOPIC_PREFIX + message.getChatRoom().getId();
 
         logger.debug("Broadcasting message ID: {} to topic: {}", message.getId(), destination);
 
         MessageResponse payload = MessageResponse.from(message);
         messagingTemplate.convertAndSend(destination, payload);
+
+        if (message.getMessageType() == null || message.getMessageType() == MessageType.TEXT) {
+            messagingTemplate.convertAndSend(ROOMS_PREVIEW_TOPIC, payload);
+        }
 
         logger.info("Message ID: {} successfully broadcast to topic: {}", message.getId(), destination);
     }
