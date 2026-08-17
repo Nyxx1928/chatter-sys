@@ -104,14 +104,14 @@ class MessageIT extends BaseIntegrationTest {
         message3.setTimestamp(LocalDateTime.now());
         messageRepository.save(message3);
 
-        // Get message history
+        // Get message history — newest first
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(3)))
-                .andExpect(jsonPath("$.content[0].content").value("First message"))
+                .andExpect(jsonPath("$.content[0].content").value("Third message"))
                 .andExpect(jsonPath("$.content[1].content").value("Second message"))
-                .andExpect(jsonPath("$.content[2].content").value("Third message"))
+                .andExpect(jsonPath("$.content[2].content").value("First message"))
                 .andExpect(jsonPath("$.content[*].senderUsername", everyItem(is("messageuser"))));
     }
 
@@ -216,15 +216,15 @@ class MessageIT extends BaseIntegrationTest {
         message2.setTimestamp(LocalDateTime.now());
         messageRepository.save(message2);
 
-        // Get message history
+        // Get message history — newest first
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].senderUsername").value("messageuser"))
-                .andExpect(jsonPath("$.content[0].content").value("Message from user 1"))
-                .andExpect(jsonPath("$.content[1].senderUsername").value("user2"))
-                .andExpect(jsonPath("$.content[1].content").value("Message from user 2"));
+                .andExpect(jsonPath("$.content[0].senderUsername").value("user2"))
+                .andExpect(jsonPath("$.content[0].content").value("Message from user 2"))
+                .andExpect(jsonPath("$.content[1].senderUsername").value("messageuser"))
+                .andExpect(jsonPath("$.content[1].content").value("Message from user 1"));
     }
 
     @Test
@@ -254,13 +254,13 @@ class MessageIT extends BaseIntegrationTest {
         leaveMessage.setTimestamp(LocalDateTime.now());
         messageRepository.save(leaveMessage);
 
-        // Get message history
+        // Get message history — newest first
         mockMvc.perform(get("/api/rooms/" + testRoom.getId() + "/messages")
                 .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(3)))
-                .andExpect(jsonPath("$.content[0].messageType").value("TEXT"))
+                .andExpect(jsonPath("$.content[0].messageType").value("LEAVE"))
                 .andExpect(jsonPath("$.content[1].messageType").value("JOIN"))
-                .andExpect(jsonPath("$.content[2].messageType").value("LEAVE"));
+                .andExpect(jsonPath("$.content[2].messageType").value("TEXT"));
     }
 }
