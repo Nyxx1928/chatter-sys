@@ -51,15 +51,6 @@ const MOCK_ROOMS = [
 const MOCK_MESSAGES = {
   content: [
     {
-      id: 1,
-      content: 'Hello world!',
-      senderId: 2,
-      senderUsername: 'other',
-      senderDisplayName: 'Other User',
-      chatRoomId: 1,
-      timestamp: '2026-01-01T10:00:00Z',
-    },
-    {
       id: 2,
       content: 'Hey there!',
       senderId: 1,
@@ -67,6 +58,15 @@ const MOCK_MESSAGES = {
       senderDisplayName: 'Test User',
       chatRoomId: 1,
       timestamp: '2026-01-01T10:01:00Z',
+    },
+    {
+      id: 1,
+      content: 'Hello world!',
+      senderId: 2,
+      senderUsername: 'other',
+      senderDisplayName: 'Other User',
+      chatRoomId: 1,
+      timestamp: '2026-01-01T10:00:00Z',
     },
   ],
   totalElements: 2,
